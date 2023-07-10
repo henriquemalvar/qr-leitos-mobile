@@ -15,11 +15,11 @@ const ModalPicker = (props) => {
         props.setOption(option)
     }
 
-    const option = OPTIONS.map((item, index) => {
+    const option = OPTIONS.map((item) => {
         return (
             <TouchableOpacity
                 style={styles.option}
-                key={index}
+                key={item}
                 onPress={() => onPressItem(item)}>
 
                 <Text style={styles.text}>

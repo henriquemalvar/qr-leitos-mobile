@@ -2,8 +2,6 @@ import * as React from 'react';
 import { NavigationContainer } from "@react-navigation/native"
 import { Component } from 'react';
 import { createStackNavigator } from "@react-navigation/stack"
-import { AsyncStorage } from 'react-native';
-import { RNSScreen } from 'react-native-screens';
 
 import Login from "./src/pages/login/Login"
 import Homepage from './src/pages/home/Homepage';
