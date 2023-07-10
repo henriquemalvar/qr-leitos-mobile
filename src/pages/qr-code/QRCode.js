@@ -18,7 +18,7 @@ export default function QRCode({ navigation }) {
             const leitoData = leitoDoc.data();
             setLeito(leitoData);
         }catch(error){
-            console.log(error);
+            return false;
         }
     }
 
@@ -30,9 +30,13 @@ export default function QRCode({ navigation }) {
     }, []);
 
     const handleBarCodeScanned = ({ data }) => {
-        searchLeito(data).then(() => {
-            setScanned(true);
-            setCodigo(data);
+        searchLeito(data).then((result) => {
+            if(result == false){
+                setCodigo('Leito não cadastrado');
+            }else{
+                setScanned(true);
+                setCodigo(data);
+            }
         });
     };
 

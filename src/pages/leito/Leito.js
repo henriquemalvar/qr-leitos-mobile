@@ -44,7 +44,7 @@ export default function Leito({ route, navigation }) {
 
     const updateLeito = () => {
         changeStatus().then(() => {
-          navigation.navigate('Menu')
+          navigation.navigate('Menu', idid)
         })
     }
 
