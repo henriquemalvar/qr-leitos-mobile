@@ -12,10 +12,14 @@ export default function QRCode({ navigation }) {
     const [leito, setLeito] = useState(null);
 
     async function searchLeito(code) {
-      const leitoRef = database.collection('Leito').doc(code);
-      const leitoDoc = await leitoRef.get();
-      const leitoData = leitoDoc.data();
-      setLeito(leitoData);
+        try{
+            const leitoRef = database.collection('Leito').doc(code);
+            const leitoDoc = await leitoRef.get();
+            const leitoData = leitoDoc.data();
+            setLeito(leitoData);
+        }catch(error){
+            console.log(error);
+        }
     }
 
     useEffect(() => {
@@ -26,9 +30,9 @@ export default function QRCode({ navigation }) {
     }, []);
 
     const handleBarCodeScanned = ({ data }) => {
-        setScanned(true);
         searchLeito(data).then(() => {
-          setCodigo(data);
+            setScanned(true);
+            setCodigo(data);
         });
     };
 

@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     },
 
     logout: {
-        position: 'fixed',
         alignItems: 'center',
         justifyContent: 'center',
         alignContent: 'center',
