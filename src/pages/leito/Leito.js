@@ -1,120 +1,145 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
 import { ModalPicker } from "../../components/ModalPicker";
+import SelectDropdown from "react-native-select-dropdown";
+import { stringify, parse } from "flatted";
+import moment from "moment";
+import db from "../../database/database";
+import styles from "../leito/style";
+import BedsService from "../../shared/services/BedsServices";
+import { getAuth } from "firebase/auth";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import database from '../../database/database'
-import styles from '../leito/style'
+const convertTimestamp = (timestamp) => {
+    return moment.unix(timestamp.seconds).millisecond(timestamp.nanoseconds / 1000000).format("DD/MM/YYYY HH:mm:ss")
+};
+
 
 export default function Leito({ route, navigation }) {
+  const { leito: bed } = route.params;
+  const [options, setOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [user, setUser] = useState(null);
 
-    const { idid, id, endereco, estado, ultimaMod } = route.params
-    const estadoShow = estado.path.substr(14, estado.path.length)[0].toUpperCase() + estado.path.substr(14, estado.path.length).substr(1);
+  useEffect(() => {
+    getAuth().onAuthStateChanged((user) => {
+      if (!user) {
+        navigation.navigate("Login");
+      }
+      db.collection("users_config")
+        .where("email", "==", user.email)
+        .onSnapshot((response) => {
+          response.docs.forEach((doc) => setUser(doc.data()));
+        });
+    });
+    
+    db.collection("options")
+      .where("name", "==", `bed_options_${user?.permission || "admin"}`)
+      .where("active", "==", true)
+      .onSnapshot((response) => {
+        response.docs.forEach((doc) => {
+          console.log(doc.data());
+          setOptions(doc.data().value);
+        });
+      });
+  }, []);
 
-    const [statusl, setStatusl] = useState(estadoShow)
+  const updateLeito = () => {
+    changeStatus()
+      .then(() => {
+        navigation.navigate("Menu", parse(bed).id);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  const changeStatus = async () => {
+    await BedsService.updateStatus(parse(bed).id, selectedOption);
+  };
+  return (
+    <View style={styles.containerStatus}>
+      <View style={styles.title}>
+        <Text style={styles.titleFont}>{parse(bed).name}</Text>
+      </View>
 
-    const [isModalVisble, setisModalVisible] = useState(false)
-    const changeModalVisibility = (bool) => {
-        setisModalVisible(bool)
-    }
+      <View style={styles.containerDesc}>
+        <View style={{ paddingBottom: 10 }}>
+          <Text style={styles.detailsFont}>Endereço </Text>
+          <Text style={styles.detailsEnd}>
+            {parse(bed).location.map((field) => {
+              return <Text key={field}>{field} </Text>;
+            })}
+          </Text>
+        </View>
+      </View>
 
-    const setOption = (option) => {
-        setStatusl(option.toLowerCase())
-    }
+      <View style={styles.containerDesc}>
+        <View style={{ paddingBottom: 10 }}>
+          <Text style={styles.detailsFont}>Ultima Modificação </Text>
+          <Text style={styles.detailsEnd}>
+            {
+                convertTimestamp(parse(bed).updated_at)
+            }
+          </Text>
+        </View>
+      </View>
 
-    function formataData(data) {
-        let dia = data.getDate().toString().padStart(2, '0'),
-            mes = (data.getMonth() + 1).toString().padStart(2, '0'),
-            ano = data.getFullYear(),
-            hora = data.getHours().toString().padStart(2, '0'),
-            minuto = data.getMinutes().toString().padStart(2, '0');
-        return dia + "/" + mes + "/" + ano + ' - ' + hora + ':' + minuto;
-    }
+      <View
+        style={[
+          {
+            backgroundColor: "#E7E6E1",
+            width: "97%",
+            borderRadius: 15,
+            paddingBottom: 15,
+          },
+        ]}
+      >
+        <View style={styles.containerDesc}>
+          <Text style={styles.detailsFont}>Estado do Leito </Text>
+        </View>
+        {options && (
+          <SelectDropdown
+            data={options.map((option) => option.label)}
+            onSelect={(selectedItem, index) => {
+              setSelectedOption(options[index].value);
+            }}
+            defaultButtonText={
+              options.find((option) => parse(bed).status === option.value)
+                ?.label
+            }
+            rowTextForSelection={(item, index) => {
+              return item;
+            }}
+            style={{
+              backgroundColor: "#E7E6E1",
+              width: "97%",
+              borderRadius: 15,
+            }}
+            buttonStyle={{
+              backgroundColor: "#fff",
+              width: "97%",
+              borderRadius: 15,
+              alignSelf: "center",
+            }}
+            dropdownStyle={{
+              backgroundColor: "#fff",
+              width: "94%",
+              borderRadius: 15,
+            }}
+          ></SelectDropdown>
+        )}
+      </View>
 
-    async function changeStatus() {
-        database.collection('Leito').doc(idid).update({
-            status: database.collection('estadoDoLeito').doc(statusl),
-            ultimaMod: new Date()
-        })
-        // database.collection('modificaStatus').add({
-        //     IdLeito: refLeito,
-        //     data_hora: new Date(),
-        //     modificacao: statusl
-        // })
-    }
-
-    const updateLeito = () => {
-        changeStatus().then(() => {
-          navigation.navigate('Menu', idid)
-        })
-    }
-
-    return (
-        <View style={styles.containerStatus}>
-
-            <View style={styles.title}>
-                <Text style={styles.titleFont}>
-                    {id}
-                </Text>
-            </View>
-
-            <View style={styles.containerDesc}>
-                <View style={{ paddingBottom: 10 }}>
-                    <Text style={styles.detailsFont}>Endereço </Text>
-                    <Text style={styles.detailsEnd}>{endereco.map((field) => {
-                      return(
-                        <Text key={field}>{field} </Text>
-                      );
-                    })}</Text>
-                </View>
-            </View>
-
-            <View style={styles.containerDesc}>
-                <View style={{ paddingBottom: 10 }}>
-                    <Text style={styles.detailsFont}>Ultima Modificação </Text>
-                    <Text style={styles.detailsEnd}>{formataData(new Date(ultimaMod))} </Text>
-                </View>
-            </View>
-
-            <View style={[{ backgroundColor: '#E7E6E1', width: '97%', borderRadius: 15, paddingBottom: 15 }]}>
-                <View style={styles.containerDesc} >
-                    <Text style={styles.detailsFont}>Estado do Leito </Text>
-                </View>
-
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        onPress={() => changeModalVisibility(true)}>
-                        <Text style={[styles.detailsEnd]}>{statusl}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        transparent={true}
-                        animationType='slide'
-                        visible={isModalVisble}
-                        nRequestClose={() => changeModalVisibility(false)}
-                    >
-                        <ModalPicker
-                            changeModalVisibility={changeModalVisibility}
-                            setOption={setOption}
-                        />
-
-                    </Modal>
-                </View>
-            </View>
-
-            <TouchableOpacity style={styles.buttonLabel}
-                onPress={() => {
-                    updateLeito();
-                  }
-                }
-            >
-                <View>
-                    <Text style={styles.buttonText}>
-                        Salvar
-                    </Text>
-                </View>
-            </TouchableOpacity>
-
-        </View >
-
-    );
-
+      <TouchableOpacity
+        style={styles.buttonLabel}
+        onPress={() => {
+          updateLeito();
+        }}
+      >
+        <View>
+          <Text style={styles.buttonText}>Salvar</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
 }
