@@ -30,11 +30,11 @@ export default function ListStatus({ navigation }) {
             case "occupied":
               occupiedArr.push(doc.data());
               break;
-            case "awaiting_cleaning":
+            case "awaiting_for_cleaning":
             case "cleaning_in_progress":
               cleaningArr.push(doc.data());
               break;
-            case "awaiting_bedding":
+            case "awaiting_for_bedding":
             case "bedding_in_progress":
               beddingArr.push(doc.data());
               break;
