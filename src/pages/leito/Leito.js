@@ -11,9 +11,11 @@ import { getAuth } from "firebase/auth";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const convertTimestamp = (timestamp) => {
-    return moment.unix(timestamp.seconds).millisecond(timestamp.nanoseconds / 1000000).format("DD/MM/YYYY HH:mm:ss")
+  return moment
+    .unix(timestamp.seconds)
+    .millisecond(timestamp.nanoseconds / 1000000)
+    .format("DD/MM/YYYY HH:mm:ss");
 };
-
 
 export default function Leito({ route, navigation }) {
   const { leito: bed } = route.params;
@@ -22,27 +24,26 @@ export default function Leito({ route, navigation }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    getAuth().onAuthStateChanged((user) => {
-      if (!user) {
-        navigation.navigate("Login");
-      }
-      db.collection("users_config")
-        .where("email", "==", user.email)
-        .onSnapshot((response) => {
-          response.docs.forEach((doc) => setUser(doc.data()));
-        });
-    });
-    
-    db.collection("options")
-      .where("name", "==", `bed_options_${user?.permission || "admin"}`)
-      .where("active", "==", true)
-      .onSnapshot((response) => {
-        response.docs.forEach((doc) => {
-          console.log(doc.data());
-          setOptions(doc.data().value);
-        });
-      });
-  }, []);
+  const fetchData = async () => {
+    const user = await getAuth().currentUser;
+    if (!user) {
+      navigation.navigate("Login");
+      return;
+    }
+
+    const userConfigSnapshot = await db.collection("users_config")
+      .where("email", "==", user.email)
+      .get();
+    const userConfig = userConfigSnapshot.docs[0].data();
+    setUser(userConfig);
+
+    const optionsSnapshot = await db.collection("options").doc(`bed_options_${userConfig.permission || "admin"}`).get();
+    const options = optionsSnapshot.data().value;
+    setOptions(options);
+  };
+
+  fetchData();
+}, []);
 
   const updateLeito = () => {
     changeStatus()
@@ -77,9 +78,7 @@ export default function Leito({ route, navigation }) {
         <View style={{ paddingBottom: 10 }}>
           <Text style={styles.detailsFont}>Ultima Modificação </Text>
           <Text style={styles.detailsEnd}>
-            {
-                convertTimestamp(parse(bed).updated_at)
-            }
+            {convertTimestamp(parse(bed).updated_at)}
           </Text>
         </View>
       </View>
