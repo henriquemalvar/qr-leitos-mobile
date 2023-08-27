@@ -1,24 +1,28 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
+import { Environment } from "./environment.class";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBHUp05s6jdh1xIML92IGhhEF44QsFiPFU",
-  authDomain: "qr-leitos-dev",
-  projectId: "qr-leitos-dev",
-  storageBucket: "bdleitosja.appspot.com",
-  messagingSenderId: "818105979304",
-  appId: "1:856419808971:web:8334f49864938daefe8d4e",
-};
+class Database {
+  constructor() {
+    const env = new Environment("qr-leitos-dev");
+    const config = env.getConfig("firebase");
+    const firebaseConfig = {
+      apiKey: config.apiKey,
+      authDomain: config.authDomain,
+      projectId: config.projectId,
+      storageBucket: config.storageBucket,
+      messagingSenderId: config.messagingSenderId,
+      appId: config.appId,
+    };
 
-let app;
-
-if (firebase.apps.length === 0) {
-  app = firebase.initializeApp(firebaseConfig);
-} else {
-  app = firebase.app();
+    if (firebase.apps.length === 0) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    this.db = firebase.firestore();
+  }
 }
 
-const db = app.firestore();
+const database = new Database();
 
-export default db;
+export default database.db;
