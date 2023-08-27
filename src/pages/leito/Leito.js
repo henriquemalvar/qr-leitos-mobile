@@ -21,18 +21,18 @@ export default function Leito({ route, navigation }) {
   const { leito: bed } = route.params;
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
-  const [user, setUser] = useState(null);
-  const [userConfig, setUserConfig] = useState(null);
+  // const [user, setUser] = useState(null);
+  // const [userConfig, setUserConfig] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      await AsyncStorage.getItem("user").then((user) => {
-        setUser(parse(user));
-      });
+      // await AsyncStorage.getItem("user").then((user) => {
+      //   setUser(parse(user));
+      // });
 
-      await AsyncStorage.getItem("userConfig").then((userConfig) => {
-        setUserConfig(parse(userConfig));
-      });
+      // await AsyncStorage.getItem("userConfig").then((userConfig) => {
+      //   setUserConfig(parse(userConfig));
+      // });
 
       await AsyncStorage.getItem("options").then((userOptions) => {
         setOptions(parse(userOptions).value);
