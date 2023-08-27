@@ -8,7 +8,7 @@ import db from "../../database/database";
 import styles from "../leito/style";
 import BedsService from "../../shared/services/BedsServices";
 import { getAuth } from "firebase/auth";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const convertTimestamp = (timestamp) => {
   return moment
@@ -22,28 +22,25 @@ export default function Leito({ route, navigation }) {
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [user, setUser] = useState(null);
+  const [userConfig, setUserConfig] = useState(null);
 
   useEffect(() => {
-  const fetchData = async () => {
-    const user = await getAuth().currentUser;
-    if (!user) {
-      navigation.navigate("Login");
-      return;
-    }
+    const fetchData = async () => {
+      await AsyncStorage.getItem("user").then((user) => {
+        setUser(parse(user));
+      });
 
-    const userConfigSnapshot = await db.collection("users_config")
-      .where("email", "==", user.email)
-      .get();
-    const userConfig = userConfigSnapshot.docs[0].data();
-    setUser(userConfig);
+      await AsyncStorage.getItem("userConfig").then((userConfig) => {
+        setUserConfig(parse(userConfig));
+      });
 
-    const optionsSnapshot = await db.collection("options").doc(`bed_options_${userConfig.permission || "admin"}`).get();
-    const options = optionsSnapshot.data().value;
-    setOptions(options);
-  };
+      await AsyncStorage.getItem("options").then((userOptions) => {
+        setOptions(parse(userOptions).value);
+      });
+    };
 
-  fetchData();
-}, []);
+    fetchData();
+  }, []);
 
   const updateLeito = () => {
     changeStatus()
@@ -51,7 +48,8 @@ export default function Leito({ route, navigation }) {
         navigation.navigate("Menu", parse(bed).id);
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
+        console.error("Erro ao atualizar leito", error.message);
       });
   };
   const changeStatus = async () => {
@@ -98,9 +96,9 @@ export default function Leito({ route, navigation }) {
         </View>
         {options && (
           <SelectDropdown
-            data={options.map((option) => option.label)}
+            data={options.map((option) => option?.label || "")}
             onSelect={(selectedItem, index) => {
-              setSelectedOption(options[index].value);
+              setSelectedOption(options[index]?.value || "");
             }}
             defaultButtonText={
               options.find((option) => parse(bed).status === option.value)
