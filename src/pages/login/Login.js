@@ -11,40 +11,98 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   getAuth,
   signInWithEmailAndPassword,
-//   onAuthStateChanged,
-//   createUserWithEmailAndPassword,
+  //   onAuthStateChanged,
+  //   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { stringify } from "flatted";
-
+import { stringify, parse } from "flatted";
+import db from "../../database/database";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
 
-  const loginFirebase = () => {
-    const auth = getAuth();
-    signInWithEmailAndPassword(auth, email, senha)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        AsyncStorage.setItem("user", stringify(user));
-        navigation.navigate("Menu", { idUser: user.uid });
-      })
-      .catch((error) => {
-        setErrorLogin(true);
-        const errorCode = error.errorCode;
-        const errorMessage = error.errorMessage;
-      });
+  const loginFirebase = async () => {
+    try {
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        senha
+      );
+      const user = userCredential.user;
+      await saveUserToAsyncStorage(user);
+      const userConfig = await saveUserConfigToAsyncStorage(email);
+      await saveOptionsToAsyncStorage(userConfig.permission);
+
+      navigation.navigate("Menu", { idUser: user.uid });
+    } catch (error) {
+      setErrorLogin(true);
+      // console.error("loginFirebase", error.message);
+      console.error(error.message);
+    }
   };
 
-  // useEffect(() => {
-  //   onAuthStateChanged(getAuth(), (user) => {
-  //     if (user) {
-  //       navigation.navigate("Menu", { idUser: user.uid });
-  //     }
-  //   });
-  // }, []);
+  const saveUserToAsyncStorage = async (user) => {
+    await AsyncStorage.setItem("user", stringify(user));
+  };
+
+  const saveUserConfigToAsyncStorage = async (email) => {
+    try {
+      const querySnapshot = await db
+        .collection("users_config")
+        .doc(email)
+        .get();
+
+      if (querySnapshot.empty) {
+        throw new Error("User config not found");
+      }
+
+      let userConfig = querySnapshot.data();
+      await AsyncStorage.setItem("userConfig", stringify(userConfig));
+      return userConfig;
+    } catch (error) {
+      // console.error("saveUserConfigToAsyncStorage", error.message);
+      return { error: error.message };
+    }
+  };
+
+  const saveOptionsToAsyncStorage = async (permission = "default") => {
+    try {
+      const optionsDoc = await db
+        .collection("options")
+        .doc(`bed_options_${permission}`)
+        .get();
+
+      const options = optionsDoc.data();
+      await AsyncStorage.setItem("options", stringify(options));
+    } catch (error) {
+      // console.error("saveOptionsToAsyncStorage", error.message);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    const getUser = async () => {
+      await AsyncStorage.getItem("user").then(async (user) => {
+        if (user) {
+          const parsedConfig = await AsyncStorage.getItem("userConfig");
+          const parsedOptions = await AsyncStorage.getItem("options");
+          const parsedUser = parse(user);
+
+          const expirationTime = parsedUser.stsTokenManager.expirationTime;
+          const currentTime = new Date().getTime();
+
+          if (expirationTime > currentTime && parsedConfig && parsedOptions) {
+            navigation.navigate("Menu", { idUser: parsedUser.uid });
+          }
+        }
+      });
+    };
+
+    getUser();
+  }, []);
 
   return (
     <KeyboardAvoidingView
