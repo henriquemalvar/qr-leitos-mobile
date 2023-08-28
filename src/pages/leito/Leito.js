@@ -21,18 +21,18 @@ export default function Leito({ route, navigation }) {
   const { leito: bed } = route.params;
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
-  // const [user, setUser] = useState(null);
-  // const [userConfig, setUserConfig] = useState(null);
+  const [user, setUser] = useState(null);
+  const [userConfig, setUserConfig] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      // await AsyncStorage.getItem("user").then((user) => {
-      //   setUser(parse(user));
-      // });
+      await AsyncStorage.getItem("user").then((user) => {
+        setUser(parse(user));
+      });
 
-      // await AsyncStorage.getItem("userConfig").then((userConfig) => {
-      //   setUserConfig(parse(userConfig));
-      // });
+      await AsyncStorage.getItem("userConfig").then((userConfig) => {
+        setUserConfig(parse(userConfig));
+      });
 
       await AsyncStorage.getItem("options").then((userOptions) => {
         setOptions(parse(userOptions).value);
@@ -43,7 +43,7 @@ export default function Leito({ route, navigation }) {
   }, []);
 
   const updateLeito = () => {
-    changeStatus()
+    changeStatus(selectedOption)
       .then(() => {
         navigation.navigate("Menu", parse(bed).id);
       })
@@ -52,9 +52,27 @@ export default function Leito({ route, navigation }) {
         console.error("Erro ao atualizar leito", error.message);
       });
   };
-  const changeStatus = async () => {
-    await BedsService.updateStatus(parse(bed).id, selectedOption);
+
+  const changeStatus = async (status) => {
+    try {
+      const old_status = parse(bed).status;
+      await BedsService.updateStatus(parse(bed).id, status);
+      const log = {
+        bed_id: parse(bed).id,
+        old_status: old_status,
+        status: status,
+        created_at: new Date(),
+        userName: userConfig.name,
+        userUid: user.uid,
+        userEmail: user.email,
+      };
+      await BedsService.createLog(log);
+    } catch (error) {
+      console.error("Error occurred while updating bed status:", error);
+      // throw new Error("Failed to update bed status");
+    }
   };
+
   return (
     <View style={styles.containerStatus}>
       <View style={styles.title}>

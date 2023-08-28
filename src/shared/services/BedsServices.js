@@ -39,6 +39,11 @@ const BedsService = {
       updated_at: new Date(),
     });
   },
+
+  async createLog(log) {
+    const logRef = db.collection("logs");
+    await logRef.add(log);
+  }
 };
 
 export default BedsService;
