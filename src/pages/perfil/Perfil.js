@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import db from "../../database/database";
 
 import styles from "./styles";
+import { parse } from "flatted";
 
 export default function Perfil({ navigation, route }) {
   const userId = route.params.idUser;
@@ -14,13 +15,22 @@ export default function Perfil({ navigation, route }) {
 
   useEffect(() => {
     async function userData() {
-      const userRef = db.collection("users_config").doc(userId);
-      const userDoc = await userRef.get();
-      const user = userDoc.data();
-      setUser(user);
+      await AsyncStorage.getItem("userConfig").then((user) => {
+        setUser(parse(user));
+      });
     }
     userData();
   }, []);
+
+  const logout = async () => {
+    await signOut(getAuth()).then(() => {
+      AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('user');
+      AsyncStorage.removeItem('userConfig');
+      AsyncStorage.removeItem('options');
+      navigation.navigate("Login");
+    });
+  }
 
   return (
     <View style={styles.containerPerfil}>
@@ -44,10 +54,7 @@ export default function Perfil({ navigation, route }) {
         <TouchableOpacity
           style={styles.logout}
           onPress={async () => {
-            await signOut(getAuth()).then(() => {
-              // AsyncStorage.removeItem('token');
-              navigation.navigate("Login");
-            });
+            await logout();
           }}
         >
           <Text style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
