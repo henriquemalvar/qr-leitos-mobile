@@ -28,6 +28,7 @@ export default function ListStatus({ navigation }) {
               availableArr.push(doc.data());
               break;
             case "occupied":
+            case "discharge":
               occupiedArr.push(doc.data());
               break;
             case "awaiting_for_cleaning":
