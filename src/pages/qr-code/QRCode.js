@@ -72,6 +72,7 @@ export default function QRCode({ navigation }) {
             });
             setScanned(false);
             setCodigo("");
+            clearData();
           } }
         >
           <Text style={styles.textButton}>ACESSAR LEITO</Text>

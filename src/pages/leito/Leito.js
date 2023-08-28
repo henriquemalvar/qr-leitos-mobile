@@ -39,6 +39,7 @@ export default function Leito({ route, navigation }) {
       });
     };
 
+    setSelectedOption(parse(bed).status);
     fetchData();
   }, []);
 
