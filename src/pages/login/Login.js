@@ -17,6 +17,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { stringify, parse } from "flatted";
 import db from "../../database/database";
+import moment from "moment";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -31,8 +32,7 @@ export default function Login({ navigation }) {
         email,
         senha
       );
-      const user = userCredential.user;
-      await saveUserToAsyncStorage(user);
+      const user = await saveUserToAsyncStorage(userCredential.user);
       const userConfig = await saveUserConfigToAsyncStorage(email);
       await saveOptionsToAsyncStorage(userConfig.permission);
 
@@ -44,8 +44,10 @@ export default function Login({ navigation }) {
     }
   };
 
-  const saveUserToAsyncStorage = async (user) => {
-    await AsyncStorage.setItem("user", stringify(user));
+  const saveUserToAsyncStorage = async (_user) => {
+    _user.stsTokenManager.expirationTime = moment(_user.stsTokenManager.expirationTime).add(1, 'week');
+    await AsyncStorage.setItem("user", stringify(_user));
+    return _user;
   };
 
   const saveUserConfigToAsyncStorage = async (email) => {
@@ -91,12 +93,16 @@ export default function Login({ navigation }) {
           const parsedOptions = await AsyncStorage.getItem("options");
           const parsedUser = parse(user);
 
-          const expirationTime = parsedUser.stsTokenManager.expirationTime;
-          const currentTime = new Date().getTime();
+          // const expirationTime = parsedUser.stsTokenManager.expirationTime;
+          const expirationTime = moment(parsedUser.stsTokenManager.expirationTime).add(1, 'week');
+          const currentTime = moment();
 
-          if (expirationTime > currentTime && parsedConfig && parsedOptions) {
+          if (moment(expirationTime).isBefore(currentTime) && parsedConfig && parsedOptions) {
             navigation.navigate("Menu", { idUser: parsedUser.uid });
-          }
+          } 
+          // else {
+          //   navigation.navigate("Menu", { idUser: parsedUser.uid });
+          // }
         }
       });
     };
