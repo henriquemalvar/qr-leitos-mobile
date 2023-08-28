@@ -4,12 +4,14 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import styles from "./style";
 import db from "../../database/database";
 import { stringify } from "flatted";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function QRCode({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [leito, setLeito] = useState(null);
+  const isFocused = useIsFocused();
 
   async function searchLeito(code) {
     try {
@@ -22,15 +24,22 @@ export default function QRCode({ navigation }) {
     }
   }
 
-  useEffect(() => {    
+  useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === "granted");
     })();
   }, []);
 
-  const handleBarCodeScanned = async ({ data }) => {
-    await searchLeito(data).then((result) => {
+  useEffect(() => {
+    if (isFocused) {
+      setScanned(false);
+      setCodigo("");
+    }
+  }, [isFocused]);
+
+  const handleBarCodeScanned = ({ data }) => {
+    searchLeito(data).then((result) => {
       if (result == false) {
         setCodigo("Leito não cadastrado");
       } else {
@@ -40,9 +49,10 @@ export default function QRCode({ navigation }) {
     });
   };
 
-  const clearData = () => {
+  const clearData = async () => {
     setScanned(false);
     setCodigo("");
+    setLeito(null);
   };
 
   if (hasPermission === null) {
@@ -56,29 +66,33 @@ export default function QRCode({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={styles.scanner}
-      />
+      {isFocused ? (
+        <BarCodeScanner
+          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          style={styles.scanner}
+        />
+      ) : (
+        <></>
+      )}
       <View>
         <Text style={styles.text}>{codigo}</Text>
       </View>
       {scanned && (
-        <><TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            navigation.navigate("Leito", {
-              leito: stringify(leito),
-            });
-            setScanned(false);
-            setCodigo("");
-            clearData();
-          } }
-        >
-          <Text style={styles.textButton}>ACESSAR LEITO</Text>
-        </TouchableOpacity><TouchableOpacity onPress={clearData}>
-            <Text style={
-              {
+        <>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              clearData();
+              navigation.navigate("Leito", {
+                leito: stringify(leito),
+              });
+            }}
+          >
+            <Text style={styles.textButton}>ACESSAR LEITO</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={clearData}>
+            <Text
+              style={{
                 color: "#fff",
                 fontSize: 20,
                 fontWeight: "bold",
@@ -87,9 +101,12 @@ export default function QRCode({ navigation }) {
                 backgroundColor: "red",
                 padding: 10,
                 borderRadius: 10,
-              }
-            }>LIMPAR</Text>
-          </TouchableOpacity></>
+              }}
+            >
+              LIMPAR
+            </Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );
