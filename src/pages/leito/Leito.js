@@ -74,7 +74,10 @@ export default function Leito({ route, navigation }) {
       setOptions(userOptions);
 
       const parsedBed = parse(bed);
-      if (["medico", "enfermeira"].includes(userConfig.permission)) {
+      if (userConfig.permission === "admin") {
+        setDisableSave(false);
+        setDisableSelect(false);
+      } else if (["medico", "enfermeira"].includes(userConfig.permission)) {
         // available -> occupied
         if (parsedBed.status === "available") {
           setOptions(
@@ -253,9 +256,9 @@ export default function Leito({ route, navigation }) {
       </View>
 
       <TouchableOpacity
-        hidden={disableSave}
         style={styles.buttonLabel}
         onPress={() => {
+          if (parse(bed).status === selectedOption || !selectedOption) return;
           updateLeito();
         }}
       >
