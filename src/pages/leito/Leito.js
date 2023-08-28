@@ -17,29 +17,134 @@ const convertTimestamp = (timestamp) => {
     .format("DD/MM/YYYY HH:mm:ss");
 };
 
+const translateStatus = (status) => {
+  switch (status) {
+    case "available":
+      return "Livre";
+    case "occupied":
+      return "Em alta";
+    case "discharge":
+      return "Alta";
+    case "awaiting_for_cleaning":
+      return "Aguardando higienização";
+    case "cleaning_in_progress":
+      return "Em higienização";
+    case "awaiting_for_bedding":
+      return "Aguardando forragem";
+    case "bedding_in_progress":
+      return "Em forragem";
+    default:
+      return status;
+  }
+};
+
 export default function Leito({ route, navigation }) {
   const { leito: bed } = route.params;
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [user, setUser] = useState(null);
   const [userConfig, setUserConfig] = useState(null);
+  const [disableSave, setDisableSave] = useState(true);
+  const [disableSelect, setDisableSelect] = useState(true);
+
+  const allStatus = [
+    "available",
+    "occupied",
+    "discharge",
+    "awaiting_for_cleaning",
+    "cleaning_in_progress",
+    "awaiting_for_bedding",
+    "bedding_in_progress",
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
-      await AsyncStorage.getItem("user").then((user) => {
-        setUser(parse(user));
-      });
+      const [user, userConfig, userOptions] = await Promise.all([
+        AsyncStorage.getItem("user").then((user) => parse(user)),
+        AsyncStorage.getItem("userConfig").then((userConfig) =>
+          parse(userConfig)
+        ),
+        AsyncStorage.getItem("options").then(
+          (userOptions) => parse(userOptions).value
+        ),
+      ]);
 
-      await AsyncStorage.getItem("userConfig").then((userConfig) => {
-        setUserConfig(parse(userConfig));
-      });
+      setUser(user);
+      setUserConfig(userConfig);
+      setOptions(userOptions);
 
-      await AsyncStorage.getItem("options").then((userOptions) => {
-        setOptions(parse(userOptions).value);
-      });
+      const parsedBed = parse(bed);
+      if (["medico", "enfermeira"].includes(userConfig.permission)) {
+        // available -> occupied
+        if (parsedBed.status === "available") {
+          setOptions(
+            userOptions.filter((option) => option.value === "occupied")
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+        // occupied -> discharge
+        if (parsedBed.status === "occupied") {
+          setOptions(
+            userOptions.filter((option) => option.value === "discharge")
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+
+        // discharge -> awaiting_for_cleaning
+        if (parsedBed.status === "discharge") {
+          setOptions(
+            userOptions.filter(
+              (option) => option.value === "awaiting_for_cleaning"
+            )
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+      } else if (["limpeza"].includes(userConfig.permission)) {
+        // awaiting_for_cleaning -> cleaning_in_progress
+        if (parsedBed.status === "awaiting_for_cleaning") {
+          setOptions(
+            userOptions.filter(
+              (option) => option.value === "cleaning_in_progress"
+            )
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+        // cleaning_in_progress -> awaiting_for_bedding
+        if (parsedBed.status === "cleaning_in_progress") {
+          setOptions(
+            userOptions.filter(
+              (option) => option.value === "awaiting_for_bedding"
+            )
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+      } else if (["camareira"].includes(userConfig.permission)) {
+        // awaiting_for_bedding -> bedding_in_progress
+        if (parsedBed.status === "awaiting_for_bedding") {
+          setOptions(
+            userOptions.filter(
+              (option) => option.value === "bedding_in_progress"
+            )
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+
+        // bedding_in_progress -> available
+        if (parsedBed.status === "bedding_in_progress") {
+          setOptions(
+            userOptions.filter((option) => option.value === "available")
+          );
+          setDisableSelect(false);
+          setDisableSave(false);
+        }
+      }
     };
-
-    setSelectedOption(parse(bed).status);
     fetchData();
   }, []);
 
@@ -49,7 +154,6 @@ export default function Leito({ route, navigation }) {
         navigation.navigate("Menu", parse(bed).id);
       })
       .catch((error) => {
-        // console.log(error);
         console.error("Erro ao atualizar leito", error.message);
       });
   };
@@ -115,13 +219,15 @@ export default function Leito({ route, navigation }) {
         </View>
         {options && (
           <SelectDropdown
+            disabled={disableSelect}
             data={options.map((option) => option?.label || "")}
             onSelect={(selectedItem, index) => {
               setSelectedOption(options[index]?.value || "");
+              if (!selectedOption) setDisableSave(true);
+              else setDisableSave(false);
             }}
             defaultButtonText={
-              options.find((option) => parse(bed).status === option.value)
-                ?.label
+              translateStatus(parse(bed).status) || "Selecione uma opção"
             }
             rowTextForSelection={(item, index) => {
               return item;
@@ -147,6 +253,7 @@ export default function Leito({ route, navigation }) {
       </View>
 
       <TouchableOpacity
+        hidden={disableSave}
         style={styles.buttonLabel}
         onPress={() => {
           updateLeito();
