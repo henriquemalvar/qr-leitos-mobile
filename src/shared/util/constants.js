@@ -115,12 +115,12 @@ export const statusToLabel = {
 
 export const statusToColor = {
     available: "green",
-    occupied: "blue",
+    occupied: "red",
     discharge: "red",
-    awaiting_for_cleaning: "orange",
-    cleaning_in_progress: "orange",
-    awaiting_for_bedding: "orange",
-    bedding_in_progress: "orange",
+    awaiting_for_cleaning: "blue",
+    cleaning_in_progress: "blue",
+    awaiting_for_bedding: "yellow",
+    bedding_in_progress: "yellow",
     blocked: 'gray',
     maintenance: 'gray',
     ata_final: 'gray'
