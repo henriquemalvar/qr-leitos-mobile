@@ -24,10 +24,7 @@ export default function Perfil({ navigation, route }) {
 
   const logout = async () => {
     await signOut(getAuth()).then(() => {
-      AsyncStorage.removeItem('token');
-      AsyncStorage.removeItem('user');
-      AsyncStorage.removeItem('userConfig');
-      AsyncStorage.removeItem('options');
+      AsyncStorage.multiRemove(['token', 'user', 'userConfig', 'options']);
       navigation.navigate("Login");
     });
   }
