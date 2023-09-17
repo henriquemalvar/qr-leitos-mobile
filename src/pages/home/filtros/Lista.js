@@ -6,28 +6,29 @@ import { parse, stringify } from 'flatted';
 import styles from './style'
 
 export default function Lista({ route, navigation }) {
+    const { leitos, cor } = route.params
 
-    const { leitos: beds, cor } = route.params
+    const beds = parse(leitos)
 
     return (
         <View style={[styles.containerLeitos]}>
             <FlatList
                 showsVerticalScrollIndicator={false}
-                data={parse(beds)}
-                renderItem={({ item }) => {
+                data={beds}
+                renderItem={({ item: bed }) => {
                     return (
                         <TouchableOpacity
                             onPress={() => {
                                 navigation.navigate("Leito", {
-                                    leito: stringify(item),
+                                    leito: stringify(bed),
                                 })
                             }}>
                             <View style={styles.leito}>
                                 <FontAwesome
-                                    name="circle"
+                                    name="bed"
                                     color={cor} style={styles.livre} />
                                 <Text style={styles.title}>
-                                    {item.name}
+                                    {bed.name}
                                 </Text>
                             </View>
                         </TouchableOpacity>
