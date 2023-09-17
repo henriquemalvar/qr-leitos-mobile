@@ -23,6 +23,27 @@ const styles = StyleSheet.create({
         borderBottomColor: "#198CFF",
         borderBottomWidth: 1,
     },
+    passwordContainer: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    passwordInput: {
+        marginLeft: "auto",
+        marginRight: "auto",
+        marginTop: 10,
+        padding: 10,
+        width: "90%",
+        height: 50,
+        borderBottomColor: "#198CFF",
+        borderBottomWidth: 1,
+    },
+    showPasswordButton: {
+        position: "absolute",
+        right: 0,
+        marginRight: 20,
+        bottom: 12,
+    },
     buttonLogin: {
         width: 200,
         height: 50,

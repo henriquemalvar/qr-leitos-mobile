@@ -23,6 +23,7 @@ export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [errorLogin, setErrorLogin] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginFirebase = async () => {
     try {
@@ -123,14 +124,26 @@ export default function Login({ navigation }) {
         onChangeText={(text) => setEmail(text)}
         value={email}
       />
-      <TextInput
-        style={styles.input}
-        secureTextEntry={true}
-        placeholder="Digite a senha:"
-        type="text"
-        onChangeText={(text) => setSenha(text)}
-        value={senha}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          secureTextEntry={!showPassword}
+          placeholder="Digite a senha:"
+          type="text"
+          onChangeText={(text) => setSenha(text)}
+          value={senha}
+        />
+        <TouchableOpacity
+          style={styles.showPasswordButton}
+          onPress={() => setShowPassword(!showPassword)}
+        >
+          <MaterialCommunityIcons
+            name={showPassword ? "eye-off" : "eye"}
+            size={24}
+            color="#bdbdbd"
+          />
+        </TouchableOpacity>
+      </View>
       {errorLogin === true ? (
         <View style={styles.contentAlert}>
           <MaterialCommunityIcons
