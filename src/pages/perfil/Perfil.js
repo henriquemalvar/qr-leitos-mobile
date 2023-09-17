@@ -8,9 +8,9 @@ import db from "../../database/database";
 
 import styles from "./styles";
 import { parse } from "flatted";
+import { permissionsToLabel } from "../../shared/util/constants";
 
 export default function Perfil({ navigation, route }) {
-  const userId = route.params.idUser;
   const [user, setUser] = useState("");
 
   useEffect(() => {
@@ -67,18 +67,5 @@ export default function Perfil({ navigation, route }) {
 }
 
 const translatePermission = (permission) => {
-  switch (permission) {
-    case "admin":
-      return "Administrador";
-    case "limpeza":
-      return "Limpeza";
-    case "camareira":
-      return "Camareira";
-    case "enfermeira":
-      return "Enfermeira";
-    case "médico":
-      return "Médico";
-    default:
-      return "Usuário";
-  }
+  return permissionsToLabel[permission] || 'Não definido';
 }
