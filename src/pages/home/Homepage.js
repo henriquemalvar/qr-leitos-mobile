@@ -4,18 +4,20 @@ import { FontAwesome } from "@expo/vector-icons";
 import { stringify } from "flatted";
 
 import db from "../../database/database";
+import { statusToColor } from "../../shared/util/constants";
 
 export default function ListStatus({ navigation }) {
-  const [livre, setLivres] = useState([]);
-  const [ocupados, setOcupados] = useState([]);
-  const [aLimp, setALimp] = useState([]);
-  const [aFor, setAFor] = useState([]);
-  const [ocupacao, setOcupacao] = useState(0);
+  const [arrAvailable, setArrAvailable] = useState([]);
+  const [arrOccupied, setArrOccupied] = useState([]);
+  const [arrCleaning, setArrCleaning] = useState([]);
+  const [arrBedding, setArrBedding] = useState([]);
+  const [percentage, setPercentage] = useState(0);
+  
 
   useEffect(() => {
-    db.collection("beds")
-      .where("active", "==", true)
-      .onSnapshot((response) => {
+    const fetchData = async () => {
+      try {
+        const response = await db.collection("beds").get();
         let arr = [];
         let availableArr = [];
         let occupiedArr = [];
@@ -23,6 +25,7 @@ export default function ListStatus({ navigation }) {
         let beddingArr = [];
 
         response.docs.forEach((doc) => {
+          if (doc.data().active === false) return;
           switch (doc.data().status) {
             case "available":
               availableArr.push(doc.data());
@@ -43,16 +46,25 @@ export default function ListStatus({ navigation }) {
           arr.push(doc.data());
         });
 
-        setLivres(availableArr);
-        setOcupados(occupiedArr);
-        setALimp(cleaningArr);
-        setAFor(beddingArr);
+        setArrAvailable(availableArr);
+        setArrOccupied(occupiedArr);
+        setArrCleaning(cleaningArr);
+        setArrBedding(beddingArr);
 
-        setOcupacao(() => {
+        setPercentage(() => {
           return (occupiedArr.length * 100) / arr.length;
         });
-      });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
   }, []);
+
+  const _getColor = (status) => {
+    return statusToColor[status] || "black";
+  }
 
   return (
     <View>
@@ -60,31 +72,31 @@ export default function ListStatus({ navigation }) {
         <View style={[styless.container]}>
           <View style={styless.ocupacao}>
             <Text style={styless.textOc}>
-              Taxa de Ocupação: {ocupacao.toFixed(2)}%
+              Taxa de Ocupação: {percentage.toFixed(2)}%
             </Text>
           </View>
         </View>
 
-        {livre.length != 0 && (
+        {arrAvailable.length != 0 && (
           <TouchableOpacity
             onPress={() => {
               navigation.navigate("Lista", {
-                leitos: stringify(livre),
-                cor: "green",
+                leitos: stringify(arrAvailable),
+                cor: _getColor('available'),
               });
             }}
           >
             <View style={[styless.container]}>
               <View style={[styless.lives]}>
                 <View style={[styless.head]}>
-                  <FontAwesome name="circle" style={styless.livre} />
+                  <FontAwesome name="bed" style={styless.livre} />
                   <Text style={[styless.title]}>
                     {" "}
-                    LEITOS LIVRES - {livre.length}
+                    LEITOS LIVRES - {arrAvailable.length}
                   </Text>
                 </View>
                 <Text style={styless.shortdescription}>
-                  NO MOMENTO EXISTEM {livre.length} LEITOS LIVRES
+                  NO MOMENTO EXISTEM {arrAvailable.length} LEITOS LIVRES
                 </Text>
                 <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
               </View>
@@ -92,26 +104,26 @@ export default function ListStatus({ navigation }) {
           </TouchableOpacity>
         )}
         <View>
-          {ocupados.length != 0 && (
+          {arrOccupied.length != 0 && (
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate("Lista", {
-                  leitos: stringify(ocupados),
-                  cor: "red",
+                  leitos: stringify(arrOccupied),
+                  cor: _getColor('occupied'),
                 });
               }}
             >
               <View style={[styless.container]}>
                 <View style={[styless.lives]}>
                   <View style={[styless.head]}>
-                    <FontAwesome name="circle" style={styless.ocupado} />
+                    <FontAwesome name="bed" style={styless.ocupado} />
                     <Text style={[styless.title]}>
                       {" "}
-                      LEITOS OCUPADOS - {ocupados.length}
+                      LEITOS OCUPADOS - {arrOccupied.length}
                     </Text>
                   </View>
                   <Text style={styless.shortdescription}>
-                    NO MOMENTO EXISTEM {ocupados.length} LEITOS OCUPADOS
+                    NO MOMENTO EXISTEM {arrOccupied.length} LEITOS OCUPADOS
                   </Text>
                   <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
                 </View>
@@ -120,26 +132,26 @@ export default function ListStatus({ navigation }) {
           )}
         </View>
       </View>
-      {aLimp.length != 0 && (
+      {arrCleaning.length != 0 && (
         <TouchableOpacity
           onPress={() => {
             navigation.navigate("Lista", {
-              leitos: stringify(aLimp),
-              cor: "blue",
+              leitos: stringify(arrCleaning),
+              cor: _getColor('awaiting_for_cleaning'),
             });
           }}
         >
           <View style={[styless.container]}>
             <View style={[styless.lives]}>
               <View style={[styless.head]}>
-                <FontAwesome name="circle" style={styless.limpeza} />
+                <FontAwesome name="bed" style={styless.limpeza} />
                 <Text style={[styless.title]}>
                   {" "}
-                  LEITOS HIGIENIZAÇÃO - {aLimp.length}
+                  LEITOS HIGIENIZAÇÃO - {arrCleaning.length}
                 </Text>
               </View>
               <Text style={styless.longdescription}>
-                NO MOMENTO EXISTEM {aLimp.length} LEITOS AGUARDANDO HIGIENIZAÇÃO
+                NO MOMENTO EXISTEM {arrCleaning.length} LEITOS AGUARDANDO HIGIENIZAÇÃO
               </Text>
               <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
             </View>
@@ -148,26 +160,26 @@ export default function ListStatus({ navigation }) {
       )}
 
       <View>
-        {aFor.length != 0 && (
+        {arrBedding.length != 0 && (
           <TouchableOpacity
             onPress={() => {
               navigation.navigate("Lista", {
-                leitos: stringify(aFor),
-                cor: "yellow",
+                leitos: stringify(arrBedding),
+                cor: _getColor('awaiting_for_bedding'),
               });
             }}
           >
             <View style={[styless.container]}>
               <View style={[styless.lives]}>
                 <View style={[styless.head]}>
-                  <FontAwesome name="circle" style={styless.forragem} />
+                  <FontAwesome name="bed" style={styless.forragem} />
                   <Text style={[styless.title]}>
                     {" "}
-                    LEITOS FORRAGEM - {aFor.length}
+                    LEITOS FORRAGEM - {arrBedding.length}
                   </Text>
                 </View>
                 <Text style={styless.longdescription}>
-                  NO MOMENTO EXISTEM {aFor.length} LEITOS AGUARDANDO FORRAGEM
+                  NO MOMENTO EXISTEM {arrBedding.length} LEITOS AGUARDANDO FORRAGEM
                 </Text>
                 <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
               </View>
