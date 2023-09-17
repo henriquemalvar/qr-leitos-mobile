@@ -11,19 +11,19 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   getAuth,
   signInWithEmailAndPassword,
-  //   onAuthStateChanged,
-  //   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { stringify, parse } from "flatted";
 import db from "../../database/database";
 import moment from "moment";
+import { permissions } from "../../shared/util/constants";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [errorLogin, setErrorLogin] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorLogin, setErrorLogin] = useState(false);
+  const [messageError, setMessageError] = useState("");
 
   const loginFirebase = async () => {
     try {
@@ -39,9 +39,27 @@ export default function Login({ navigation }) {
 
       navigation.navigate("Menu", { idUser: user.uid });
     } catch (error) {
+      if(messageError !== "") 
+        return setErrorLogin(true);
+
+      switch (error.code) {
+        case "auth/invalid-email":
+          setMessageError("Email inválido");
+          break;
+        case "auth/user-disabled":
+          setMessageError("Usuário desabilitado");
+          break;
+        case "auth/user-not-found":
+          setMessageError("Usuário não encontrado");
+          break;
+        case "auth/wrong-password":
+          setMessageError("Senha incorreta");
+          break;
+        default:
+          setMessageError("Erro ao fazer login");
+          break;
+      }
       setErrorLogin(true);
-      // console.error("loginFirebase", error.message);
-      console.error(error.message);
     }
   };
 
@@ -66,23 +84,19 @@ export default function Login({ navigation }) {
       await AsyncStorage.setItem("userConfig", stringify(userConfig));
       return userConfig;
     } catch (error) {
-      // console.error("saveUserConfigToAsyncStorage", error.message);
+      setMessageError(error.message);
       return { error: error.message };
     }
   };
 
-  const saveOptionsToAsyncStorage = async (permission = "default") => {
+  const saveOptionsToAsyncStorage = async (permission = "") => {
     try {
-      const optionsDoc = await db
-        .collection("options")
-        .doc(`bed_options_${permission}`)
-        .get();
+      const options = Array.isArray(permissions[permission]) ? permissions[permission] : [];
 
-      const options = optionsDoc.data();
       await AsyncStorage.setItem("options", stringify(options));
     } catch (error) {
-      // console.error("saveOptionsToAsyncStorage", error.message);
-      console.error(error);
+      setMessageError(error.message);
+      return { error: error.message };
     }
   };
 
@@ -151,7 +165,7 @@ export default function Login({ navigation }) {
             size={24}
             color="#bdbdbd"
           />
-          <Text style={styles.warningAlert}>Email ou senha inválidos</Text>
+          <Text style={styles.warningAlert}>{messageError}</Text>
         </View>
       ) : (
         <View />
@@ -165,16 +179,6 @@ export default function Login({ navigation }) {
           <Text style={styles.textButtonLogin}>Entrar</Text>
         </TouchableOpacity>
       )}
-      {/* <Text style={styles.registration}>
-        Não possui uma conta? Se inscreva
-        <Text
-          style={styles.linkSubscribe}
-          // onPress={navigation.navigate("NewUser")}
-        >
-          {" "}
-          aqui
-        </Text>
-      </Text> */}
       <View style={{ height: 100 }} />
     </KeyboardAvoidingView>
   );
