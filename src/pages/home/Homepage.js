@@ -2,64 +2,58 @@ import { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { stringify } from "flatted";
-
 import db from "../../database/database";
 import { statusToColor } from "../../shared/util/constants";
+import { useIsFocused } from "@react-navigation/native";
 
-export default function ListStatus({ navigation }) {
+export default function ListStatus({ route, navigation }) {
   const [arrAvailable, setArrAvailable] = useState([]);
   const [arrOccupied, setArrOccupied] = useState([]);
   const [arrCleaning, setArrCleaning] = useState([]);
   const [arrBedding, setArrBedding] = useState([]);
   const [percentage, setPercentage] = useState(0);
-  
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await db.collection("beds").get();
-        let arr = [];
-        let availableArr = [];
-        let occupiedArr = [];
-        let cleaningArr = [];
-        let beddingArr = [];
+    const unsubscribe = db.collection("beds").onSnapshot((snapshot) => {
+      let arr = [];
+      let availableArr = [];
+      let occupiedArr = [];
+      let cleaningArr = [];
+      let beddingArr = [];
 
-        response.docs.forEach((doc) => {
-          if (doc.data().active === false) return;
-          switch (doc.data().status) {
-            case "available":
-              availableArr.push(doc.data());
-              break;
-            case "occupied":
-            case "discharge":
-              occupiedArr.push(doc.data());
-              break;
-            case "awaiting_for_cleaning":
-            case "cleaning_in_progress":
-              cleaningArr.push(doc.data());
-              break;
-            case "awaiting_for_bedding":
-            case "bedding_in_progress":
-              beddingArr.push(doc.data());
-              break;
-          }
-          arr.push(doc.data());
-        });
+      snapshot.docs.forEach((doc) => {
+        if (doc.data().active === false) return;
+        switch (doc.data().status) {
+          case "available":
+            availableArr.push(doc.data());
+            break;
+          case "occupied":
+          case "discharge":
+            occupiedArr.push(doc.data());
+            break;
+          case "awaiting_for_cleaning":
+          case "cleaning_in_progress":
+            cleaningArr.push(doc.data());
+            break;
+          case "awaiting_for_bedding":
+          case "bedding_in_progress":
+            beddingArr.push(doc.data());
+            break;
+        }
+        arr.push(doc.data());
+      });
 
-        setArrAvailable(availableArr);
-        setArrOccupied(occupiedArr);
-        setArrCleaning(cleaningArr);
-        setArrBedding(beddingArr);
+      setArrAvailable(availableArr);
+      setArrOccupied(occupiedArr);
+      setArrCleaning(cleaningArr);
+      setArrBedding(beddingArr);
 
-        setPercentage(() => {
-          return (occupiedArr.length * 100) / arr.length;
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
+      setPercentage(() => {
+        return (occupiedArr.length * 100) / arr.length;
+      });
+    });
 
-    fetchData();
+    return () => unsubscribe();
   }, []);
 
   const _getColor = (status) => {
