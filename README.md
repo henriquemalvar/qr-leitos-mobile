@@ -1,6 +1,8 @@
-# QR Leitos - Gerenciamento de Leitos Hospitalares
+# QR Leitos - Mobile
 
 O QR Leitos é um aplicativo de gerenciamento de leitos hospitalares desenvolvido para simplificar e aprimorar o processo de alocação e acompanhamento de leitos em uma instituição de saúde. Ele oferece funcionalidades que tornam o gerenciamento de leitos mais eficiente e facilitam a comunicação entre os profissionais de saúde.
+
+**Nota:** Além do aplicativo móvel, também existe um site para gerenciamento que oferece funcionalidades adicionais, como adicionar usuários, leitos e gerar códigos QR para impressão. O repositório do site está disponível em [https://github.com/FDelfim/qr-leitos-web-next](https://github.com/FDelfim/qr-leitos-web-next) e o site já se encontra hospedado em  [https://qr-leitos.vercel.app](https://qr-leitos.vercel.app).
 
 ## Funcionalidades Principais
 
@@ -40,21 +42,20 @@ O QR Leitos é um aplicativo de gerenciamento de leitos hospitalares desenvolvid
 - As funcionalidades do aplicativo são controladas com base nas permissões do usuário.
 - Cada função tem permissões específicas para alterar os status dos leitos com base nas regras estabelecidas.
 
-<!-- ### Funcionamento Offline:
-
-- O aplicativo funciona offline, permitindo que os usuários façam alterações nos status dos leitos mesmo quando não estão conectados à Internet.
-- As mudanças são armazenadas localmente e sincronizadas com o servidor quando uma conexão de rede é restaurada. -->
-
 ## Plataforma Suportada
 
 Atualmente, o QR Leitos está disponível apenas para dispositivos Android. Isso ocorre porque, no momento, não temos suporte para a plataforma iOS devido à falta de um Mac para desenvolvimento. No entanto, estamos comprometidos em expandir a compatibilidade com outras plataformas no futuro.
 
 ## Origem do Projeto
 
-O QR Leitos é um projeto desenvolvido como parte de um projeto acadêmico na Universidade Federal de Ouro Preto (UFOP). Ele foi criado como um esforço para melhorar a gestão de leitos hospitalares e facilitar a comunicação entre os profissionais de saúde. O projeto é resultado do trabalho de estudantes da UFOP que estão dedicando seus esforços para criar uma solução valiosa para a área de saúde.
+O QR Leitos é um projeto desenvolvido como parte de um projeto acadêmico na Universidade Federal de Ouro Preto (UFOP). Ele foi criado como um esforço para melhorar a gestão de leitos hospitalares e facilitar a comunicação entre os profissionais de saúde. O projeto é resultado do trabalho de estudantes da UFOP, incluindo [Felipe Delfim](https://github.com/FDelfim).
 
 ## Instalação
 
-1. Faça o download do aplicativo QR Leitos a partir [link](https://github.com/henriquemalvar/qr-leitos-mobile)
+1. Faça o download do aplicativo QR Leitos a partir [deste link](https://github.com/henriquemalvar/qr-leitos-mobile).
 2. Siga as instruções de instalação no seu dispositivo móvel.
 3. Faça login com suas credenciais para começar a usar o aplicativo.
+
+## Contribuições
+
+Este projeto tem sido desenvolvido por [Henrique Malvar](https://github.com/henriquemalvar) e [Felipe Delfim](https://github.com/FDelfim).
