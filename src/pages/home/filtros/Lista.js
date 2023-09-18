@@ -1,36 +1,34 @@
 import React from 'react';
 import { View, FlatList, Text, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'
+import { parse, stringify } from 'flatted';
 
 import styles from './style'
 
 export default function Lista({ route, navigation }) {
-
     const { leitos, cor } = route.params
+
+    const beds = parse(leitos)
 
     return (
         <View style={[styles.containerLeitos]}>
             <FlatList
                 showsVerticalScrollIndicator={false}
-                data={leitos}
-                renderItem={({ item }) => {
+                data={beds}
+                renderItem={({ item: bed }) => {
                     return (
                         <TouchableOpacity
                             onPress={() => {
                                 navigation.navigate("Leito", {
-                                    idid: item.id,
-                                    id: item.codigo,
-                                    endereco: item.endereco,
-                                    estado: item.status,
-                                    ultimaMod: item.ultimaMod.toDate(),
+                                    leito: stringify(bed),
                                 })
                             }}>
                             <View style={styles.leito}>
                                 <FontAwesome
-                                    name="circle"
+                                    name="bed"
                                     color={cor} style={styles.livre} />
                                 <Text style={styles.title}>
-                                    {item.codigo}
+                                    {bed.name}
                                 </Text>
                             </View>
                         </TouchableOpacity>

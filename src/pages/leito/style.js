@@ -84,7 +84,36 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         alignContent: 'center',
         borderRadius: 50,
-    }
+    },
+
+    containerDropdown: [
+        {
+            backgroundColor: "#E7E6E1",
+            width: "97%",
+            borderRadius: 15,
+            paddingBottom: 15,
+        },
+    ],
+
+    dropdown: {
+        backgroundColor: "#E7E6E1",
+        width: "97%",
+        borderRadius: 15,
+    },
+
+    dropdownButton: {
+        backgroundColor: "#fff",
+        width: "97%",
+        borderRadius: 15,
+        alignSelf: "center",
+    },
+
+    dropdownDropdown: {
+        backgroundColor: "#fff",
+        width: "94%",
+        borderRadius: 15,
+    },
+
 });
 
 export default styles

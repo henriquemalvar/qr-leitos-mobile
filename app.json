@@ -29,8 +29,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "9460f304-8bdc-4223-81b4-9893fd671bd1"
+        "projectId": "37ba66ea-dc3a-4735-9fc9-b4575a44802f"
       }
-    }
+    },
+    "owner": "henriquemmalvar"
   }
 }

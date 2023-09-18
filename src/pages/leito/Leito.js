@@ -1,120 +1,160 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Modal } from "react-native";
-import { ModalPicker } from "../../components/ModalPicker";
+import React, { useEffect, useState } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import SelectDropdown from "react-native-select-dropdown";
+import { parse } from "flatted";
+import moment from "moment";
+import styles from "../leito/style";
+import BedsService from "../../shared/services/BedsServices";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { statusToLabel, permissions } from "../../shared/util/constants";
 
-import database from '../../database/database'
-import styles from '../leito/style'
+const convertTimestamp = (timestamp) => {
+  return moment
+    .unix(timestamp.seconds)
+    .millisecond(timestamp.nanoseconds / 1000000)
+    .format("DD/MM/YYYY HH:mm:ss");
+};
+
+const translateStatus = (status) => {
+  return statusToLabel[status] || status;
+};
 
 export default function Leito({ route, navigation }) {
+  const { leito } = route.params;
+  const bed = parse(leito);
+  const [options, setOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [user, setUser] = useState(null);
+  const [userConfig, setUserConfig] = useState(null);
+  const [disableSave, setDisableSave] = useState(true);
+  const [disableSelect, setDisableSelect] = useState(true);
 
-    const { idid, id, endereco, estado, ultimaMod } = route.params
-    const estadoShow = estado.path.substr(14, estado.path.length)[0].toUpperCase() + estado.path.substr(14, estado.path.length).substr(1);
+  useEffect(() => {
+    const fetchData = async () => {
+      const [_user, _userConfig, _userOptions] = await Promise.all([
+        AsyncStorage.getItem("user").then((user) => parse(user)),
+        AsyncStorage.getItem("userConfig").then((userConfig) =>
+          parse(userConfig)
+        ),
+        AsyncStorage.getItem("options").then(
+          (userOptions) => parse(userOptions) || []
+        ),
+      ]);
 
-    const [statusl, setStatusl] = useState(estadoShow)
+      setUser(_user);
+      setUserConfig(_userConfig);
+      const _options = _userConfig.permission === "admin" ? _userOptions : _userOptions.filter((option) => option.from === bed.status);
+      setOptions(generateOptionsLabelValue(_options));
+      setDisableSelect(false);
+      setDisableSave(false);
+    };
+    fetchData();
+  }, []);
 
-    const [isModalVisble, setisModalVisible] = useState(false)
-    const changeModalVisibility = (bool) => {
-        setisModalVisible(bool)
+  const generateOptionsLabelValue = (options) => {
+    return options.map((option) => {
+      return {
+        label: translateStatus(option.to || ""),
+        value: option.to || "",
+      };
+    });
+  };
+
+  const updateLeito = () => {
+    changeStatus(selectedOption)
+      .then(() => {
+        navigation.navigate("Menu", bed.id);
+      })
+      .catch((error) => {
+        console.error("Erro ao atualizar leito", error.message);
+      });
+  };
+
+  const changeStatus = async (status) => {
+    try {
+      const old_status = bed.status;
+      await BedsService.updateStatus(bed.id, status);
+      const log = {
+        bed_id: bed.id,
+        old_status: old_status,
+        status: status,
+        created_at: new Date(),
+        userName: userConfig.name,
+        userUid: user.uid,
+        userEmail: user.email,
+      };
+      await BedsService.createLog(log);
+    } catch (error) {
+      console.error("Error occurred while updating bed status:", error);
+      // throw new Error("Failed to update bed status");
     }
+  };
 
-    const setOption = (option) => {
-        setStatusl(option.toLowerCase())
-    }
+  return (
+    <View style={styles.containerStatus}>
+      <View style={styles.title}>
+        <Text style={styles.titleFont}>{bed.name}</Text>
+      </View>
 
-    function formataData(data) {
-        let dia = data.getDate().toString().padStart(2, '0'),
-            mes = (data.getMonth() + 1).toString().padStart(2, '0'),
-            ano = data.getFullYear(),
-            hora = data.getHours().toString().padStart(2, '0'),
-            minuto = data.getMinutes().toString().padStart(2, '0');
-        return dia + "/" + mes + "/" + ano + ' - ' + hora + ':' + minuto;
-    }
+      <View style={styles.containerDesc}>
+        <View style={{ paddingBottom: 10 }}>
+          <Text style={styles.detailsFont}>Endereço </Text>
+          <Text style={styles.detailsEnd}>
+            {bed.location.map((field) => {
+              return <Text key={field}>{field} </Text>;
+            })}
+          </Text>
+        </View>
+      </View>
 
-    async function changeStatus() {
-        database.collection('Leito').doc(idid).update({
-            status: database.collection('estadoDoLeito').doc(statusl),
-            ultimaMod: new Date()
-        })
-        // database.collection('modificaStatus').add({
-        //     IdLeito: refLeito,
-        //     data_hora: new Date(),
-        //     modificacao: statusl
-        // })
-    }
+      <View style={styles.containerDesc}>
+        <View style={{ paddingBottom: 10 }}>
+          <Text style={styles.detailsFont}>Ultima Modificação </Text>
+          <Text style={styles.detailsEnd}>
+            {convertTimestamp(bed.updated_at)}
+          </Text>
+        </View>
+      </View>
 
-    const updateLeito = () => {
-        changeStatus().then(() => {
-          navigation.navigate('Menu', idid)
-        })
-    }
+      <View
+        style={styles.containerDropdown}
+      >
+        <View style={styles.containerDesc}>
+          <Text style={styles.detailsFont}>Estado do Leito </Text>
+        </View>
+        {options.length > 0 && (
+          <SelectDropdown
+            disabled={disableSelect}
+            data={options.map((option) => option?.label || "")}
+            onSelect={(selectedItem, index) => {
+              setSelectedOption(options[index]?.value || "");
+              if (!selectedOption) setDisableSave(true);
+              else setDisableSave(false);
+            }}
+            defaultButtonText={
+              translateStatus(bed.status) || "Selecione uma opção"
+            }
+            rowTextForSelection={(item, index) => {
+              return item;
+            }}
+            style={styles.dropdown}
+            buttonStyle={styles.dropdownButton}
+            dropdownStyle={styles.dropdownDropdown}
+          ></SelectDropdown>
+        )}
+      </View>
 
-    return (
-        <View style={styles.containerStatus}>
-
-            <View style={styles.title}>
-                <Text style={styles.titleFont}>
-                    {id}
-                </Text>
-            </View>
-
-            <View style={styles.containerDesc}>
-                <View style={{ paddingBottom: 10 }}>
-                    <Text style={styles.detailsFont}>Endereço </Text>
-                    <Text style={styles.detailsEnd}>{endereco.map((field) => {
-                      return(
-                        <Text key={field}>{field} </Text>
-                      );
-                    })}</Text>
-                </View>
-            </View>
-
-            <View style={styles.containerDesc}>
-                <View style={{ paddingBottom: 10 }}>
-                    <Text style={styles.detailsFont}>Ultima Modificação </Text>
-                    <Text style={styles.detailsEnd}>{formataData(new Date(ultimaMod))} </Text>
-                </View>
-            </View>
-
-            <View style={[{ backgroundColor: '#E7E6E1', width: '97%', borderRadius: 15, paddingBottom: 15 }]}>
-                <View style={styles.containerDesc} >
-                    <Text style={styles.detailsFont}>Estado do Leito </Text>
-                </View>
-
-                <View style={styles.modalContainer}>
-                    <TouchableOpacity
-                        onPress={() => changeModalVisibility(true)}>
-                        <Text style={[styles.detailsEnd]}>{statusl}</Text>
-                    </TouchableOpacity>
-                    <Modal
-                        transparent={true}
-                        animationType='slide'
-                        visible={isModalVisble}
-                        nRequestClose={() => changeModalVisibility(false)}
-                    >
-                        <ModalPicker
-                            changeModalVisibility={changeModalVisibility}
-                            setOption={setOption}
-                        />
-
-                    </Modal>
-                </View>
-            </View>
-
-            <TouchableOpacity style={styles.buttonLabel}
-                onPress={() => {
-                    updateLeito();
-                  }
-                }
-            >
-                <View>
-                    <Text style={styles.buttonText}>
-                        Salvar
-                    </Text>
-                </View>
-            </TouchableOpacity>
-
-        </View >
-
-    );
-
+      <TouchableOpacity
+        style={styles.buttonLabel}
+        onPress={() => {
+          if (bed.status === selectedOption || !selectedOption) return;
+          updateLeito();
+        }}
+      >
+        <View>
+          <Text style={styles.buttonText}>Salvar</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
 }
