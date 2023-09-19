@@ -52,7 +52,7 @@ O QR Leitos é um projeto desenvolvido como parte de um projeto acadêmico na Un
 
 ## Instalação
 
-1. Faça o download do aplicativo QR Leitos a partir [deste link](https://github.com/henriquemalvar/qr-leitos-mobile).
+1. Faça o download do aplicativo QR Leitos a partir [deste link](https://drive.google.com/file/d/1uQyWxGVgDC0Qt3EoiXCFc3hF6QTc-2ui/view?usp=drive_link).
 2. Siga as instruções de instalação no seu dispositivo móvel.
 3. Faça login com suas credenciais para começar a usar o aplicativo.
 
