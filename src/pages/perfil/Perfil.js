@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { getAuth, signOut } from "firebase/auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import db from "../../database/database";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import styles from "./styles";
 import { parse } from "flatted";
@@ -24,10 +22,10 @@ export default function Perfil({ navigation, route }) {
 
   const logout = async () => {
     await signOut(getAuth()).then(() => {
-      AsyncStorage.multiRemove(['token', 'user', 'userConfig', 'options']);
+      AsyncStorage.multiRemove(["token", "user", "userConfig", "options"]);
       navigation.navigate("Login");
     });
-  }
+  };
 
   return (
     <View style={styles.containerPerfil}>
@@ -41,7 +39,9 @@ export default function Perfil({ navigation, route }) {
       </View>
       <View style={styles.containerCargo}>
         <Text style={styles.cargo}>Cargo</Text>
-        <Text style={styles.cargo2}>{translatePermission(user.permission)}</Text>
+        <Text style={styles.cargo2}>
+          {translatePermission(user.permission)}
+        </Text>
       </View>
       <View style={styles.containerCargo}>
         <Text style={styles.cargo}>Email cadastrado:</Text>
@@ -64,5 +64,5 @@ export default function Perfil({ navigation, route }) {
 }
 
 const translatePermission = (permission) => {
-  return permissionsToLabel[permission] || 'Não definido';
-}
+  return permissionsToLabel[permission] || "Não definido";
+};

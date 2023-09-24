@@ -8,15 +8,13 @@ import {
 } from "react-native";
 import styles from "./styles";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { stringify, parse } from "flatted";
 import db from "../../database/database";
 import moment from "moment";
 import { permissions } from "../../shared/util/constants";
+import Toast from "react-native-toast-message";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -39,32 +37,48 @@ export default function Login({ navigation }) {
 
       navigation.navigate("Menu", { idUser: user.uid });
     } catch (error) {
-      if(messageError !== "") 
-        return setErrorLogin(true);
-
-      switch (error.code) {
-        case "auth/invalid-email":
-          setMessageError("Email inválido");
-          break;
-        case "auth/user-disabled":
-          setMessageError("Usuário desabilitado");
-          break;
-        case "auth/user-not-found":
-          setMessageError("Usuário não encontrado");
-          break;
-        case "auth/wrong-password":
-          setMessageError("Senha incorreta");
-          break;
-        default:
-          setMessageError("Erro ao fazer login");
-          break;
+      let message;
+      if (messageError !== "") {
+        message = messageError;
+      } else {
+        switch (error.code) {
+          case "auth/invalid-email":
+            message = "Email ou senha incorretos";
+            break;
+          case "auth/user-disabled":
+            message = "Usuário desabilitado";
+            break;
+          case "auth/user-not-found":
+            message = "Usuário não encontrado";
+            break;
+          case "auth/wrong-password":
+            message = "Email ou senha incorretos";
+            break;
+          default:
+            message = "Erro ao fazer login";
+            break;
+        }
       }
+      setMessageError(message);
+      Toast.show({
+        type: "error",
+        text1: "Erro ao fazer login",
+        text2: message,
+        visibilityTime: 3000,
+        autoHide: true,
+        topOffset: 30,
+        bottomOffset: 40,
+        position: "bottom",
+      });
       setErrorLogin(true);
+      console.log(error);
     }
   };
 
   const saveUserToAsyncStorage = async (_user) => {
-    _user.stsTokenManager.expirationTime = moment(_user.stsTokenManager.expirationTime).add(1, 'week');
+    _user.stsTokenManager.expirationTime = moment(
+      _user.stsTokenManager.expirationTime
+    ).add(1, "week");
     await AsyncStorage.setItem("user", stringify(_user));
     return _user;
   };
@@ -91,7 +105,9 @@ export default function Login({ navigation }) {
 
   const saveOptionsToAsyncStorage = async (permission = "") => {
     try {
-      const options = Array.isArray(permissions[permission]) ? permissions[permission] : [];
+      const options = Array.isArray(permissions[permission])
+        ? permissions[permission]
+        : [];
 
       await AsyncStorage.setItem("options", stringify(options));
     } catch (error) {
@@ -109,12 +125,18 @@ export default function Login({ navigation }) {
           const parsedUser = parse(user);
 
           // const expirationTime = parsedUser.stsTokenManager.expirationTime;
-          const expirationTime = moment(parsedUser.stsTokenManager.expirationTime).add(1, 'week');
+          const expirationTime = moment(
+            parsedUser.stsTokenManager.expirationTime
+          ).add(1, "week");
           const currentTime = moment();
 
-          if (moment(expirationTime).isBefore(currentTime) && parsedConfig && parsedOptions) {
+          if (
+            moment(expirationTime).isBefore(currentTime) &&
+            parsedConfig &&
+            parsedOptions
+          ) {
             navigation.navigate("Menu", { idUser: parsedUser.uid });
-          } 
+          }
           // else {
           //   navigation.navigate("Menu", { idUser: parsedUser.uid });
           // }
@@ -122,7 +144,6 @@ export default function Login({ navigation }) {
       });
     };
 
-    getUser();
   }, []);
 
   return (
@@ -159,14 +180,7 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
       </View>
       {errorLogin === true ? (
-        <View style={styles.contentAlert}>
-          <MaterialCommunityIcons
-            name="alert-circle"
-            size={24}
-            color="#bdbdbd"
-          />
-          <Text style={styles.warningAlert}>{messageError}</Text>
-        </View>
+        <Text style={styles.error}>{messageError}</Text>
       ) : (
         <View />
       )}

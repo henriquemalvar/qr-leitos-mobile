@@ -10,6 +10,7 @@ import Menu from './src/components/Menu';
 import Perfil from './src/pages/perfil/Perfil';
 import Leito from './src/pages/leito/Leito';
 import Lista from './src/pages/home/filtros/Lista';
+import Toast from 'react-native-toast-message';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,7 @@ export default class App extends Component {
         <NavigationContainer>
           <StackRoutes />
         </NavigationContainer>
+        <Toast/>
       </SafeAreaProvider>
     );
   }

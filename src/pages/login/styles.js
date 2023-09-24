@@ -75,6 +75,11 @@ const styles = StyleSheet.create({
         color: "#1877f2",
         fontSize: 16,
     },
+    error: {
+        color: "red",
+        fontSize: 12,
+        marginTop: 5,
+    },
 });
 
 export default styles;
