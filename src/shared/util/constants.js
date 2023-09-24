@@ -6,6 +6,14 @@ export const permissionsToLabel = {
     'admin': 'Administrador',
 };
 
+export const permissionsIcons = {
+    'medico': 'stethoscope',
+    'enfermeira': 'stethoscope',
+    'limpeza': 'broom',
+    'camareira': 'bed',
+    'admin': 'security',
+};
+
 export const permissions = {
     'medico': [
         {
