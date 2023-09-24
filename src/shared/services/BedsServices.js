@@ -32,12 +32,24 @@ const BedsService = {
     return beds;
   },
 
-  async updateStatus(documentId, status) {
+  async update(documentId, status) {
     const bedRef = db.collection("beds").doc(documentId);
     await bedRef.update({
       status: status,
       updated_at: new Date(),
     });
+  },
+
+  async updateMany(beds) {
+    const batch = db.batch();
+    beds.forEach((bed) => {
+      const bedRef = db.collection("beds").doc(bed.id);
+      batch.update(bedRef, {
+        status: bed.status,
+        updated_at: new Date(),
+      });
+    });
+    await batch.commit();
   },
 
   async createLog(log) {

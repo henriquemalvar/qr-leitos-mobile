@@ -7,6 +7,8 @@ import styles from "../leito/style";
 import BedsService from "../../shared/services/BedsServices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { statusToLabel, permissions } from "../../shared/util/constants";
+import { checkConnection } from "../../shared/services/OfflineService";
+import Toast from "react-native-toast-message";
 
 const convertTimestamp = (timestamp) => {
   return moment
@@ -28,6 +30,7 @@ export default function Leito({ route, navigation }) {
   const [userConfig, setUserConfig] = useState(null);
   const [disableSave, setDisableSave] = useState(true);
   const [disableSelect, setDisableSelect] = useState(true);
+  const [connection, setConnection] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +51,6 @@ export default function Leito({ route, navigation }) {
       setDisableSelect(false);
       setDisableSave(false);
     };
-    fetchData();
   }, []);
 
   const generateOptionsLabelValue = (options) => {
@@ -73,7 +75,7 @@ export default function Leito({ route, navigation }) {
   const changeStatus = async (status) => {
     try {
       const old_status = bed.status;
-      await BedsService.updateStatus(bed.id, status);
+      await BedsService.update(bed.id, status);
       const log = {
         bed_id: bed.id,
         old_status: old_status,
