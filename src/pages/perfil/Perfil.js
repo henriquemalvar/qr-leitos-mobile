@@ -6,10 +6,53 @@ import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { translatePermission } from "../../shared/util/translationUtils";
 
-import styles from "./styles";
 import showMessage from "../../shared/util/messageUtils";
+import styles from "./styles";
 
-export default function Perfil({ navigation, route }) {
+const UserHead = ({ user }) => {
+  return (
+    <View style={styles.head}>
+      <View>
+        <FontAwesome name="circle" style={styles.icon} />
+      </View>
+      <View>
+        <Text style={styles.user}>{user.name}</Text>
+      </View>
+    </View>
+  );
+};
+
+const UserPermission = ({ user }) => {
+  return (
+    <View style={styles.containerCargo}>
+      <Text style={styles.cargo}>Cargo</Text>
+      <Text style={styles.cargo2}>{translatePermission(user.permission)}</Text>
+    </View>
+  );
+};
+
+const UserEmail = ({ user }) => {
+  return (
+    <View style={styles.containerCargo}>
+      <Text style={styles.cargo}>Email cadastrado:</Text>
+      <Text style={styles.cargo2}>{user.email}</Text>
+    </View>
+  );
+};
+
+const LogoutButton = ({ onPress }) => {
+  return (
+    <View>
+      <TouchableOpacity style={styles.logout} onPress={onPress}>
+        <Text style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
+          Sair
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const Perfil = ({ navigation, route }) => {
   const [user, setUser] = useState("");
 
   useEffect(() => {
@@ -27,49 +70,26 @@ export default function Perfil({ navigation, route }) {
     fetchUserConfig();
   }, []);
 
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
       const auth = getAuth();
       await signOut(auth);
-      await AsyncStorage.multiRemove([
-        "token",
-        "user",
-        "userConfig",
-      ]);
+      await AsyncStorage.multiRemove(["token", "user", "userConfig"]);
       navigation.navigate("Login");
     } catch (error) {
       console.error("Error during logout:", error);
-      showMessage("error", "Erro ao fazer logout", error.message)
+      showMessage("error", "Erro ao fazer logout", error.message);
     }
   };
 
   return (
     <View style={styles.containerPerfil}>
-      <View style={styles.head}>
-        <View>
-          <FontAwesome name="circle" style={styles.icon} />
-        </View>
-        <View>
-          <Text style={styles.user}>{user.name}</Text>
-        </View>
-      </View>
-      <View style={styles.containerCargo}>
-        <Text style={styles.cargo}>Cargo</Text>
-        <Text style={styles.cargo2}>
-          {translatePermission(user.permission)}
-        </Text>
-      </View>
-      <View style={styles.containerCargo}>
-        <Text style={styles.cargo}>Email cadastrado:</Text>
-        <Text style={styles.cargo2}>{user.email}</Text>
-      </View>
-      <View>
-        <TouchableOpacity style={styles.logout} onPress={logout}>
-          <Text style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
-            Sair
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <UserHead user={user} />
+      <UserPermission user={user} />
+      <UserEmail user={user} />
+      <LogoutButton onPress={handleLogout} />
     </View>
   );
-}
+};
+
+export default Perfil;
