@@ -1,15 +1,18 @@
-import { useEffect, useState, useMemo } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { stringify } from "flatted";
-import db from "../../database/database";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { parse, stringify } from "flatted";
+import { useEffect, useMemo, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { _getColor } from "../../shared/util/translationUtils";
+import BedsService from "../../shared/services/BedsServices";
+import { status } from "../../shared/util/constantsUtils";
+import { _getColor, _getPermissions } from "../../shared/util/translationUtils";
+import { styles } from "./styles";
 
 function OccupancyRate({ percentage }) {
   return (
     <View style={styles.container}>
-      <View style={styles.ocupacao}>
+      <View style={styles.occupation}>
         <Text style={styles.textOc}>
           Taxa de Ocupação: {percentage.toFixed(2)}%
         </Text>
@@ -18,7 +21,7 @@ function OccupancyRate({ percentage }) {
   );
 }
 
-function BedList({ title, beds, color, navigation }) {
+function BedList({ title, beds, color, navigation, disabled = false }) {
   if (typeof color !== "string") {
     color = "black";
   }
@@ -28,15 +31,17 @@ function BedList({ title, beds, color, navigation }) {
       {beds.length !== 0 && (
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate("Lista", {
-              leitos: stringify(beds),
-              cor: color,
-            });
+            if (!disabled) {
+              navigation.navigate("Lista", {
+                leitos: stringify(beds),
+                cor: color,
+              });
+            }
           }}
         >
           <View style={[styles.container]}>
             <View style={[styles.lives]}>
-              <View style={[styles.head]}>
+              <View style={[styles.head, { alignItems: "center" }]}>
                 <FontAwesome
                   name="bed"
                   color={color}
@@ -47,10 +52,12 @@ function BedList({ title, beds, color, navigation }) {
                   {title} - {beds.length}
                 </Text>
               </View>
-              <Text style={styles.shortdescription}>
-                NO MOMENTO EXISTEM {beds.length} {title.toUpperCase()}
+              <Text style={styles.shortDescription}>
+                Existem {beds.length} {title.toLowerCase()}
               </Text>
-              <Text style={styles.text}>TOQUE MAIS INFORMAÇÕES!</Text>
+              <Text style={[styles.text, { paddingBottom: 10 }]}>
+                {disabled ? "Ação desabilitada" : "Clique para ver mais"}
+              </Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -61,141 +68,149 @@ function BedList({ title, beds, color, navigation }) {
 
 export default function ListStatus({ route, navigation }) {
   const [beds, setBeds] = useState([]);
+  const [userConfig, setUserConfig] = useState(null);
   const [percentage, setPercentage] = useState(0);
 
-  useEffect(() => {
-    const unsubscribe = db.collection("beds").onSnapshot((snapshot) => {
-      const beds = snapshot.docs
-        .filter((doc) => doc.data().active !== false)
-        .map((doc) => doc.data());
+  const fetchData = async () => {
+    const _userConfig = await AsyncStorage.getItem("userConfig").then(
+      (userConfig) => {
+        return parse(userConfig);
+      }
+    );
+    setUserConfig(_userConfig);
+    const _permissions =
+      _userConfig?.permission === "admin"
+        ? status
+        : _getPermissions(_userConfig?.permission)?.map(
+            (permission) => permission?.from
+          );
+    const _beds = await BedsService.getByManyStatus(_permissions);
+    setBeds(_beds);
+  };
 
-      setBeds(beds);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchData();
     });
 
-    return () => unsubscribe();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
-  const [arrAvailable, arrOccupied, arrCleaning, arrBedding, arrMaintenance, arrBlocked] = useMemo(() => {
-    const availableArr = beds.filter((bed) => bed.status === "available");
-    const occupiedArr = beds.filter((bed) => bed.status === "occupied" || bed.status === "discharge");
-    const cleaningArr = beds.filter((bed) => bed.status === "awaiting_for_cleaning" || bed.status === "cleaning_in_progress");
-    const beddingArr = beds.filter((bed) => bed.status === "awaiting_for_bedding" || bed.status === "bedding_in_progress");
-    const arrMaintenance = beds.filter((bed) => bed.isMaintenance);
-    const arrBlocked = beds.filter((bed) => bed.isBlocked);
+  const [
+    arrAvailable,
+    arrOccupied,
+    arrCleaning,
+    arrBedding,
+    arrMaintenance,
+    arrBlocked,
+  ] = useMemo(() => {
+    const _availableArr = beds.filter((bed) => bed.status === "available");
+    const _occupiedArr = beds.filter(
+      (bed) =>
+        bed.status === "occupied" ||
+        bed.status === "discharge" ||
+        bed.status === "final_discharge"
+    );
+    const _cleaningArr = beds.filter(
+      (bed) =>
+        bed.status === "awaiting_for_cleaning" ||
+        bed.status === "cleaning_in_progress"
+    );
+    const beddingArr = beds.filter(
+      (bed) =>
+        bed.status === "awaiting_for_bedding" ||
+        bed.status === "bedding_in_progress"
+    );
+    const _arrMaintenance = beds.filter((bed) => bed.isMaintenance);
+    const _arrBlocked = beds.filter((bed) => bed.isBlocked);
 
-    setPercentage((occupiedArr.length * 100) / beds.length);
+    setPercentage((_occupiedArr.length * 100) / beds.length);
 
-    return [availableArr, occupiedArr, cleaningArr, beddingArr, arrMaintenance, arrBlocked, percentage];
+    return [
+      _availableArr,
+      _occupiedArr,
+      _cleaningArr,
+      beddingArr,
+      _arrMaintenance,
+      _arrBlocked,
+    ];
   }, [beds]);
+
+  const canAccessMaintenanceAndBlockedBeds = useMemo(() => {
+    return (
+      userConfig?.permission === "admin" ||
+      userConfig?.permission === "enfermeira"
+    );
+  });
+
+  const canAccessStatus = (status) => {
+    const _permissionRelation = _getPermissions;
+    return _permissionRelation.length > 0;
+  };
 
   return (
     <ScrollView>
       <OccupancyRate percentage={percentage} />
       <BedList
         title="Leitos Livres"
-        beds={arrAvailable}
+        beds={canAccessStatus("available") ? arrAvailable : []}
         color={_getColor("available")}
         navigation={navigation}
+        disabled={!canAccessStatus("available")}
       />
       <BedList
         title="Leitos Ocupados"
-        beds={arrOccupied}
+        beds={canAccessStatus("occupied") ? arrOccupied : []}
         color={_getColor("occupied")}
         navigation={navigation}
+        disabled={!canAccessStatus("occupied")}
       />
       <BedList
         title="Leitos Higienização"
-        beds={arrCleaning}
+        beds={
+          canAccessStatus("awaiting_for_cleaning") ||
+          canAccessStatus("cleaning_in_progress")
+            ? arrCleaning
+            : []
+        }
         color={_getColor("awaiting_for_cleaning")}
         navigation={navigation}
+        disabled={
+          !canAccessStatus("awaiting_for_cleaning") &&
+          !canAccessStatus("cleaning_in_progress")
+        }
       />
       <BedList
         title="Leitos Forragem"
-        beds={arrBedding}
+        beds={
+          canAccessStatus("awaiting_for_bedding") ||
+          canAccessStatus("bedding_in_progress")
+            ? arrBedding
+            : []
+        }
         color={_getColor("awaiting_for_bedding")}
         navigation={navigation}
+        disabled={
+          !canAccessStatus("awaiting_for_bedding") &&
+          !canAccessStatus("bedding_in_progress")
+        }
       />
-      <BedList
-        title="Leitos em Manutenção"
-        beds={arrMaintenance}
-        color={_getColor("maintenance")}
-        navigation={navigation}
-      />
-      <BedList
-        title="Leitos Bloqueados"
-        beds={arrBlocked}
-        color={_getColor("blocked")}
-        navigation={navigation}
-      />
+      {canAccessMaintenanceAndBlockedBeds && (
+        <>
+          <BedList
+            title="Leitos em Manutenção"
+            beds={arrMaintenance}
+            color={_getColor("maintenance")}
+            navigation={navigation}
+          />
+          <BedList
+            title="Leitos Bloqueados"
+            beds={arrBlocked}
+            color={_getColor("blocked")}
+            navigation={navigation}
+          />
+        </>
+      )}
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "column",
-    alignItems: "center",
-    paddingTop: 10,
-  },
-  lives: {
-    flexDirection: "column",
-    backgroundColor: "#dcdcdc",
-    width: "94%",
-    height: 130,
-    paddingTop: 10,
-    borderRadius: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  livre: {
-    fontSize: 26,
-    color: "green",
-  },
-  ocupado: {
-    fontSize: 26,
-    color: "red",
-  },
-  limpeza: {
-    fontSize: 26,
-    color: "blue",
-  },
-  forragem: {
-    fontSize: 26,
-    color: "yellow",
-  },
-  head: {
-    flexDirection: "row",
-    paddingLeft: 10,
-    paddingTop: 10,
-  },
-  shortdescription: {
-    fontSize: 16,
-    paddingTop: 25,
-    alignSelf: "center",
-  },
-  longdescription: {
-    fontSize: 12,
-    paddingTop: 25,
-    alignSelf: "center",
-  },
-  text: {
-    color: "#6495ED",
-    paddingTop: 20,
-    fontSize: 12,
-    alignSelf: "center",
-  },
-  ocupacao: {
-    backgroundColor: "#dcdcdc",
-    width: "94%",
-    height: 50,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textOc: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-});
