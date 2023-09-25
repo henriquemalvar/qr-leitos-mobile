@@ -33,6 +33,7 @@ const BedsService = {
   },
 
   async update(documentId, status) {
+    ("update called");
     const bedRef = db.collection("beds").doc(documentId);
     await bedRef.update({
       status: status,
@@ -53,9 +54,10 @@ const BedsService = {
   },
 
   async createLog(log) {
+    ("createLog called");
     const logRef = db.collection("logs");
     await logRef.add(log);
-  }
+  },
 };
 
 export default BedsService;
