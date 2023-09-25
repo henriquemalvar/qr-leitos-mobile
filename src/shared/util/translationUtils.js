@@ -16,6 +16,8 @@ const _getIcon = (status) => statusIcon[status] || "question";
 const translatePermission = (permission) =>
   translatePermissions[permission] || permission;
 
+const _getPermissions = (permission) => permission in permissions ? permissions[permission] : [];
+
 const _getOptions = (permission, currentStatus) => {
   let options = [];
   if (permission === "admin") {
@@ -26,7 +28,7 @@ const _getOptions = (permission, currentStatus) => {
     return options;
   }
 
-  options = permission in permissions ? permissions[permission] : [];
+  options = _getPermissions(permission);
   if (currentStatus) {
     options = options.filter((option) => option.from === currentStatus);
   }
@@ -45,6 +47,7 @@ export {
   _getColor,
   _getIcon,
   _getOptions,
+  _getPermissions,
   translatePermission,
   translateStatus,
 };

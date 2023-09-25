@@ -59,6 +59,10 @@ export const permissions = {
       from: "awaiting_for_bedding",
       to: "bedding_in_progress",
     },
+    {
+      from: "bedding_in_progress",
+      to: "available",
+    },
   ],
   portaria: [
     {
@@ -67,7 +71,6 @@ export const permissions = {
     },
   ],
   admin: [
-    // representa o fluxo completo de um leito, porem ele tem livre acesso a qualquer status
     {
       from: "available",
       to: "occupied",
