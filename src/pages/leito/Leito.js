@@ -1,14 +1,17 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { parse } from "flatted";
-import styles from "../leito/style";
-import BedsService from "../../shared/services/BedsServices";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { _getOptions, translateStatus } from "../../shared/util/translationUtils";
-import showMessage from "../../shared/util/messageUtils";
-import SelectDropdown from "react-native-select-dropdown";
+import { parse } from "flatted";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Switch } from "react-native-paper";
+import SelectDropdown from "react-native-select-dropdown";
+import BedsService from "../../shared/services/BedsServices";
 import { convertTimestamp } from "../../shared/util/dateUtils";
+import showMessage from "../../shared/util/messageUtils";
+import {
+  _getOptions,
+  translateStatus,
+} from "../../shared/util/translationUtils";
+import styles from "../leito/style";
 
 const BedDetails = ({ bed }) => {
   return (
@@ -34,14 +37,9 @@ const BedStatusDropdown = ({
   options,
   selectedOption,
   currentStatus,
-  disableSelect,
+  disabled,
   setSelectedOption,
 }) => {
-  const data = useMemo(
-    () => options.map((option) => option?.label || ""),
-    [options]
-  );
-
   const onSelect = useCallback(
     (selectedItem, index) => {
       setSelectedOption(options[index]?.value || "");
@@ -60,10 +58,10 @@ const BedStatusDropdown = ({
       <View style={styles.containerDesc}>
         <Text style={styles.detailsFont}>Estado do Leito </Text>
       </View>
-      {options.length > 0 && (
+      {options.length >= 0 && (
         <SelectDropdown
-          disabled={disableSelect}
-          data={data}
+          disabled={disabled}
+          data={options.map((option) => option.label)}
           onSelect={onSelect}
           defaultButtonText={defaultButtonText}
           rowTextForSelection={(item, index) => {
@@ -129,17 +127,20 @@ const ToggleCard = ({
   );
 };
 
-const SaveButton = ({ bed, selectedOption, disableSave, updateLeito }) => {
+const SaveButton = ({ bed, selectedOption, disabled, updateLeito }) => {
   const onPress = useCallback(() => {
-    if (bed.status === selectedOption || !selectedOption) return;
     updateLeito();
   }, [bed.status, selectedOption, updateLeito]);
 
   return (
     <TouchableOpacity
-      style={styles.buttonLabel}
+      style={[
+        styles.floatingButton,
+        { position: "absolute", bottom: 20, right: 20 },
+        disabled ? styles.disabledButtonLabel : styles.buttonLabel,
+      ]}
       onPress={onPress}
-      disabled={disableSave}
+      disabled={disabled || false}
     >
       <View>
         <Text style={styles.buttonText}>Salvar</Text>
@@ -149,50 +150,61 @@ const SaveButton = ({ bed, selectedOption, disableSave, updateLeito }) => {
 };
 
 export default function Leito({ route, navigation }) {
-  const { leito, scanned } = route.params;
+  const { leito, scanned = false } = route.params;
   const bed = parse(leito);
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [user, setUser] = useState(null);
   const [userConfig, setUserConfig] = useState(null);
-  const [disableSave, setDisableSave] = useState(true);
-  const [disableSelect, setDisableSelect] = useState(true);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [canToggle, setCanToggle] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [_user, _userConfig] = await Promise.all([
-        AsyncStorage.getItem("user").then((user) => parse(user)),
-        AsyncStorage.getItem("userConfig").then((userConfig) =>
-          parse(userConfig)
-        ),
-        
-      ]);
+      try {
+        const [_user, _userConfig] = await Promise.all([
+          AsyncStorage.getItem("user").then((user) => parse(user)),
+          AsyncStorage.getItem("userConfig").then((userConfig) => {
+            setUserConfig(parse(userConfig));
+            return parse(userConfig);
+          }),
+        ]);
 
-      setUser(_user);
-      setUserConfig(_userConfig);
-      const _options = _getOptions(_userConfig.permission, bed.status);
-      setOptions(generateOptionsLabelValue(_options));
-      setDisableSelect(false);
-      setDisableSave(false);
+        setUser(_user);
+
+        const _options = _getOptions(_userConfig.permission, bed.status);
+        setOptions(_options);
+        setIsBlocked(bed.isBlocked || false);
+        setIsMaintenance(bed.isMaintenance || false);
+        if (
+          _userConfig?.permission === "admin" ||
+          _userConfig?.permission === "enfermeira"
+        ) {
+          setCanToggle(true);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+        showMessage("error", "Error fetching data", error.message);
+      }
     };
     fetchData();
   }, []);
 
-  const generateOptionsLabelValue = (options) => {
-    console.log("generateOptionsLabelValue", options);
-    return options.map((option) => {
-      console.log("option", option.from)
-      return {
-        label: translateStatus(option.to || ""),
-        value: option.to || "",
-      };
-    });
-  };
-
   const updateLeito = useCallback(() => {
+    if (
+      (isMaintenance || isBlocked) &&
+      (!userConfig ||
+        (userConfig.permission !== "admin" &&
+          userConfig.permission !== "enfermeira"))
+    ) {
+      let status = isMaintenance ? "manutenção" : "bloqueado";
+      showMessage(
+        "error",
+        `Este leito está em ${status}. Somente alguém da enfermagem ou um administrador pode alterar o status dele.`
+      );
+      return;
+    }
     changeStatus(selectedOption)
       .then(() => {
         navigation.navigate("Menu", bed.id);
@@ -201,32 +213,49 @@ export default function Leito({ route, navigation }) {
         console.error("Erro ao atualizar leito", error.message);
         showMessage("error", "Erro ao atualizar leito", error.message);
       });
-  }, [bed.id, changeStatus, navigation, selectedOption]);
+  }, [
+    bed.id,
+    changeStatus,
+    isBlocked,
+    isMaintenance,
+    navigation,
+    selectedOption,
+    userConfig,
+  ]);
 
   const changeStatus = async (status) => {
     try {
-      const old_status = bed.status;
-      await BedsService.update(bed.id, status);
+      if (
+        (isMaintenance !== bed.isMaintenance || isBlocked !== bed.isBlocked) &&
+        !status
+      ) {
+        status = bed.status;
+      }
+      const newBed = {
+        ...bed,
+        status: status,
+        isMaintenance,
+        isBlocked,
+        updated_at: new Date(),
+      };
+      await BedsService.updateBed(newBed);
       const log = {
         bed_id: bed.id,
-        old_status: old_status,
-        status: status,
+        after: newBed,
+        before: bed,
         created_at: new Date(),
         userName: userConfig.name,
         userUid: user.uid,
         userEmail: user.email,
+        userPermission: userConfig.permission,
       };
       await BedsService.createLog(log);
+      showMessage("success", "Leito atualizado com sucesso");
     } catch (error) {
       console.error("Error occurred while updating bed status:", error);
       throw error;
     }
   };
-
-  const memoizedOptions = useMemo(
-    () => generateOptionsLabelValue(options),
-    [generateOptionsLabelValue, options]
-  );
 
   const handleMaintenanceChange = () => {
     setIsMaintenance(!isMaintenance);
@@ -234,6 +263,42 @@ export default function Leito({ route, navigation }) {
 
   const handleBlockedChange = () => {
     setIsBlocked(!isBlocked);
+  };
+
+  const canSave = () => {
+    const hasStatusChanged =
+      selectedOption !== null && selectedOption !== bed.status;
+    const hasMaintenanceChanged = isMaintenance !== bed.isMaintenance;
+    const hasBlockedChanged = isBlocked !== bed.isBlocked;
+    const canToggleMaintenanceOrBlocked =
+      canToggle && (hasMaintenanceChanged || hasBlockedChanged);
+
+    const userIsEnfermeiraOrAdmin =
+      userConfig?.permission === "admin" ||
+      userConfig?.permission === "enfermeira";
+    const userIsLimpezaOrCamareira =
+      userConfig?.permission === "limpeza" ||
+      userConfig?.permission === "camareira";
+
+    if (
+      userIsEnfermeiraOrAdmin &&
+      (hasStatusChanged || canToggleMaintenanceOrBlocked)
+    ) {
+      return true;
+    } else if (
+      userIsLimpezaOrCamareira &&
+      scanned &&
+      (hasStatusChanged || canToggleMaintenanceOrBlocked)
+    ) {
+      return true;
+    } else if (
+      hasStatusChanged &&
+      !userIsEnfermeiraOrAdmin &&
+      !userIsLimpezaOrCamareira
+    ) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -251,16 +316,16 @@ export default function Leito({ route, navigation }) {
         />
       )}
       <BedStatusDropdown
-        options={memoizedOptions}
+        options={options}
         selectedOption={selectedOption}
         currentStatus={bed.status}
-        disableSelect={disableSelect}
+        disabled={options.length === 0}
         setSelectedOption={setSelectedOption}
       />
       <SaveButton
         bed={bed}
+        disabled={!canSave()}
         selectedOption={selectedOption}
-        disableSave={disableSave}
         updateLeito={updateLeito}
       />
     </View>
