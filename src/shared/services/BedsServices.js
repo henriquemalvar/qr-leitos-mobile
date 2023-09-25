@@ -32,13 +32,22 @@ const BedsService = {
     return beds;
   },
 
-  async update(documentId, status) {
-    ("update called");
-    const bedRef = db.collection("beds").doc(documentId);
-    await bedRef.update({
-      status: status,
-      updated_at: new Date(),
+  async getByManyStatus(status) {
+    const bedsRef = db.collection("beds").where("status", "in", status);
+    const bedsDoc = await bedsRef.get();
+    const beds = bedsDoc.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
     });
+    return beds;
+  },
+
+  async updateBed(bed) {
+    const { id } = bed;
+    const bedRef = db.collection("beds").doc(id);
+    await bedRef.update(bed);
   },
 
   async updateMany(beds) {
@@ -54,7 +63,6 @@ const BedsService = {
   },
 
   async createLog(log) {
-    ("createLog called");
     const logRef = db.collection("logs");
     await logRef.add(log);
   },

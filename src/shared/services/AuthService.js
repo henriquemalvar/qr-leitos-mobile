@@ -23,7 +23,7 @@ const authService = {
     let message = error.message;
 
     if (!message) {
-      console.log(error.code);
+      console.error(error.code);
       switch (error.code) {
         case "auth/invalid-email":
         case "auth/user-not-found":
