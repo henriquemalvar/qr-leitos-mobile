@@ -107,8 +107,6 @@ export const status = [
   "cleaning_in_progress",
   "awaiting_for_bedding",
   "bedding_in_progress",
-  "blocked",
-  "maintenance",
   "final_discharge",
 ];
 
