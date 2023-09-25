@@ -1,191 +1,137 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { stringify } from "flatted";
 import db from "../../database/database";
-import { statusToColor } from "../../shared/util/constants";
-import { useIsFocused } from "@react-navigation/native";
+import { ScrollView } from "react-native-gesture-handler";
+import { _getColor } from "../../shared/util/translationUtils";
 
-export default function ListStatus({ route, navigation }) {
-  const [arrAvailable, setArrAvailable] = useState([]);
-  const [arrOccupied, setArrOccupied] = useState([]);
-  const [arrCleaning, setArrCleaning] = useState([]);
-  const [arrBedding, setArrBedding] = useState([]);
-  const [percentage, setPercentage] = useState(0);
-
-  useEffect(() => {
-    const unsubscribe = db.collection("beds").onSnapshot((snapshot) => {
-      let arr = [];
-      let availableArr = [];
-      let occupiedArr = [];
-      let cleaningArr = [];
-      let beddingArr = [];
-
-      snapshot.docs.forEach((doc) => {
-        if (doc.data().active === false) return;
-        switch (doc.data().status) {
-          case "available":
-            availableArr.push(doc.data());
-            break;
-          case "occupied":
-          case "discharge":
-            occupiedArr.push(doc.data());
-            break;
-          case "awaiting_for_cleaning":
-          case "cleaning_in_progress":
-            cleaningArr.push(doc.data());
-            break;
-          case "awaiting_for_bedding":
-          case "bedding_in_progress":
-            beddingArr.push(doc.data());
-            break;
-        }
-        arr.push(doc.data());
-      });
-
-      setArrAvailable(availableArr);
-      setArrOccupied(occupiedArr);
-      setArrCleaning(cleaningArr);
-      setArrBedding(beddingArr);
-
-      setPercentage(() => {
-        return (occupiedArr.length * 100) / arr.length;
-      });
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const _getColor = (status) => {
-    return statusToColor[status] || "black";
-  }
-
+function OccupancyRate({ percentage }) {
   return (
-    <View>
-      <View>
-        <View style={[styless.container]}>
-          <View style={styless.ocupacao}>
-            <Text style={styless.textOc}>
-              Taxa de Ocupação: {percentage.toFixed(2)}%
-            </Text>
-          </View>
-        </View>
-
-        {arrAvailable.length != 0 && (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("Lista", {
-                leitos: stringify(arrAvailable),
-                cor: _getColor('available'),
-              });
-            }}
-          >
-            <View style={[styless.container]}>
-              <View style={[styless.lives]}>
-                <View style={[styless.head]}>
-                  <FontAwesome name="bed" style={styless.livre} />
-                  <Text style={[styless.title]}>
-                    {" "}
-                    LEITOS LIVRES - {arrAvailable.length}
-                  </Text>
-                </View>
-                <Text style={styless.shortdescription}>
-                  NO MOMENTO EXISTEM {arrAvailable.length} LEITOS LIVRES
-                </Text>
-                <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-        <View>
-          {arrOccupied.length != 0 && (
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate("Lista", {
-                  leitos: stringify(arrOccupied),
-                  cor: _getColor('occupied'),
-                });
-              }}
-            >
-              <View style={[styless.container]}>
-                <View style={[styless.lives]}>
-                  <View style={[styless.head]}>
-                    <FontAwesome name="bed" style={styless.ocupado} />
-                    <Text style={[styless.title]}>
-                      {" "}
-                      LEITOS OCUPADOS - {arrOccupied.length}
-                    </Text>
-                  </View>
-                  <Text style={styless.shortdescription}>
-                    NO MOMENTO EXISTEM {arrOccupied.length} LEITOS OCUPADOS
-                  </Text>
-                  <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-      {arrCleaning.length != 0 && (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate("Lista", {
-              leitos: stringify(arrCleaning),
-              cor: _getColor('awaiting_for_cleaning'),
-            });
-          }}
-        >
-          <View style={[styless.container]}>
-            <View style={[styless.lives]}>
-              <View style={[styless.head]}>
-                <FontAwesome name="bed" style={styless.limpeza} />
-                <Text style={[styless.title]}>
-                  {" "}
-                  LEITOS HIGIENIZAÇÃO - {arrCleaning.length}
-                </Text>
-              </View>
-              <Text style={styless.longdescription}>
-                NO MOMENTO EXISTEM {arrCleaning.length} LEITOS AGUARDANDO HIGIENIZAÇÃO
-              </Text>
-              <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      )}
-
-      <View>
-        {arrBedding.length != 0 && (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("Lista", {
-                leitos: stringify(arrBedding),
-                cor: _getColor('awaiting_for_bedding'),
-              });
-            }}
-          >
-            <View style={[styless.container]}>
-              <View style={[styless.lives]}>
-                <View style={[styless.head]}>
-                  <FontAwesome name="bed" style={styless.forragem} />
-                  <Text style={[styless.title]}>
-                    {" "}
-                    LEITOS FORRAGEM - {arrBedding.length}
-                  </Text>
-                </View>
-                <Text style={styless.longdescription}>
-                  NO MOMENTO EXISTEM {arrBedding.length} LEITOS AGUARDANDO FORRAGEM
-                </Text>
-                <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
+    <View style={styles.container}>
+      <View style={styles.ocupacao}>
+        <Text style={styles.textOc}>
+          Taxa de Ocupação: {percentage.toFixed(2)}%
+        </Text>
       </View>
     </View>
   );
 }
 
-const styless = StyleSheet.create({
+function BedList({ title, beds, color, navigation }) {
+  if (typeof color !== "string") {
+    color = "black";
+  }
+
+  return (
+    <View>
+      {beds.length !== 0 && (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Lista", {
+              leitos: stringify(beds),
+              cor: color,
+            });
+          }}
+        >
+          <View style={[styles.container]}>
+            <View style={[styles.lives]}>
+              <View style={[styles.head]}>
+                <FontAwesome
+                  name="bed"
+                  color={color}
+                  style={{ fontSize: 24 }}
+                />
+                <Text style={[styles.title]}>
+                  {" "}
+                  {title} - {beds.length}
+                </Text>
+              </View>
+              <Text style={styles.shortdescription}>
+                NO MOMENTO EXISTEM {beds.length} {title.toUpperCase()}
+              </Text>
+              <Text style={styles.text}>TOQUE MAIS INFORMAÇÕES!</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+export default function ListStatus({ route, navigation }) {
+  const [beds, setBeds] = useState([]);
+  const [percentage, setPercentage] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = db.collection("beds").onSnapshot((snapshot) => {
+      const beds = snapshot.docs
+        .filter((doc) => doc.data().active !== false)
+        .map((doc) => doc.data());
+
+      setBeds(beds);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const [arrAvailable, arrOccupied, arrCleaning, arrBedding, arrMaintenance, arrBlocked] = useMemo(() => {
+    const availableArr = beds.filter((bed) => bed.status === "available");
+    const occupiedArr = beds.filter((bed) => bed.status === "occupied" || bed.status === "discharge");
+    const cleaningArr = beds.filter((bed) => bed.status === "awaiting_for_cleaning" || bed.status === "cleaning_in_progress");
+    const beddingArr = beds.filter((bed) => bed.status === "awaiting_for_bedding" || bed.status === "bedding_in_progress");
+    const arrMaintenance = beds.filter((bed) => bed.isMaintenance);
+    const arrBlocked = beds.filter((bed) => bed.isBlocked);
+
+    setPercentage((occupiedArr.length * 100) / beds.length);
+
+    return [availableArr, occupiedArr, cleaningArr, beddingArr, arrMaintenance, arrBlocked, percentage];
+  }, [beds]);
+
+  return (
+    <ScrollView>
+      <OccupancyRate percentage={percentage} />
+      <BedList
+        title="Leitos Livres"
+        beds={arrAvailable}
+        color={_getColor("available")}
+        navigation={navigation}
+      />
+      <BedList
+        title="Leitos Ocupados"
+        beds={arrOccupied}
+        color={_getColor("occupied")}
+        navigation={navigation}
+      />
+      <BedList
+        title="Leitos Higienização"
+        beds={arrCleaning}
+        color={_getColor("awaiting_for_cleaning")}
+        navigation={navigation}
+      />
+      <BedList
+        title="Leitos Forragem"
+        beds={arrBedding}
+        color={_getColor("awaiting_for_bedding")}
+        navigation={navigation}
+      />
+      <BedList
+        title="Leitos em Manutenção"
+        beds={arrMaintenance}
+        color={_getColor("maintenance")}
+        navigation={navigation}
+      />
+      <BedList
+        title="Leitos Bloqueados"
+        beds={arrBlocked}
+        color={_getColor("blocked")}
+        navigation={navigation}
+      />
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
     alignItems: "center",

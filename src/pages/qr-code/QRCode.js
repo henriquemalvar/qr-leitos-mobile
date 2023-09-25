@@ -5,6 +5,7 @@ import styles from "./style";
 import { stringify } from "flatted";
 import { useIsFocused } from "@react-navigation/native";
 import BedsService from "../../shared/services/BedsServices";
+import showMessage from "../../shared/util/messageUtils";
 
 export default function QRCode({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
@@ -39,14 +40,19 @@ export default function QRCode({ navigation }) {
   }, [isFocused]);
 
   const handleBarCodeScanned = ({ data }) => {
-    searchLeito(data).then((result) => {
-      if (result == false) {
-        setCode("Leito não cadastrado");
-      } else {
-        setScanned(true);
-        setCode(data);
-      }
-    });
+    searchLeito(data)
+      .then((result) => {
+        if (result === false) {
+          showMessage("error", "Erro ao buscar leito", "Leito não encontrado");
+        } else {
+          setScanned(true);
+          setCode(data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        showMessage("error", "Erro ao buscar leito", error.message);
+      });
   };
 
   const clearData = async () => {
@@ -85,6 +91,7 @@ export default function QRCode({ navigation }) {
               clearData();
               navigation.navigate("Leito", {
                 leito: stringify(leito),
+                scanned: true,
               });
             }}
           >

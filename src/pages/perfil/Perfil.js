@@ -1,30 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { getAuth, signOut } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, signOut } from "firebase/auth";
+import { parse } from "flatted";
+import React, { useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { translatePermission } from "../../shared/util/translationUtils";
 
 import styles from "./styles";
-import { parse } from "flatted";
-import { permissionsToLabel } from "../../shared/util/constants";
+import showMessage from "../../shared/util/messageUtils";
 
 export default function Perfil({ navigation, route }) {
   const [user, setUser] = useState("");
 
   useEffect(() => {
-    async function userData() {
-      await AsyncStorage.getItem("userConfig").then((user) => {
-        setUser(parse(user));
-      });
+    async function fetchUserConfig() {
+      try {
+        const userConfig = await AsyncStorage.getItem("userConfig");
+        if (userConfig) {
+          setUser(parse(userConfig));
+        }
+      } catch (error) {
+        console.error("Error fetching userConfig:", error);
+      }
     }
-    userData();
+
+    fetchUserConfig();
   }, []);
 
   const logout = async () => {
-    await signOut(getAuth()).then(() => {
-      AsyncStorage.multiRemove(["token", "user", "userConfig", "options"]);
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      await AsyncStorage.multiRemove([
+        "token",
+        "user",
+        "userConfig",
+      ]);
       navigation.navigate("Login");
-    });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      showMessage("error", "Erro ao fazer logout", error.message)
+    }
   };
 
   return (
@@ -48,12 +64,7 @@ export default function Perfil({ navigation, route }) {
         <Text style={styles.cargo2}>{user.email}</Text>
       </View>
       <View>
-        <TouchableOpacity
-          style={styles.logout}
-          onPress={async () => {
-            await logout();
-          }}
-        >
+        <TouchableOpacity style={styles.logout} onPress={logout}>
           <Text style={{ fontSize: 24, color: "white", fontWeight: "bold" }}>
             Sair
           </Text>
@@ -62,7 +73,3 @@ export default function Perfil({ navigation, route }) {
     </View>
   );
 }
-
-const translatePermission = (permission) => {
-  return permissionsToLabel[permission] || "Não definido";
-};
