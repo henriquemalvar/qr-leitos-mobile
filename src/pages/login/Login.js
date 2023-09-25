@@ -89,30 +89,33 @@ export default function Login({ navigation }) {
 
   useEffect(() => {
     const getUser = async () => {
-      await AsyncStorage.getItem("user").then(async (user) => {
-        if (!user) {
-          return;
-        }
+      const user = await AsyncStorage.getItem("user");
+      const config = await AsyncStorage.getItem("userConfig");
+
+      if (user && config) {
         const parsedUser = parse(user);
-        const config = await AsyncStorage.getItem("userConfig");
-        if (!config) {
-          return;
-        }
         const parsedConfig = parse(config);
 
         const expirationTime = moment(
           parsedUser.stsTokenManager.expirationTime
         );
         const currentTime = moment();
-        if (moment(expirationTime).isAfter(currentTime) && parsedConfig) {
+
+        if (moment(expirationTime).isAfter(currentTime)) {
+          showMessage("success", "Bem vindo de volta", parsedConfig?.name || '');
           navigation.navigate("Menu", { idUser: parsedUser.uid });
+        } else {
+          showMessage(
+            "error",
+            "Sessão expirada",
+            "Faça login novamente para continuar."
+          );
         }
-      });
+      }
     };
 
     getUser();
   }, []);
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
