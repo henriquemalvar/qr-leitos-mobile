@@ -102,7 +102,7 @@ export default function Login({ navigation }) {
 
         const expirationTime = moment(
           parsedUser.stsTokenManager.expirationTime
-        ).add(1, "week");
+        );
         const currentTime = moment();
         if (moment(expirationTime).isAfter(currentTime) && parsedConfig) {
           navigation.navigate("Menu", { idUser: parsedUser.uid });
@@ -131,7 +131,7 @@ export default function Login({ navigation }) {
           style={styles.passwordInput}
           secureTextEntry={!showPassword}
           placeholder="Digite a senha:"
-          type="text"
+          type="email"
           onChangeText={(text) => setSenha(text)}
           value={senha}
         />
