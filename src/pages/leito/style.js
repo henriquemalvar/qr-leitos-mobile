@@ -8,14 +8,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  containerDados: {
-    paddingTop: 10,
-    flex: 1,
-    color: "#ffffff",
-    flexDirection: "column",
-    width: "100%",
-  },
-
   title: {
     backgroundColor: "#dcdcdc",
     width: "97%",
@@ -58,6 +50,17 @@ const styles = StyleSheet.create({
 
   buttonLabel: {
     backgroundColor: "green",
+    width: "25%",
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: "5%",
+    left: "68%",
+  },
+
+  disabledButtonLabel: {
+    backgroundColor: "#E7E6E1", 
     width: "25%",
     borderRadius: 50,
     alignItems: "center",
