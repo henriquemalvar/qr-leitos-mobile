@@ -3,13 +3,11 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Entypo, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parse } from "flatted";
-import { Chip } from "react-native-paper";
-import { permissionsIcons } from "../shared/util/constants";
 
 import Homepage from "../pages/home/Homepage";
 import QRCode from "../pages/qr-code/QRCode";
 import Perfil from "../pages/perfil/Perfil";
-import Toast from "react-native-toast-message";
+import UserChip from "./UserChip";
 
 const Tab = createBottomTabNavigator();
 
@@ -40,27 +38,7 @@ export default function Menu(props) {
           component={Homepage}
           options={{
             headerRight: () => (
-              <Chip
-                style={{
-                  alignSelf: "flex-end",
-                  marginRight: 10,
-                  marginTop: 10,
-                }}
-                icon={permissionsIcons[parsedUser?.permission]}
-                mode="outlined"
-                onPress={() => {
-                  Toast.show({
-                    type: "info",
-                    text1: `Permissão: ${parsedUser?.permission}`,
-                    visibilityTime: 3000,
-                    autoHide: true,
-                    topOffset: 30,
-                    bottomOffset: 40,
-                  });
-                }}
-              >
-                {parsedUser?.name}
-              </Chip>
+              <UserChip parsedUser={parsedUser} onPress={() => {}} />
             ),
             tabBarLabel: "Leitos",
             tabBarIcon: ({ size, color }) => (
