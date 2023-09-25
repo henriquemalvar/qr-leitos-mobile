@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { parse, stringify } from "flatted";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
 import {
-  View,
+  KeyboardAvoidingView,
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
+  View,
 } from "react-native";
-import styles from "./styles";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { stringify, parse } from "flatted";
 import db from "../../database/database";
-import moment from "moment";
-import { permissions } from "../../shared/util/constants";
-import Toast from "react-native-toast-message";
+import showMessage from "../../shared/util/messageUtils";
+import styles from "./styles";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorLogin, setErrorLogin] = useState(false);
-  const [messageError, setMessageError] = useState("");
 
-  const loginFirebase = async () => {
+  const handleLogin = async () => {
+    if (!email.trim() || !senha.trim()) {
+      showMessage("error", "Erro ao fazer login", "Preencha todos os campos.");
+      return;
+    }
+
     try {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(
@@ -31,48 +33,34 @@ export default function Login({ navigation }) {
         email,
         senha
       );
-      const user = await saveUserToAsyncStorage(userCredential.user);
-      const userConfig = await saveUserConfigToAsyncStorage(email);
-      await saveOptionsToAsyncStorage(userConfig.permission);
+      await saveUserToAsyncStorage(userCredential.user);
+      await saveUserConfigToAsyncStorage(email);
 
-      navigation.navigate("Menu", { idUser: user.uid });
+      navigation.navigate("Menu", { idUser: userCredential.user.uid });
     } catch (error) {
-      let message;
-      if (messageError !== "") {
-        message = messageError;
-      } else {
-        switch (error.code) {
-          case "auth/invalid-email":
-            message = "Email ou senha incorretos";
-            break;
-          case "auth/user-disabled":
-            message = "Usuário desabilitado";
-            break;
-          case "auth/user-not-found":
-            message = "Usuário não encontrado";
-            break;
-          case "auth/wrong-password":
-            message = "Email ou senha incorretos";
-            break;
-          default:
-            message = "Erro ao fazer login";
-            break;
-        }
-      }
-      setMessageError(message);
-      Toast.show({
-        type: "error",
-        text1: "Erro ao fazer login",
-        text2: message,
-        visibilityTime: 3000,
-        autoHide: true,
-        topOffset: 30,
-        bottomOffset: 40,
-        position: "bottom",
-      });
-      setErrorLogin(true);
-      console.log(error);
+      handleLoginError(error);
     }
+  };
+
+  const handleLoginError = (error) => {
+    let message;
+    if (!message) {
+      switch (error.code) {
+        case "auth/invalid-email":
+        case "auth/user-not-found":
+        case "auth/wrong-password":
+          message = "Email ou senha incorretos";
+          break;
+        case "auth/user-disabled":
+          message = "Usuário desabilitado";
+          break;
+        default:
+          message = "Erro ao fazer login";
+          break;
+      }
+    }
+
+    showMessage("error", "Erro ao fazer login", message);
   };
 
   const saveUserToAsyncStorage = async (_user) => {
@@ -80,7 +68,6 @@ export default function Login({ navigation }) {
       _user.stsTokenManager.expirationTime
     ).add(1, "week");
     await AsyncStorage.setItem("user", stringify(_user));
-    return _user;
   };
 
   const saveUserConfigToAsyncStorage = async (email) => {
@@ -90,60 +77,40 @@ export default function Login({ navigation }) {
         .doc(email)
         .get();
 
-      if (querySnapshot.empty) {
+      const userConfig = querySnapshot.data();
+      if (!userConfig) {
         throw new Error("User config not found");
       }
-
-      let userConfig = querySnapshot.data();
       await AsyncStorage.setItem("userConfig", stringify(userConfig));
-      return userConfig;
     } catch (error) {
-      setMessageError(error.message);
-      return { error: error.message };
-    }
-  };
-
-  const saveOptionsToAsyncStorage = async (permission = "") => {
-    try {
-      const options = Array.isArray(permissions[permission])
-        ? permissions[permission]
-        : [];
-
-      await AsyncStorage.setItem("options", stringify(options));
-    } catch (error) {
-      setMessageError(error.message);
-      return { error: error.message };
+      throw error;
     }
   };
 
   useEffect(() => {
     const getUser = async () => {
       await AsyncStorage.getItem("user").then(async (user) => {
-        if (user) {
-          const parsedConfig = await AsyncStorage.getItem("userConfig");
-          const parsedOptions = await AsyncStorage.getItem("options");
-          const parsedUser = parse(user);
+        if (!user) {
+          return;
+        }
+        const parsedUser = parse(user);
+        const config = await AsyncStorage.getItem("userConfig");
+        if (!config) {
+          return;
+        }
+        const parsedConfig = parse(config);
 
-          // const expirationTime = parsedUser.stsTokenManager.expirationTime;
-          const expirationTime = moment(
-            parsedUser.stsTokenManager.expirationTime
-          ).add(1, "week");
-          const currentTime = moment();
-
-          if (
-            moment(expirationTime).isBefore(currentTime) &&
-            parsedConfig &&
-            parsedOptions
-          ) {
-            navigation.navigate("Menu", { idUser: parsedUser.uid });
-          }
-          // else {
-          //   navigation.navigate("Menu", { idUser: parsedUser.uid });
-          // }
+        const expirationTime = moment(
+          parsedUser.stsTokenManager.expirationTime
+        ).add(1, "week");
+        const currentTime = moment();
+        if (moment(expirationTime).isAfter(currentTime) && parsedConfig) {
+          navigation.navigate("Menu", { idUser: parsedUser.uid });
         }
       });
     };
 
+    getUser();
   }, []);
 
   return (
@@ -179,20 +146,18 @@ export default function Login({ navigation }) {
           />
         </TouchableOpacity>
       </View>
-      {errorLogin === true ? (
-        <Text style={styles.error}>{messageError}</Text>
-      ) : (
-        <View />
-      )}
-      {email === "" || senha === "" ? (
-        <TouchableOpacity disabled style={styles.buttonLogin}>
-          <Text style={styles.textButtonLogin}>Entrar</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.buttonLogin} onPress={loginFirebase}>
-          <Text style={styles.textButtonLogin}>Entrar</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        style={[
+          styles.buttonLogin,
+          {
+            backgroundColor: email.trim() && senha.trim() ? "#3498db" : "#ccc",
+          },
+        ]}
+        onPress={handleLogin}
+        disabled={!email.trim() || !senha.trim()}
+      >
+        <Text style={styles.textButtonLogin}>Entrar</Text>
+      </TouchableOpacity>
       <View style={{ height: 100 }} />
     </KeyboardAvoidingView>
   );
