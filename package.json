@@ -1,11 +1,10 @@
 {
   "name": "qr-leitos",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "build": "eas build --platform android --profile preview"
   },
@@ -14,8 +13,8 @@
     "@expo/webpack-config": "^18.0.1",
     "@react-native-async-storage/async-storage": "1.17.11",
     "@react-native-community/masked-view": "^0.1.11",
-    "@react-native-community/netinfo": "^9.4.1",
-    "@react-native-picker/picker": "^2.4.10",
+    "@react-native-community/netinfo": "9.3.7",
+    "@react-native-picker/picker": "2.4.8",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/stack": "^6.3.17",
@@ -36,7 +35,9 @@
     "react-native-screens": "~3.20.0",
     "react-native-select-dropdown": "^3.3.4",
     "react-native-toast-message": "^2.1.6",
-    "react-native-web": "~0.18.10"
+    "react-native-web": "~0.18.10",
+    "expo-splash-screen": "~0.18.2",
+    "expo-system-ui": "~2.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
