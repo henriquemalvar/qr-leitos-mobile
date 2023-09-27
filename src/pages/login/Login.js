@@ -102,7 +102,11 @@ export default function Login({ navigation }) {
         const currentTime = moment();
 
         if (moment(expirationTime).isAfter(currentTime)) {
-          showMessage("success", "Bem vindo de volta", parsedConfig?.name || '');
+          showMessage(
+            "success",
+            "Bem vindo de volta",
+            parsedConfig?.name || ""
+          );
           navigation.navigate("Menu", { idUser: parsedUser.uid });
         } else {
           showMessage(
@@ -128,6 +132,7 @@ export default function Login({ navigation }) {
         type="text"
         onChangeText={(text) => setEmail(text)}
         value={email}
+        autoCapitalize="none"
       />
       <View style={styles.passwordContainer}>
         <TextInput
@@ -137,6 +142,7 @@ export default function Login({ navigation }) {
           type="email"
           onChangeText={(text) => setSenha(text)}
           value={senha}
+          autoCapitalize="none"
         />
         <TouchableOpacity
           style={styles.showPasswordButton}
