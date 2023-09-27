@@ -78,13 +78,15 @@ export default function ListStatus({ route, navigation }) {
       }
     );
     setUserConfig(_userConfig);
-    const _permissions =
-      _userConfig?.permission === "admin"
-        ? status
-        : _getPermissions(_userConfig?.permission)?.map(
-            (permission) => permission?.from
-          );
-    const _beds = await BedsService.getByManyStatus(_permissions);
+    // !TODO: Remove this comment to filter by user permission and comment the next line
+    // const _permissions =
+    //   _userConfig?.permission === "admin"
+    //     ? status
+    //     : _getPermissions(_userConfig?.permission)?.map(
+    //         (permission) => permission?.from
+    //       );
+    // const _beds = await BedsService.getByManyStatus(_permissions);
+    const _beds = await BedsService.getAll();
     setBeds(_beds);
   };
 
