@@ -2,23 +2,22 @@ import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import styles from "./style";
-import db from "../../database/database";
 import { stringify } from "flatted";
 import { useIsFocused } from "@react-navigation/native";
+import BedsService from "../../shared/services/BedsServices";
+import showMessage from "../../shared/util/messageUtils";
 
 export default function QRCode({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [codigo, setCodigo] = useState("");
+  const [code, setCode] = useState("");
   const [leito, setLeito] = useState(null);
   const isFocused = useIsFocused();
 
-  async function searchLeito(code) {
+  async function searchLeito(_id) {
     try {
-      const leitoRef = db.collection("beds").doc(code);
-      const leitoDoc = await leitoRef.get();
-      const leitoData = leitoDoc.data();
-      setLeito(leitoData);
+      const bedData = await BedsService.getById(_id);
+      setLeito(bedData);
     } catch (error) {
       return false;
     }
@@ -32,26 +31,33 @@ export default function QRCode({ navigation }) {
   }, []);
 
   useEffect(() => {
+    // checkConnection();
+
     if (isFocused) {
       setScanned(false);
-      setCodigo("");
+      setCode("");
     }
   }, [isFocused]);
 
   const handleBarCodeScanned = ({ data }) => {
-    searchLeito(data).then((result) => {
-      if (result == false) {
-        setCodigo("Leito não cadastrado");
-      } else {
-        setScanned(true);
-        setCodigo(data);
-      }
-    });
+    searchLeito(data)
+      .then((result) => {
+        if (result === false) {
+          showMessage("error", "Erro ao buscar leito", "Leito não encontrado");
+        } else {
+          setScanned(true);
+          setCode(data);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        showMessage("error", "Erro ao buscar leito", error.message);
+      });
   };
 
   const clearData = async () => {
     setScanned(false);
-    setCodigo("");
+    setCode("");
     setLeito(null);
   };
 
@@ -75,7 +81,7 @@ export default function QRCode({ navigation }) {
         <></>
       )}
       <View>
-        <Text style={styles.text}>{codigo}</Text>
+        <Text style={styles.text}>{code}</Text>
       </View>
       {scanned && (
         <>
@@ -85,6 +91,7 @@ export default function QRCode({ navigation }) {
               clearData();
               navigation.navigate("Leito", {
                 leito: stringify(leito),
+                scanned: true,
               });
             }}
           >

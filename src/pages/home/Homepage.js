@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { stringify } from "flatted";
 import db from "../../database/database";
-import { statusToColor } from "../../shared/util/constants";
+import { statusToColor } from "../../shared/util/constantsUtils";
 import { useIsFocused } from "@react-navigation/native";
 
 export default function ListStatus({ route, navigation }) {
@@ -58,7 +58,7 @@ export default function ListStatus({ route, navigation }) {
 
   const _getColor = (status) => {
     return statusToColor[status] || "black";
-  }
+  };
 
   return (
     <View>
@@ -76,7 +76,7 @@ export default function ListStatus({ route, navigation }) {
             onPress={() => {
               navigation.navigate("Lista", {
                 leitos: stringify(arrAvailable),
-                cor: _getColor('available'),
+                cor: _getColor("available"),
               });
             }}
           >
@@ -103,7 +103,7 @@ export default function ListStatus({ route, navigation }) {
               onPress={() => {
                 navigation.navigate("Lista", {
                   leitos: stringify(arrOccupied),
-                  cor: _getColor('occupied'),
+                  cor: _getColor("occupied"),
                 });
               }}
             >
@@ -131,7 +131,7 @@ export default function ListStatus({ route, navigation }) {
           onPress={() => {
             navigation.navigate("Lista", {
               leitos: stringify(arrCleaning),
-              cor: _getColor('awaiting_for_cleaning'),
+              cor: _getColor("awaiting_for_cleaning"),
             });
           }}
         >
@@ -145,7 +145,8 @@ export default function ListStatus({ route, navigation }) {
                 </Text>
               </View>
               <Text style={styless.longdescription}>
-                NO MOMENTO EXISTEM {arrCleaning.length} LEITOS AGUARDANDO HIGIENIZAÇÃO
+                NO MOMENTO EXISTEM {arrCleaning.length} LEITOS AGUARDANDO
+                HIGIENIZAÇÃO
               </Text>
               <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
             </View>
@@ -159,7 +160,7 @@ export default function ListStatus({ route, navigation }) {
             onPress={() => {
               navigation.navigate("Lista", {
                 leitos: stringify(arrBedding),
-                cor: _getColor('awaiting_for_bedding'),
+                cor: _getColor("awaiting_for_bedding"),
               });
             }}
           >
@@ -173,7 +174,8 @@ export default function ListStatus({ route, navigation }) {
                   </Text>
                 </View>
                 <Text style={styless.longdescription}>
-                  NO MOMENTO EXISTEM {arrBedding.length} LEITOS AGUARDANDO FORRAGEM
+                  NO MOMENTO EXISTEM {arrBedding.length} LEITOS AGUARDANDO
+                  FORRAGEM
                 </Text>
                 <Text style={styless.text}>TOQUE MAIS INFORMAÇÕES!</Text>
               </View>
