@@ -33,9 +33,12 @@ export default function Login({ navigation }) {
         email,
         senha
       );
+      if (userCredential.user.disabled) {
+        throw new Error("Usuário desabilitado");
+      }
       await saveUserToAsyncStorage(userCredential.user);
       await saveUserConfigToAsyncStorage(email);
-
+  
       navigation.navigate("Menu", { idUser: userCredential.user.uid });
     } catch (error) {
       handleLoginError(error);
