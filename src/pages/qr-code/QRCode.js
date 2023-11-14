@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Text, View, TouchableOpacity } from "react-native";
-import { BarCodeScanner } from "expo-barcode-scanner";
-import styles from "./style";
-import { stringify } from "flatted";
 import { useIsFocused } from "@react-navigation/native";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import { stringify } from "flatted";
+import React, { useEffect, useState } from "react";
+import { Linking, Text, TouchableOpacity, View } from "react-native";
 import BedsService from "../../shared/services/BedsServices";
 import showMessage from "../../shared/util/messageUtils";
+import styles from "./style";
+
+const handleOpenSettings = () => {
+  Linking.openSettings();
+};
 
 export default function QRCode({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
@@ -67,7 +71,14 @@ export default function QRCode({ navigation }) {
     );
   }
   if (hasPermission === false) {
-    return <Text style={styles.text}>Sem acesso a câmera</Text>;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>Sem acesso a câmera</Text>
+        <TouchableOpacity onPress={handleOpenSettings}>
+          <Text style={styles.configButton}>Abrir configurações</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (

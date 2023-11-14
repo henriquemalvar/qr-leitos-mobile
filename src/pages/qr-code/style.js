@@ -33,7 +33,13 @@ const styles = StyleSheet.create({
         height: 300,
         overflow: 'hidden',
         borderRadius: 20,
-    }
+    },
+    configButton: {
+        fontSize: 20,
+        textAlign: 'center',
+        color: "#4D96FF",
+        marginTop: 20,
+    },
 });
 
 export default styles
