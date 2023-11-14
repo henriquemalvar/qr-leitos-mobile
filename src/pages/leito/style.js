@@ -145,13 +145,6 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 18,
   },
-  saveButton: {
-    marginTop: 20,
-    backgroundColor: "#3498db",
-    width: "97%",
-    borderRadius: 15,
-    alignSelf: "center",
-  },
 });
 
 export default styles;

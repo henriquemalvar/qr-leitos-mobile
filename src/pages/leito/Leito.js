@@ -5,10 +5,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Switch } from "react-native-paper";
 import SelectDropdown from "react-native-select-dropdown";
 import BedsService from "../../shared/services/BedsServices";
-import {
-  convertTimestamp,
-  convertTimestampToDate,
-} from "../../shared/util/dateUtils";
+import { convertTimestamp } from "../../shared/util/dateUtils";
 import showMessage from "../../shared/util/messageUtils";
 import {
   _getOptions,
@@ -81,20 +78,17 @@ const BedStatusDropdown = ({
 };
 
 const LastModification = ({ bed }) => {
-  const updated_at = convertTimestamp(bed.updated_at);
-  const duration = moment.duration(moment().diff(updated_at));
-  const hoursAgo = duration.asHours();
-  const daysAgo = duration.asDays();
-  const timeAgo =
-    hoursAgo < 24
-      ? `${Math.floor(hoursAgo)} horas`
-      : `${Math.floor(daysAgo)} dias`;
+  const lastModification = convertTimestamp(bed.updated_at).format('DD/MM/YYYY HH:mm:ss') || 'N/A';
+  const lastModificationLabel = bed.updated_at ? 'Última Modificação' : 'Criado em';
+  const hours = moment().diff(moment(lastModification, 'DD/MM/YYYY HH:mm:ss'), 'hours');
+  const diff = hours > 24 ? `${moment().diff(moment(lastModification, 'DD/MM/YYYY HH:mm:ss'), 'days')} dias` : `${hours} horas`;
+
   return (
     <View style={styles.containerDesc}>
       <View style={{ paddingBottom: 10 }}>
-        <Text style={styles.detailsFont}>Ultima Modificação </Text>
+        <Text style={styles.detailsFont}>{lastModificationLabel} </Text>
         <Text style={styles.detailsEnd}>
-          {moment(updated_at).format("DD/MM/YYYY HH:mm")} - há {timeAgo}
+          {lastModification} - {diff} atrás
         </Text>
       </View>
     </View>
@@ -147,7 +141,8 @@ const SaveButton = ({ bed, selectedOption, disabled, updateLeito }) => {
   return (
     <TouchableOpacity
       style={[
-        styles.saveButton,
+        styles.floatingButton,
+        { position: "absolute", bottom: 20, right: 20 },
         disabled ? styles.disabledButtonLabel : styles.buttonLabel,
       ]}
       onPress={onPress}
