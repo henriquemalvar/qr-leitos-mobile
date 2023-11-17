@@ -11,6 +11,7 @@ import Perfil from "./src/pages/perfil/Perfil";
 import Leito from "./src/pages/leito/Leito";
 import Lista from "./src/pages/home/filtros/Lista";
 import Toast from "react-native-toast-message";
+import SearchScreen from "./src/pages/search/SearchScreen";
 
 const Stack = createStackNavigator();
 
@@ -43,6 +44,7 @@ function StackRoutes() {
         component={Lista}
         getId={({ params }) => params.id}
       />
+      <Stack.Screen name="Pesquisa" component={SearchScreen} />
     </Stack.Navigator>
   );
 }

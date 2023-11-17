@@ -8,6 +8,7 @@ import BedsService from "../../shared/services/BedsServices";
 import { status } from "../../shared/util/constantsUtils";
 import { _getColor, _getPermissions } from "../../shared/util/translationUtils";
 import { styles } from "./styles";
+import SearchButton from "../../components/SearchButton";
 
 function OccupancyRate({ percentage }) {
   return (
@@ -151,68 +152,71 @@ export default function ListStatus({ route, navigation }) {
   };
 
   return (
-    <ScrollView>
-      <OccupancyRate percentage={percentage} />
-      <BedList
-        title="Leitos Livres"
-        beds={canAccessStatus("available") ? arrAvailable : []}
-        color={_getColor("available")}
-        navigation={navigation}
-        disabled={!canAccessStatus("available")}
-      />
-      <BedList
-        title="Leitos Ocupados"
-        beds={canAccessStatus("occupied") ? arrOccupied : []}
-        color={_getColor("occupied")}
-        navigation={navigation}
-        disabled={!canAccessStatus("occupied")}
-      />
-      <BedList
-        title="Leitos Higienização"
-        beds={
-          canAccessStatus("awaiting_for_cleaning") ||
-          canAccessStatus("cleaning_in_progress")
-            ? arrCleaning
-            : []
-        }
-        color={_getColor("awaiting_for_cleaning")}
-        navigation={navigation}
-        disabled={
-          !canAccessStatus("awaiting_for_cleaning") &&
-          !canAccessStatus("cleaning_in_progress")
-        }
-      />
-      <BedList
-        title="Leitos Forragem"
-        beds={
-          canAccessStatus("awaiting_for_bedding") ||
-          canAccessStatus("bedding_in_progress")
-            ? arrBedding
-            : []
-        }
-        color={_getColor("awaiting_for_bedding")}
-        navigation={navigation}
-        disabled={
-          !canAccessStatus("awaiting_for_bedding") &&
-          !canAccessStatus("bedding_in_progress")
-        }
-      />
-      {canAccessMaintenanceAndBlockedBeds && (
-        <>
-          <BedList
-            title="Leitos em Manutenção"
-            beds={arrMaintenance}
-            color={_getColor("maintenance")}
-            navigation={navigation}
-          />
-          <BedList
-            title="Leitos Bloqueados"
-            beds={arrBlocked}
-            color={_getColor("blocked")}
-            navigation={navigation}
-          />
-        </>
-      )}
-    </ScrollView>
+    <View>
+      <ScrollView>
+        <OccupancyRate percentage={percentage} />
+        <BedList
+          title="Leitos Livres"
+          beds={canAccessStatus("available") ? arrAvailable : []}
+          color={_getColor("available")}
+          navigation={navigation}
+          disabled={!canAccessStatus("available")}
+        />
+        <BedList
+          title="Leitos Ocupados"
+          beds={canAccessStatus("occupied") ? arrOccupied : []}
+          color={_getColor("occupied")}
+          navigation={navigation}
+          disabled={!canAccessStatus("occupied")}
+        />
+        <BedList
+          title="Leitos Higienização"
+          beds={
+            canAccessStatus("awaiting_for_cleaning") ||
+            canAccessStatus("cleaning_in_progress")
+              ? arrCleaning
+              : []
+          }
+          color={_getColor("awaiting_for_cleaning")}
+          navigation={navigation}
+          disabled={
+            !canAccessStatus("awaiting_for_cleaning") &&
+            !canAccessStatus("cleaning_in_progress")
+          }
+        />
+        <BedList
+          title="Leitos Forragem"
+          beds={
+            canAccessStatus("awaiting_for_bedding") ||
+            canAccessStatus("bedding_in_progress")
+              ? arrBedding
+              : []
+          }
+          color={_getColor("awaiting_for_bedding")}
+          navigation={navigation}
+          disabled={
+            !canAccessStatus("awaiting_for_bedding") &&
+            !canAccessStatus("bedding_in_progress")
+          }
+        />
+        {canAccessMaintenanceAndBlockedBeds && (
+          <>
+            <BedList
+              title="Leitos em Manutenção"
+              beds={arrMaintenance}
+              color={_getColor("maintenance")}
+              navigation={navigation}
+            />
+            <BedList
+              title="Leitos Bloqueados"
+              beds={arrBlocked}
+              color={_getColor("blocked")}
+              navigation={navigation}
+            />
+          </>
+        )}
+      </ScrollView>
+      <SearchButton navigation={navigation} />
+    </View>
   );
 }
