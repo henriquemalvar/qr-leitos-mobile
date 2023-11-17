@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import db from "../../database/database";
+import { _getColor, translateStatus } from "../../shared/util/translationUtils";
+import { stringify } from "flatted";
 
 const SearchScreen = ({ navigation }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,12 +62,14 @@ const SearchScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate("Leito", { leito: JSON.stringify(item) })
+              navigation.navigate("Leito", { leito: stringify(item) })
             }
           >
             <View style={styles.leito}>
-              <Icon name="bed" size={20} color="#000" />
-              <Text style={styles.title}>{item.name}</Text>
+              <Icon name="bed" size={20} color={_getColor(item.status)} />
+              <Text style={styles.title}>
+                {item.name} - {translateStatus(item.status)}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
