@@ -71,6 +71,7 @@ export default function ListStatus({ route, navigation }) {
   const [beds, setBeds] = useState([]);
   const [userConfig, setUserConfig] = useState(null);
   const [percentage, setPercentage] = useState(0);
+  const [showFloatButton, setShowFloatButton] = useState(false);
 
   const fetchData = async () => {
     const _userConfig = await AsyncStorage.getItem("userConfig").then(
@@ -89,6 +90,7 @@ export default function ListStatus({ route, navigation }) {
     // const _beds = await BedsService.getByManyStatus(_permissions);
     const _beds = await BedsService.getAll();
     setBeds(_beds);
+    setShowFloatButton(_beds.length > 0);
   };
 
   useEffect(() => {
@@ -216,7 +218,7 @@ export default function ListStatus({ route, navigation }) {
           </>
         )}
       </ScrollView>
-      <SearchButton navigation={navigation} />
+      {showFloatButton && <SearchButton navigation={navigation} />}
     </View>
   );
 }
