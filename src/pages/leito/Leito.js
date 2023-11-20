@@ -78,10 +78,22 @@ const BedStatusDropdown = ({
 };
 
 const LastModification = ({ bed }) => {
-  const lastModification = convertTimestamp(bed.updated_at).format('DD/MM/YYYY HH:mm:ss') || 'N/A';
-  const lastModificationLabel = bed.updated_at ? 'Última Modificação' : 'Criado em';
-  const hours = moment().diff(moment(lastModification, 'DD/MM/YYYY HH:mm:ss'), 'hours');
-  const diff = hours > 24 ? `${moment().diff(moment(lastModification, 'DD/MM/YYYY HH:mm:ss'), 'days')} dias` : `${hours} horas`;
+  const lastModification =
+    convertTimestamp(bed.updated_at).format("DD/MM/YYYY HH:mm:ss") || "N/A";
+  const lastModificationLabel = bed.updated_at
+    ? "Última Modificação"
+    : "Criado em";
+  const hours = moment().diff(
+    moment(lastModification, "DD/MM/YYYY HH:mm:ss"),
+    "hours"
+  );
+  const diff =
+    hours > 24
+      ? `${moment().diff(
+          moment(lastModification, "DD/MM/YYYY HH:mm:ss"),
+          "days"
+        )} dias`
+      : `${hours} horas`;
 
   return (
     <View style={styles.containerDesc}>
@@ -205,12 +217,14 @@ export default function Leito({ route, navigation }) {
           userConfig.permission !== "enfermeira"))
     ) {
       let status = isMaintenance ? "manutenção" : "bloqueado";
+
       showMessage(
         "error",
         `Este leito está em ${status}. Somente alguém da enfermagem ou um administrador pode alterar o status dele.`
       );
       return;
     }
+
     changeStatus(selectedOption)
       .then(() => {
         navigation.navigate("Menu", bed.id);
@@ -237,6 +251,7 @@ export default function Leito({ route, navigation }) {
       ) {
         status = bed.status;
       }
+
       const newBed = {
         ...bed,
         status: status,
@@ -244,7 +259,9 @@ export default function Leito({ route, navigation }) {
         isBlocked,
         updated_at: new Date(),
       };
+
       await BedsService.updateBed(newBed);
+
       const log = {
         bed_id: bed.id,
         after: newBed,
@@ -255,7 +272,9 @@ export default function Leito({ route, navigation }) {
         userEmail: user.email,
         userPermission: userConfig.permission,
       };
+
       await BedsService.createLog(log);
+
       showMessage("success", "Leito atualizado com sucesso");
     } catch (error) {
       console.error("Error occurred while updating bed status:", error);
