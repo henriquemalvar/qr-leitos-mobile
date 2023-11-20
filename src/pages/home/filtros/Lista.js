@@ -31,9 +31,8 @@ export default function Lista({ route, navigation }) {
     return str.match(/[A-Za-z]+|\d+/g) || [];
   }
 
-
   return (
-    <View style={[styles.containerLeitos]}>
+    <View style={[styles.bedContainer]}>
       {sortedBeds && (
         <FlatList
           showsVerticalScrollIndicator={false}
@@ -47,9 +46,9 @@ export default function Lista({ route, navigation }) {
                   });
                 }}
               >
-                <View style={styles.leito}>
-                  <FontAwesome name="bed" color={cor} style={styles.livre} />
-                  <Text style={styles.title}>{bed.name}</Text>
+                <View style={styles.bed}>
+                  <FontAwesome name="bed" color={cor} style={styles.available} />
+                  <Text style={styles.titleText}>{bed.name}</Text>
                 </View>
               </TouchableOpacity>
             );

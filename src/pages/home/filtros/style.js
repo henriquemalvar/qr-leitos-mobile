@@ -1,13 +1,13 @@
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  containerLeitos: {
+  bedContainer: {
     paddingTop: 10,
     flex: 1,
     width: "100%",
   },
 
-  leito: {
+  bed: {
     alignItems: "center",
     alignSelf: "center",
     paddingLeft: 10,
@@ -19,13 +19,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  title: {
+  titleText: {
     fontSize: 20,
     paddingLeft: 10,
     fontWeight: "bold",
   },
 
-  livre: {
+  available: {
     fontSize: 20,
   },
 });
