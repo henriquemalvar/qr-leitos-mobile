@@ -43,7 +43,35 @@ const BedsService = {
   async createLog(log) {
     const logRef = db.collection("logs");
     await logRef.add(log);
-  }
+  },
+
+  listenToBedChanges(documentId, callback) {
+    const bedRef = db.collection("beds").doc(documentId);
+    return bedRef.onSnapshot((doc) => {
+      const bed = { id: doc.id, ...doc.data() };
+      callback(bed);
+    });
+  },
+
+  listenToAllBedsChanges(callback) {
+    const bedsRef = db.collection("beds");
+    return bedsRef.onSnapshot((querySnapshot) => {
+      const beds = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+      });
+      callback(beds);
+    });
+  },
+
+  listenToBedsByStatusChanges(status, callback) {
+    const bedsRef = db.collection("beds").where("status", "==", status);
+    return bedsRef.onSnapshot((querySnapshot) => {
+      const beds = querySnapshot.docs.map((doc) => {
+        return { id: doc.id, ...doc.data() };
+      });
+      callback(beds);
+    });
+  },
 };
 
 export default BedsService;

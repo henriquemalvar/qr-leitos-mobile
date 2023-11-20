@@ -73,33 +73,27 @@ export default function ListStatus({ route, navigation }) {
   const [percentage, setPercentage] = useState(0);
   const [showFloatButton, setShowFloatButton] = useState(false);
 
-  const fetchData = async () => {
-    const _userConfig = await AsyncStorage.getItem("userConfig").then(
-      (userConfig) => {
-        return parse(userConfig);
-      }
-    );
-    setUserConfig(_userConfig);
-    // !TODO: Remove this comment to filter by user permission and comment the next line
-    // const _permissions =
-    //   _userConfig?.permission === "admin"
-    //     ? status
-    //     : _getPermissions(_userConfig?.permission)?.map(
-    //         (permission) => permission?.from
-    //       );
-    // const _beds = await BedsService.getByManyStatus(_permissions);
-    const _beds = await BedsService.getAll();
-    setBeds(_beds);
-    setShowFloatButton(_beds.length > 0);
-  };
-
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      fetchData();
+    const fetchData = async () => {
+      const _userConfig = await AsyncStorage.getItem("userConfig").then(
+        (userConfig) => {
+          return parse(userConfig);
+        }
+      );
+      setUserConfig(_userConfig);
+    };
+
+    fetchData();
+
+    const unsubscribe = BedsService.listenToAllBedsChanges((newBeds) => {
+      setBeds(newBeds);
+      setShowFloatButton(newBeds.length > 0);
     });
 
-    return unsubscribe;
-  }, [navigation]);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const [
     arrAvailable,
