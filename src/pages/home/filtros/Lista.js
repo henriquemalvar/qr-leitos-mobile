@@ -8,12 +8,36 @@ export default function Lista({ route, navigation }) {
   const { leitos, cor } = route.params;
   const beds = parse(leitos);
 
+  const sortedBeds = beds.sort((a, b) => {
+    const partsA = splitAlphaNum(a.name);
+    const partsB = splitAlphaNum(b.name);
+
+    for (let i = 0; i < Math.min(partsA.length, partsB.length); i++) {
+      const partA = partsA[i];
+      const partB = partsB[i];
+
+      if (!isNaN(partA) && !isNaN(partB)) {
+        const diff = parseInt(partA, 10) - parseInt(partB, 10);
+        if (diff !== 0) return diff;
+      } else if (partA !== partB) {
+        return partA.localeCompare(partB);
+      }
+    }
+
+    return partsA.length - partsB.length;
+  });
+
+  function splitAlphaNum(str) {
+    return str.match(/[A-Za-z]+|\d+/g) || [];
+  }
+
+
   return (
     <View style={[styles.containerLeitos]}>
-      {beds && (
+      {sortedBeds && (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={beds}
+          data={sortedBeds}
           renderItem={({ item: bed }) => {
             return (
               <TouchableOpacity
