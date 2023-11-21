@@ -1,61 +1,142 @@
-import React, { useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
-  View,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
   FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import db from "../../database/database";
 import { _getColor, translateStatus } from "../../shared/util/translationUtils";
-import { stringify } from "flatted";
+import { styles } from "./styles";
 
 const SearchScreen = ({ navigation }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState([]);
+  const { register, handleSubmit, setValue, reset } = useForm();
+  const [state, setState] = useState({
+    results: [],
+    type: "",
+    address: "",
+    filtersVisible: false,
+    loading: false,
+    searchTerm: "",
+  });
+
+  const { results, type, address, filtersVisible, loading, searchTerm } = state;
+
+  useEffect(() => {
+    ["searchTerm", "type", "address"].forEach((field) => register(field));
+  }, [register]);
 
   const handleClearInput = () => {
-    setSearchTerm("");
-    setResults([]);
+    reset();
+    setState({
+      ...state,
+      results: [],
+      searchTerm: "",
+      type: "",
+      address: "",
+    });
   };
 
-  const handleSearch = () => {
-    const searchTermUpper = searchTerm.toUpperCase();
-    db.collection("beds")
-      .orderBy("name")
-      .startAt(searchTermUpper)
-      .endAt(searchTermUpper + "\uf8ff")
-      .get()
-      .then((querySnapshot) => {
-        const results = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setResults(results);
-      });
+  const fetchData = async (data) => {
+    let query = db.collection("beds");
+
+    if (data.searchTerm) {
+      const searchTermUpper = data.searchTerm.toUpperCase();
+      query = query
+        .orderBy("name")
+        .startAt(searchTermUpper)
+        .endAt(searchTermUpper + "\uf8ff");
+    }
+
+    const querySnapshot = await query.get();
+    const results = querySnapshot.docs.map((doc) => doc.data());
+
+    return results;
+  };
+
+  const onSubmit = async (data) => {
+    setState({ ...state, loading: true });
+
+    try {
+      const results = await fetchData(data);
+      setState({ ...state, results, loading: false });
+    } catch (error) {
+      console.log("Erro ao buscar documentos: ", error);
+      setState({ ...state, loading: false });
+    }
+  };
+
+  const toggleFilters = () => {
+    setState({ ...state, filtersVisible: !filtersVisible });
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchSection}>
-        <Icon name="search" size={20} color="#000" style={styles.searchIcon} />
+      <View style={styles.formContainer}>
+        <Text style={styles.label}>Nome:</Text>
         <TextInput
           style={styles.input}
-          placeholder="Search"
-          value={searchTerm}
-          onChangeText={setSearchTerm}
-          returnKeyType="search"
-          onSubmitEditing={handleSearch}
+          placeholder="Digite o nome"
+          onChangeText={(text) => setValue("searchTerm", text)}
         />
-        {searchTerm.length > 0 && (
-          <TouchableOpacity onPress={handleClearInput}>
-            <Icon name="times-circle" size={20} color="#000" />
-          </TouchableOpacity>
+        <TouchableOpacity onPress={toggleFilters} style={styles.expandButton}>
+          <Text style={styles.expandButtonText}>
+            {filtersVisible ? "Menos filtros" : "Mais filtros"}
+          </Text>
+          <Icon
+            name={filtersVisible ? "angle-up" : "angle-down"}
+            size={20}
+            color="black"
+          />
+        </TouchableOpacity>
+
+        {filtersVisible && (
+          <>
+            <Text style={styles.label}>Tipo (Masculino/Feminino):</Text>
+            <Picker
+              selectedValue={type}
+              style={styles.input}
+              onValueChange={(itemValue, itemIndex) =>
+                setValue("type", itemValue)
+              }
+            >
+              <Picker.Item label="Masculino" value="masculino" />
+              <Picker.Item label="Feminino" value="feminino" />
+            </Picker>
+            <Text style={styles.label}>Endereço:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite o endereço"
+              onChangeText={(text) => setValue("address", text)}
+            />
+          </>
         )}
+        <View style={styles.buttonContainer}>
+          <View style={styles.spacer} />
+          <TouchableOpacity onPress={handleClearInput} style={styles.button}>
+            <Icon name="times" size={20} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSubmit(onSubmit)}
+            style={styles.button}
+          >
+            <Icon name="search" size={20} color="white" />
+            <Text style={styles.buttonText}>Pesquisar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      {/* Lista de resultados */}
+
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      )}
+
       <FlatList
         data={results}
         keyExtractor={(item) => item.id}
@@ -73,51 +154,12 @@ const SearchScreen = ({ navigation }) => {
             </View>
           </TouchableOpacity>
         )}
+        ListEmptyComponent={
+          <Text style={styles.emptyMessage}>Nenhum resultado encontrado.</Text>
+        }
       />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    padding: 10,
-  },
-  searchSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#EFEFEF",
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "black",
-  },
-  searchIcon: {
-    marginRight: 5,
-  },
-  input: {
-    flex: 1,
-    paddingVertical: 5,
-    color: "#424242",
-  },
-  cancelButtonText: {
-    color: "#007AFF",
-  },
-  searchButtonText: {
-    color: "#007AFF",
-  },
-  leito: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "black",
-    borderRadius: 10,
-    margin: 5,
-    padding: 10,
-  },
-  title: {
-    marginLeft: 10,
-  },
-});
 export default SearchScreen;
