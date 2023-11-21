@@ -77,27 +77,19 @@ const SearchScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Nome:</Text>
+      <View style={{ marginBottom: 20 }}>
+        <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Nome:</Text>
         <TextInput
           style={styles.input}
           placeholder="Digite o nome"
           onChangeText={(text) => setValue("searchTerm", text)}
         />
-        <TouchableOpacity onPress={toggleFilters} style={styles.expandButton}>
-          <Text style={styles.expandButtonText}>
-            {filtersVisible ? "Menos filtros" : "Mais filtros"}
-          </Text>
-          <Icon
-            name={filtersVisible ? "angle-up" : "angle-down"}
-            size={20}
-            color="black"
-          />
-        </TouchableOpacity>
 
         {filtersVisible && (
           <>
-            <Text style={styles.label}>Tipo (Masculino/Feminino):</Text>
+            <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              Tipo (Masculino/Feminino):
+            </Text>
             <Picker
               selectedValue={type}
               style={styles.input}
@@ -108,7 +100,9 @@ const SearchScreen = ({ navigation }) => {
               <Picker.Item label="Masculino" value="masculino" />
               <Picker.Item label="Feminino" value="feminino" />
             </Picker>
-            <Text style={styles.label}>Endereço:</Text>
+            <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              Endereço:
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="Digite o endereço"
@@ -116,23 +110,44 @@ const SearchScreen = ({ navigation }) => {
             />
           </>
         )}
-        <View style={styles.buttonContainer}>
-          <View style={styles.spacer} />
-          <TouchableOpacity onPress={handleClearInput} style={styles.button}>
+
+        <TouchableOpacity onPress={toggleFilters} style={styles.filterButton}>
+          <Icon
+            name={filtersVisible ? "angle-up" : "angle-down"}
+            size={20}
+            color="black"
+            style={{ marginRight: 5, marginBottom: 5 }}
+          />
+          <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+            {filtersVisible ? "Menos filtros" : "Mais filtros"}
+          </Text>
+        </TouchableOpacity>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity
+            onPress={handleClearInput}
+            style={styles.clearButton}
+          >
             <Icon name="times" size={20} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            style={styles.button}
+            style={styles.searchButton}
           >
             <Icon name="search" size={20} color="white" />
-            <Text style={styles.buttonText}>Pesquisar</Text>
+            <Text style={{ color: "white", marginLeft: 5 }}>Pesquisar</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {loading && (
-        <View style={styles.loadingContainer}>
+        <View style={styles.loading}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )}
@@ -146,16 +161,16 @@ const SearchScreen = ({ navigation }) => {
               navigation.navigate("Leito", { leito: stringify(item) })
             }
           >
-            <View style={styles.leito}>
+            <View style={styles.listItem}>
               <Icon name="bed" size={20} color={_getColor(item.status)} />
-              <Text style={styles.title}>
+              <Text style={{ marginLeft: 10 }}>
                 {item.name} - {translateStatus(item.status)}
               </Text>
             </View>
           </TouchableOpacity>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyMessage}>Nenhum resultado encontrado.</Text>
+          <Text style={styles.emptyList}>Nenhum resultado encontrado.</Text>
         }
       />
     </View>
