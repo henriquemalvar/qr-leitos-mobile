@@ -72,7 +72,9 @@ const BedsService = {
 
   async createLog(log) {
     const logRef = db.collection("logs");
-    await logRef.add(log);
+    const documentRef = await logRef.add(log);
+    const createdLog = await documentRef.get();
+    return { id: documentRef.id, ...createdLog.data() };
   },
 
   listenToBedChanges(documentId, callback) {
@@ -102,6 +104,13 @@ const BedsService = {
       callback(beds);
     });
   },
+
+  getLastLog(lastLogId) {
+    const logRef = db.collection("logs").doc(lastLogId);
+    return logRef.get().then((doc) => {
+      return { id: doc.id, ...doc.data() };
+    } );
+  }
 };
 
 export default BedsService;
