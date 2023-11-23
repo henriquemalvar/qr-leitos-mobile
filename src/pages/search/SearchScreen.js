@@ -1,6 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import {
   FlatList,
   Text,
@@ -13,23 +13,20 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import db from "../../database/database";
 import { _getColor, translateStatus } from "../../shared/util/translationUtils";
 import { styles } from "./styles";
+import { stringify } from "flatted";
 
 const SearchScreen = ({ navigation }) => {
-  const { register, handleSubmit, setValue, reset } = useForm();
+  const { control, handleSubmit, reset } = useForm();
   const [state, setState] = useState({
     results: [],
     type: "",
-    address: "",
+    location: "",
     filtersVisible: false,
     loading: false,
     searchTerm: "",
   });
 
-  const { results, type, address, filtersVisible, loading, searchTerm } = state;
-
-  useEffect(() => {
-    ["searchTerm", "type", "address"].forEach((field) => register(field));
-  }, [register]);
+  const { results, type, location, filtersVisible, loading, searchTerm } = state;
 
   const handleClearInput = () => {
     reset();
@@ -38,26 +35,49 @@ const SearchScreen = ({ navigation }) => {
       results: [],
       searchTerm: "",
       type: "",
-      address: "",
+      location: "",
     });
   };
 
   const fetchData = async (data) => {
-    let query = db.collection("beds");
+      let query = db.collection("beds");
+      let localLocationFilter = false;
+      if (data.searchTerm) {
+        const searchTermUpper = data.searchTerm.toUpperCase();
+        query = query
+          .orderBy("name")
+          .startAt(searchTermUpper)
+          .endAt(searchTermUpper + "\uf8ff");
+      }
 
-    if (data.searchTerm) {
-      const searchTermUpper = data.searchTerm.toUpperCase();
-      query = query
-        .orderBy("name")
-        .startAt(searchTermUpper)
-        .endAt(searchTermUpper + "\uf8ff");
-    }
+      if (data.type) {
+        query = query.where("type", "array-contains", data.type);
+      }
 
-    const querySnapshot = await query.get();
-    const results = querySnapshot.docs.map((doc) => doc.data());
+      if (data.location) {
+        if(!data.searchTerm) {
+        query = query.where("location", "array-contains", data.location);
+        }
+        else {
+          localLocationFilter = true;
+        }
 
-    return results;
-  };
+      }
+
+      try {
+        const querySnapshot = await query.get();
+        let results = querySnapshot.docs.map((doc) => doc.data());
+        if(localLocationFilter) {
+          const filteredResults = results.filter((result) => {
+            return result.location.some(location => location.includes(data.location));
+          });
+          return filteredResults;
+        }
+        return results;
+      } catch (error) {
+        console.error("Erro ao buscar documentos: ", error);
+      }
+    };
 
   const onSubmit = async (data) => {
     setState({ ...state, loading: true });
@@ -66,7 +86,7 @@ const SearchScreen = ({ navigation }) => {
       const results = await fetchData(data);
       setState({ ...state, results, loading: false });
     } catch (error) {
-      console.log("Erro ao buscar documentos: ", error);
+      console.error("Erro ao buscar documentos: ", error);
       setState({ ...state, loading: false });
     }
   };
@@ -79,10 +99,19 @@ const SearchScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={{ marginBottom: 20 }}>
         <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Nome:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o nome"
-          onChangeText={(text) => setValue("searchTerm", text)}
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Digite o nome"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+          name="searchTerm"
+          defaultValue=""
         />
 
         {filtersVisible && (
@@ -90,23 +119,38 @@ const SearchScreen = ({ navigation }) => {
             <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
               Tipo (Masculino/Feminino):
             </Text>
-            <Picker
-              selectedValue={type}
-              style={styles.input}
-              onValueChange={(itemValue, itemIndex) =>
-                setValue("type", itemValue)
-              }
-            >
-              <Picker.Item label="Masculino" value="masculino" />
-              <Picker.Item label="Feminino" value="feminino" />
-            </Picker>
+            <Controller
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <Picker
+                  selectedValue={value}
+                  style={[styles.input, styles.picker]}
+                  onValueChange={onChange}
+                >
+                  <Picker.Item label="Selecione" value="" />
+                  <Picker.Item label="Masculino" value="Masculino" />
+                  <Picker.Item label="Feminino" value="Feminino" />
+                </Picker>
+              )}
+              name="type"
+              defaultValue=""
+            />
             <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
               Endereço:
             </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Digite o endereço"
-              onChangeText={(text) => setValue("address", text)}
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Digite o endereço"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+              name="location"
+              defaultValue=""
             />
           </>
         )}

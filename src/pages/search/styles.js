@@ -60,4 +60,15 @@ export const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
   },
+  picker: {
+    borderWidth: 1,
+    borderColor: "#000", // Substitua pela cor desejada
+    borderRadius: 4,
+    // Você pode precisar ajustar o padding dependendo do seu design
+    paddingLeft: 10,
+    paddingRight: 10,
+    // No Android, o Picker pode precisar de uma altura fixa
+    height: 40,
+    justifyContent: "center",
+  },
 });
