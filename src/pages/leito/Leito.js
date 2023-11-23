@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parse } from "flatted";
+import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Switch } from "react-native-paper";
@@ -12,7 +13,6 @@ import {
   translateStatus,
 } from "../../shared/util/translationUtils";
 import styles from "../leito/style";
-import moment from "moment";
 
 const BedDetails = ({ bed }) => {
   return (
@@ -77,7 +77,7 @@ const BedStatusDropdown = ({
   );
 };
 
-const LastModification = ({ bed }) => {
+const LastModification = ({ bed, lastLog }) => {
   const lastModification =
     convertTimestamp(bed.updated_at).format("DD/MM/YYYY HH:mm:ss") || "N/A";
   const lastModificationLabel = bed.updated_at
@@ -94,7 +94,6 @@ const LastModification = ({ bed }) => {
           "days"
         )} dias`
       : `${hours} horas`;
-
   return (
     <View style={styles.containerDesc}>
       <View style={{ paddingBottom: 10 }}>
@@ -102,6 +101,11 @@ const LastModification = ({ bed }) => {
         <Text style={styles.detailsEnd}>
           {lastModification} - {diff} atrás
         </Text>
+        {lastLog?.userName && (
+          <Text style={styles.detailsEnd}>
+            Modificado por: {lastLog.userName}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -177,6 +181,18 @@ export default function Leito({ route, navigation }) {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [canToggle, setCanToggle] = useState(false);
+  const [lastLog, setLastLog] = useState(null);
+
+  const fetchLastLog = async () => {
+    try {
+      if (bed.lastLogId) {
+        const log = await BedsService.getLastLog(bed.lastLogId);
+        setLastLog(log);
+      }
+    } catch (error) {
+      console.error("Error fetching last log:", error);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -207,6 +223,7 @@ export default function Leito({ route, navigation }) {
       }
     };
     fetchData();
+    fetchLastLog();
   }, []);
 
   const updateLeito = useCallback(() => {
@@ -260,8 +277,6 @@ export default function Leito({ route, navigation }) {
         updated_at: new Date(),
       };
 
-      await BedsService.updateBed(newBed);
-
       const log = {
         bed_id: bed.id,
         after: newBed,
@@ -273,7 +288,11 @@ export default function Leito({ route, navigation }) {
         userPermission: userConfig.permission,
       };
 
-      await BedsService.createLog(log);
+      const createdLog = await BedsService.createLog(log);
+
+      newBed.lastLogId = createdLog.id;
+
+      await BedsService.updateBed(newBed);
 
       showMessage("success", "Leito atualizado com sucesso");
     } catch (error) {
@@ -329,7 +348,7 @@ export default function Leito({ route, navigation }) {
   return (
     <View style={styles.containerStatus}>
       <BedDetails bed={bed} />
-      <LastModification bed={bed} />
+      <LastModification bed={bed} lastLog={lastLog} />
       {canToggle && (
         <ToggleCard
           label1="Manutenção"
