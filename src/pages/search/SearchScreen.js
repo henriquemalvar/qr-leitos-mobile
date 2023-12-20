@@ -26,7 +26,8 @@ const SearchScreen = ({ navigation }) => {
     searchTerm: "",
   });
 
-  const { results, type, location, filtersVisible, loading, searchTerm } = state;
+  const { results, type, location, filtersVisible, loading, searchTerm } =
+    state;
 
   const handleClearInput = () => {
     reset();
@@ -40,44 +41,43 @@ const SearchScreen = ({ navigation }) => {
   };
 
   const fetchData = async (data) => {
-      let query = db.collection("beds");
-      let localLocationFilter = false;
-      if (data.searchTerm) {
-        const searchTermUpper = data.searchTerm.toUpperCase();
-        query = query
-          .orderBy("name")
-          .startAt(searchTermUpper)
-          .endAt(searchTermUpper + "\uf8ff");
-      }
+    let query = db.collection("beds");
+    let localLocationFilter = false;
+    if (data.searchTerm) {
+      query = query
+        .orderBy("name")
+        .startAt(data.searchTerm)
+        .endAt(data.searchTerm + "\uf8ff");
+    }
 
-      if (data.type) {
-        query = query.where("type", "array-contains", data.type);
-      }
+    if (data.type) {
+      query = query.where("type", "array-contains", data.type);
+    }
 
-      if (data.location) {
-        if(!data.searchTerm) {
+    if (data.location) {
+      if (!data.searchTerm) {
         query = query.where("location", "array-contains", data.location);
-        }
-        else {
-          localLocationFilter = true;
-        }
-
+      } else {
+        localLocationFilter = true;
       }
+    }
 
-      try {
-        const querySnapshot = await query.get();
-        let results = querySnapshot.docs.map((doc) => doc.data());
-        if(localLocationFilter) {
-          const filteredResults = results.filter((result) => {
-            return result.location.some(location => location.includes(data.location));
-          });
-          return filteredResults;
-        }
-        return results;
-      } catch (error) {
-        console.error("Erro ao buscar documentos: ", error);
+    try {
+      const querySnapshot = await query.get();
+      let results = querySnapshot.docs.map((doc) => doc.data());
+      if (localLocationFilter) {
+        const filteredResults = results.filter((result) => {
+          return result.location.some((location) =>
+            location.includes(data.location)
+          );
+        });
+        return filteredResults;
       }
-    };
+      return results;
+    } catch (error) {
+      console.error("Erro ao buscar documentos: ", error);
+    }
+  };
 
   const onSubmit = async (data) => {
     setState({ ...state, loading: true });
@@ -116,21 +116,17 @@ const SearchScreen = ({ navigation }) => {
 
         {filtersVisible && (
           <>
-            <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-              Tipo (Masculino/Feminino):
-            </Text>
+            <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Tipo:</Text>
             <Controller
               control={control}
-              render={({ field: { onChange, value } }) => (
-                <Picker
-                  selectedValue={value}
-                  style={[styles.input, styles.picker]}
-                  onValueChange={onChange}
-                >
-                  <Picker.Item label="Selecione" value="" />
-                  <Picker.Item label="Masculino" value="Masculino" />
-                  <Picker.Item label="Feminino" value="Feminino" />
-                </Picker>
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Digite o tipo"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
               )}
               name="type"
               defaultValue=""
