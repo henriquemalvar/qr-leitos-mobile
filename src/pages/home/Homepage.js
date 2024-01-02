@@ -90,6 +90,7 @@ export default function ListStatus({ route, navigation }) {
   };
 
   return (
+    <>
     <View>
       <ScrollView>
         <OccupancyRate percentage={percentage} />
@@ -154,8 +155,9 @@ export default function ListStatus({ route, navigation }) {
           </>
         )}
       </ScrollView>
-      {showFloatButton && <SearchButton navigation={navigation} />}
     </View>
+      {showFloatButton && <SearchButton navigation={navigation} />} 
+      </>
   );
 }
 
