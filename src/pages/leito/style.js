@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   },
 
   disabledButtonLabel: {
-    backgroundColor: "#E7E6E1",
+    backgroundColor: "#808080",
     width: "25%",
     borderRadius: 50,
     alignItems: "center",

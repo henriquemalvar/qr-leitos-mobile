@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parse } from "flatted";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Switch } from "react-native-paper";
 import SelectDropdown from "react-native-select-dropdown";
 import BedsService from "../../shared/services/BedsServices";
@@ -24,16 +24,25 @@ const BedDetails = ({ bed }) => {
         <View style={{ paddingBottom: 10 }}>
           <Text style={styles.detailsFont}>Endereço </Text>
           <Text style={styles.detailsEnd}>
-            {bed.location.map((field) => {
+            {Array.isArray(bed.location) ? bed.location.map((field) => {
               return <Text key={field}>{field} </Text>;
-            })}
+            }) : null}
+          </Text>
+        </View>
+      </View>
+      <View style={styles.containerDesc}>
+        <View style={{ paddingBottom: 10 }}>
+          <Text style={styles.detailsFont}>Tipo </Text>
+          <Text style={styles.detailsEnd}>
+            {Array.isArray(bed.type) ? bed.type.map((field) => {
+              return <Text key={field}>{field} </Text>;
+            }) : null}
           </Text>
         </View>
       </View>
     </>
   );
 };
-
 const BedStatusDropdown = ({
   options,
   selectedOption,
@@ -346,32 +355,36 @@ export default function Leito({ route, navigation }) {
   };
 
   return (
-    <View style={styles.containerStatus}>
-      <BedDetails bed={bed} />
-      <LastModification bed={bed} lastLog={lastLog} />
-      {canToggle && (
-        <ToggleCard
-          label1="Manutenção"
-          value1={isMaintenance}
-          onValueChange1={handleMaintenanceChange}
-          label2="Bloqueado"
-          value2={isBlocked}
-          onValueChange2={handleBlockedChange}
-        />
-      )}
-      <BedStatusDropdown
-        options={options}
-        selectedOption={selectedOption}
-        currentStatus={bed.status}
-        disabled={options.length === 0}
-        setSelectedOption={setSelectedOption}
-      />
+    <>
+      <ScrollView>
+        <View style={[styles.containerStatus, { marginBottom: 110 }]}>
+          <BedDetails bed={bed} />
+          <LastModification bed={bed} lastLog={lastLog} />
+          {canToggle && (
+            <ToggleCard
+              label1="Manutenção"
+              value1={isMaintenance}
+              onValueChange1={handleMaintenanceChange}
+              label2="Bloqueado"
+              value2={isBlocked}
+              onValueChange2={handleBlockedChange}
+            />
+          )}
+          <BedStatusDropdown
+            options={options}
+            selectedOption={selectedOption}
+            currentStatus={bed.status}
+            disabled={options.length === 0}
+            setSelectedOption={setSelectedOption}
+          />
+        </View>
+      </ScrollView>
       <SaveButton
         bed={bed}
         disabled={!canSave()}
         selectedOption={selectedOption}
         updateLeito={updateLeito}
       />
-    </View>
+    </>
   );
 }
