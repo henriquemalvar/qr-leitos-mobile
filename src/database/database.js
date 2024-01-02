@@ -5,7 +5,7 @@ import { Environment } from "./environment.class";
 
 class Database {
   constructor() {
-    const env = new Environment("qr-leitos-dev");
+    const env = new Environment("qr-leitos-piloto");
     const config = env.getConfig("firebase");
     const firebaseConfig = {
       apiKey: config.apiKey,

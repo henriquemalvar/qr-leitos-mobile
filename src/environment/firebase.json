@@ -23,6 +23,15 @@
             "storageBucket": "bdleitosja.appspot.com",
             "messagingSenderId": "818105979304",
             "appId": "1:856419808971:web:8334f49864938daefe8d4e"
+        },
+        "qr-leitos-piloto": {
+            "apiKey": "AIzaSyChSule5XFPBopDy4E3sSAnWXU8bgWbHhg",
+            "authDomain": "qr-leitos-piloto.firebaseapp.com",
+            "projectId": "qr-leitos-piloto",
+            "storageBucket": "qr-leitos-piloto.appspot.com",
+            "messagingSenderId": "739349087152",
+            "appId": "1:739349087152:web:0f2d37baeabbeabe50cc75",
+            "measurementId": "G-NV87ENMY4Y"
         }
     }
 }
