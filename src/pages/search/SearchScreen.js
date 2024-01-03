@@ -42,7 +42,6 @@ const SearchScreen = ({ navigation }) => {
 
   const fetchData = async (data) => {
     let query = db.collection("beds");
-    let localTypeFilter = false;
     let localLocationFilter = false;
 
     if (data.searchTerm) {
@@ -53,15 +52,11 @@ const SearchScreen = ({ navigation }) => {
     }
 
     if (data.type) {
-      if (!data.searchTerm && !data.location) {
-        query = query.where("type", "array-contains", data.type);
-      } else {
-        localTypeFilter = true;
-      }
+      query = query.where("type", "array-contains", data.type);
     }
 
     if (data.location) {
-      if (!data.searchTerm && !data.type) {
+      if (!data.type) {
         query = query.where("location", "array-contains", data.location);
       } else {
         localLocationFilter = true;
@@ -71,12 +66,6 @@ const SearchScreen = ({ navigation }) => {
     try {
       const querySnapshot = await query.get();
       let results = querySnapshot.docs.map((doc) => doc.data());
-
-      if (localTypeFilter) {
-        results = results.filter((result) => {
-          return result.type.includes(data.type);
-        });
-      }
 
       if (localLocationFilter) {
         results = results.filter((result) => {
