@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parse } from "flatted";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import SearchButton from "../../components/SearchButton";
@@ -8,74 +8,82 @@ import BedsService from "../../shared/services/BedsServices";
 import { _getColor, _getPermissions } from "../../shared/util/translationUtils";
 import { BedList } from "./components/BedList";
 import { OccupancyRate } from "./components/OccupancyRate";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function ListStatus({ route, navigation }) {
   const [beds, setBeds] = useState([]);
   const [userConfig, setUserConfig] = useState(null);
   const [percentage, setPercentage] = useState(0);
   const [showFloatButton, setShowFloatButton] = useState(false);
+  const [bedCounts, setBedCounts] = useState({
+    available: 0,
+    occupied: 0,
+    cleaning: 0,
+    bedding: 0,
+    maintenance: 0,
+    blocked: 0,
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const _userConfig = await AsyncStorage.getItem("userConfig").then(
-        (userConfig) => {
-          return parse(userConfig);
-        }
-      );
-      setUserConfig(_userConfig);
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const _userConfig = await AsyncStorage.getItem("userConfig").then(
+          (userConfig) => JSON.parse(userConfig)
+        );
+        setUserConfig(_userConfig);
 
-    fetchData();
+        const statusList = [
+          "occupied",
+          "discharge",
+          "final_discharge",
+          "awaiting_for_cleaning",
+          "cleaning_in_progress",
+          "awaiting_for_bedding",
+          "bedding_in_progress",
+          // "maintenance",
+          // "blocked",
+          "available",
+        ];
 
-    const unsubscribe = BedsService.listenToAllBedsChanges((newBeds) => {
-      setBeds(newBeds);
-      setShowFloatButton(newBeds.length > 0);
-    });
+        const results = await Promise.all(
+          statusList.map((status) => BedsService.getCountByStatus(status))
+        );
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+        const [
+          _beds_occupied,
+          _beds_discharge,
+          _beds_final_discharge,
+          _beds_awaiting_for_cleaning,
+          _beds_cleaning_in_progress,
+          _beds_awaiting_for_bedding,
+          _beds_bedding_in_progress,
+          // _beds_maintenance,
+          // _beds_blocked,
+          _beds_available,
+        ] = results;
 
-  const [
-    arrAvailable,
-    arrOccupied,
-    arrCleaning,
-    arrBedding,
-    arrMaintenance,
-    arrBlocked,
-  ] = useMemo(() => {
-    const _availableArr = beds.filter((bed) => bed.status === "available");
-    const _occupiedArr = beds.filter(
-      (bed) =>
-        bed.status === "occupied" ||
-        bed.status === "discharge" ||
-        bed.status === "final_discharge"
-    );
-    const _cleaningArr = beds.filter(
-      (bed) =>
-        bed.status === "awaiting_for_cleaning" ||
-        bed.status === "cleaning_in_progress"
-    );
-    const beddingArr = beds.filter(
-      (bed) =>
-        bed.status === "awaiting_for_bedding" ||
-        bed.status === "bedding_in_progress"
-    );
-    const _arrMaintenance = beds.filter((bed) => bed.isMaintenance);
-    const _arrBlocked = beds.filter((bed) => bed.isBlocked);
+        const _arrOccupied =
+          _beds_occupied + _beds_discharge + _beds_final_discharge;
+        const _arrCleaning =
+          _beds_awaiting_for_cleaning + _beds_cleaning_in_progress;
+        const _arrBedding =
+          _beds_awaiting_for_bedding + _beds_bedding_in_progress;
 
-    setPercentage((_occupiedArr.length * 100) / beds.length);
+        setBedCounts({
+          occupied: _arrOccupied,
+          cleaning: _arrCleaning,
+          bedding: _arrBedding,
+          maintenance: 0,
+          blocked: 0,
+          available: _beds_available,
+        });
 
-    return [
-      _availableArr,
-      _occupiedArr,
-      _cleaningArr,
-      beddingArr,
-      _arrMaintenance,
-      _arrBlocked,
-    ];
-  }, [beds]);
+        setPercentage((_arrOccupied * 100) / (_arrOccupied + _beds_available));
+      };
+
+      fetchData();
+    }, [])
+  );
 
   const canAccessMaintenanceAndBlockedBeds = useMemo(() => {
     return (
@@ -91,77 +99,83 @@ export default function ListStatus({ route, navigation }) {
 
   return (
     <>
-    <View>
-      <ScrollView>
-        <OccupancyRate percentage={percentage} />
-        <BedList
-          title="Leitos Livres"
-          beds={canAccessStatus("available") ? arrAvailable : []}
-          color={_getColor("available")}
-          navigation={navigation}
-          disabled={!canAccessStatus("available")}
-        />
-        <BedList
-          title="Leitos Ocupados"
-          beds={canAccessStatus("occupied") ? arrOccupied : []}
-          color={_getColor("occupied")}
-          navigation={navigation}
-          disabled={!canAccessStatus("occupied")}
-        />
-        <BedList
-          title="Leitos Higienização"
-          beds={
-            canAccessStatus("awaiting_for_cleaning") ||
-            canAccessStatus("cleaning_in_progress")
-              ? arrCleaning
-              : []
-          }
-          color={_getColor("awaiting_for_cleaning")}
-          navigation={navigation}
-          disabled={
-            !canAccessStatus("awaiting_for_cleaning") &&
-            !canAccessStatus("cleaning_in_progress")
-          }
-        />
-        <BedList
-          title="Leitos Forragem"
-          beds={
-            canAccessStatus("awaiting_for_bedding") ||
-            canAccessStatus("bedding_in_progress")
-              ? arrBedding
-              : []
-          }
-          color={_getColor("awaiting_for_bedding")}
-          navigation={navigation}
-          disabled={
-            !canAccessStatus("awaiting_for_bedding") &&
-            !canAccessStatus("bedding_in_progress")
-          }
-        />
-        {canAccessMaintenanceAndBlockedBeds && (
-          <>
-            <BedList
-              title="Leitos em Manutenção"
-              beds={arrMaintenance}
-              color={_getColor("maintenance")}
-              navigation={navigation}
-            />
-            <BedList
-              title="Leitos Bloqueados"
-              beds={arrBlocked}
-              color={_getColor("blocked")}
-              navigation={navigation}
-            />
-          </>
-        )}
-      </ScrollView>
-    </View>
-      {showFloatButton && <SearchButton navigation={navigation} />} 
-      </>
+      <View>
+        <ScrollView>
+          <OccupancyRate percentage={percentage} />
+          <BedList
+            title="Leitos Livres"
+            beds={canAccessStatus("available") ? bedCounts.available : []}
+            color={_getColor("available")}
+            navigation={navigation}
+            disabled={!canAccessStatus("available")}
+            status={["available"]}
+          />
+          <BedList
+            title="Leitos Ocupados"
+            beds={canAccessStatus("occupied") ? bedCounts.occupied : []}
+            color={_getColor("occupied")}
+            navigation={navigation}
+            disabled={
+              !canAccessStatus("occupied") &&
+              !canAccessStatus("discharge") &&
+              !canAccessStatus("final_discharge")
+            }
+            status={["occupied", "discharge", "final_discharge"]}
+          />
+          <BedList
+            title="Leitos Higienização"
+            beds={
+              canAccessStatus("awaiting_for_cleaning") ||
+              canAccessStatus("cleaning_in_progress")
+                ? bedCounts.cleaning
+                : []
+            }
+            color={_getColor("awaiting_for_cleaning")}
+            navigation={navigation}
+            disabled={
+              !canAccessStatus("awaiting_for_cleaning") &&
+              !canAccessStatus("cleaning_in_progress")
+            }
+            status={["awaiting_for_cleaning", "cleaning_in_progress"]}
+          />
+          <BedList
+            title="Leitos Forragem"
+            beds={
+              canAccessStatus("awaiting_for_bedding") ||
+              canAccessStatus("bedding_in_progress")
+                ? bedCounts.bedding
+                : []
+            }
+            color={_getColor("awaiting_for_bedding")}
+            navigation={navigation}
+            disabled={
+              !canAccessStatus("awaiting_for_bedding") &&
+              !canAccessStatus("bedding_in_progress")
+            }
+            status={["awaiting_for_bedding", "bedding_in_progress"]}
+          />
+          {canAccessMaintenanceAndBlockedBeds && (
+            <>
+              <BedList
+                title="Leitos em Manutenção"
+                beds={bedCounts.maintenance}
+                color={_getColor("maintenance")}
+                navigation={navigation}
+              />
+              <BedList
+                title="Leitos Bloqueados"
+                beds={bedCounts.blocked}
+                color={_getColor("blocked")}
+                navigation={navigation}
+              />
+            </>
+          )}
+        </ScrollView>
+      </View>
+      {showFloatButton && <SearchButton navigation={navigation} />}
+    </>
   );
 }
-
-
 
 export const styles = StyleSheet.create({
   container: {

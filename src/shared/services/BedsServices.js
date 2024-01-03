@@ -1,5 +1,13 @@
 import db from "../../database/database";
-
+import {
+  collection,
+  CollectionReference,
+  getCountFromServer,
+  DocumentData,
+  where,
+  query as firestoreQuery,
+} from "firebase/firestore";
+const Collection = collection(db, "beds");
 const BedsService = {
   async getById(documentId) {
     const bedRef = db.collection("beds").doc(documentId);
@@ -109,8 +117,14 @@ const BedsService = {
     const logRef = db.collection("logs").doc(lastLogId);
     return logRef.get().then((doc) => {
       return { id: doc.id, ...doc.data() };
-    } );
-  }
+    });
+  },
+
+  async getCountByStatus(status) {
+    const bedsRef = firestoreQuery(Collection, where("status", "==", status));
+    const snapshot = await getCountFromServer(bedsRef);
+    return snapshot.data().count;
+  },
 };
 
 export default BedsService;

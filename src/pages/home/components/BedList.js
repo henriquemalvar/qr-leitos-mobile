@@ -2,20 +2,21 @@ import { FontAwesome } from "@expo/vector-icons";
 import { stringify } from "flatted";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export function BedList({ title, beds, color, navigation, disabled = false }) {
+export function BedList({ title, beds, color, navigation, disabled = false, status = [] }) {
   if (typeof color !== "string") {
     color = "black";
   }
 
   return (
     <View>
-      {beds.length !== 0 && (
+      {beds !== 0 && (
         <TouchableOpacity
           onPress={() => {
             if (!disabled) {
               navigation.navigate("Lista", {
                 leitos: stringify(beds),
                 cor: color,
+                status: stringify(status),
               });
             }
           }}
@@ -30,11 +31,11 @@ export function BedList({ title, beds, color, navigation, disabled = false }) {
                 />
                 <Text style={[styles.title]}>
                   {" "}
-                  {title} - {beds.length}
+                  {title} - {beds}
                 </Text>
               </View>
               <Text style={styles.shortDescription}>
-                Existem {beds.length} {title.toLowerCase()}
+                Existem {beds} {title.toLowerCase()}
               </Text>
               <Text style={[styles.text, { paddingBottom: 10 }]}>
                 {disabled ? "Ação desabilitada" : "Clique para ver mais"}
