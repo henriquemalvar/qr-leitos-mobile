@@ -295,6 +295,7 @@ export default function Leito({ route, navigation }) {
         userUid: user.uid,
         userEmail: user.email,
         userPermission: userConfig.permission,
+        bed_type: bed.type
       };
 
       const createdLog = await BedsService.createLog(log);
