@@ -8,6 +8,7 @@ import Homepage from "../pages/home/Homepage";
 import QRCode from "../pages/qr-code/QRCode";
 import Perfil from "../pages/perfil/Perfil";
 import UserChip from "./UserChip";
+import Sectors from "../pages/sectors/Sectors";
 
 const Tab = createBottomTabNavigator();
 
@@ -34,13 +35,13 @@ export default function Menu(props) {
         }}
       >
         <Tab.Screen
-          name="Leitos"
-          component={Homepage}
+          name="Setores"
+          component={Sectors}
           options={{
             headerRight: () => (
               <UserChip parsedUser={parsedUser} onPress={() => {}} />
             ),
-            tabBarLabel: "Leitos",
+            tabBarLabel: "Setores",
             tabBarIcon: ({ size, color }) => (
               <Entypo name="home" size={size} color={color} />
             ),
