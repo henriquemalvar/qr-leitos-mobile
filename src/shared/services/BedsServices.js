@@ -120,8 +120,26 @@ const BedsService = {
     });
   },
 
-  async getCountByStatus(status) {
-    const bedsRef = firestoreQuery(Collection, where("status", "==", status));
+  async getCountByStatus(status, sector) {
+    let bedsRef;
+
+    if (sector) {
+      bedsRef = firestoreQuery(
+        Collection,
+        where("status", "==", status),
+        where("sector", "==", sector)
+      );
+    } else {
+      bedsRef = firestoreQuery(Collection, where("status", "==", status));
+    }
+
+    const snapshot = await getCountFromServer(bedsRef);
+
+    return snapshot.data().count;
+  },
+
+  async getCountBySector(sector) {
+    const bedsRef = firestoreQuery(Collection, where("sector", "==", sector));
     const snapshot = await getCountFromServer(bedsRef);
     return snapshot.data().count;
   },
