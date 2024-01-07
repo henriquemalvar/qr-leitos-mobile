@@ -12,10 +12,22 @@ import Leito from "./src/pages/leito/Leito";
 import Lista from "./src/pages/home/filtros/Lista";
 import Toast from "react-native-toast-message";
 import SearchScreen from "./src/pages/search/SearchScreen";
+import Sectors from "./src/pages/sectors/Sectors";
+import UserChip from "./src/components/UserChip";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { parse } from "flatted";
 
 const Stack = createStackNavigator();
 
 function StackRoutes() {
+  const [parsedUser, setParsedUser] = React.useState(null);
+
+  React.useEffect(() => {
+    AsyncStorage.getItem("userConfig").then((user) => {
+      setParsedUser(parse(user));
+    });
+  }, []);
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -28,7 +40,17 @@ function StackRoutes() {
         component={Menu}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Homepage" component={Homepage} />
+      <Stack.Screen
+        name="Homepage"
+        component={Homepage}
+        options={{
+          title: "Leitos",
+          headerRight: () => (
+            <UserChip parsedUser={parsedUser} onPress={() => {}} />
+          ),
+        }}
+      />
+      <Stack.Screen name="Setores" component={Sectors} />
       <Stack.Screen
         name="Perfil"
         component={Perfil}
