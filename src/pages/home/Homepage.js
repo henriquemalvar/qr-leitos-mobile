@@ -11,6 +11,7 @@ import { OccupancyRate } from "./components/OccupancyRate";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function ListStatus({ route, navigation }) {
+  const [sector, setSector] = useState(null); // route.params?.sector || null
   const [beds, setBeds] = useState([]);
   const [userConfig, setUserConfig] = useState(null);
   const [percentage, setPercentage] = useState(0);
@@ -26,6 +27,7 @@ export default function ListStatus({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
+      let sector = route.params?.sector === "" ? null : route.params?.sector;
       const fetchData = async () => {
         const _userConfig = await AsyncStorage.getItem("userConfig").then(
           (userConfig) => JSON.parse(userConfig)
@@ -46,7 +48,9 @@ export default function ListStatus({ route, navigation }) {
         ];
 
         const results = await Promise.all(
-          statusList.map((status) => BedsService.getCountByStatus(status))
+          statusList.map((status) =>
+            BedsService.getCountByStatus(status, sector)
+          )
         );
 
         const [
@@ -78,7 +82,9 @@ export default function ListStatus({ route, navigation }) {
           available: _beds_available,
         });
 
-        setPercentage((_arrOccupied * 100) / (_arrOccupied + _beds_available));
+        const _percentage =
+          (_arrOccupied * 100) / (_arrOccupied + _beds_available);
+        setPercentage(isNaN(_percentage) ? 0 : _percentage);
       };
 
       fetchData();
@@ -172,7 +178,7 @@ export default function ListStatus({ route, navigation }) {
           )}
         </ScrollView>
       </View>
-      {showFloatButton && <SearchButton navigation={navigation} />}
+      <SearchButton navigation={navigation} />
     </>
   );
 }

@@ -2,15 +2,25 @@ import { FontAwesome } from "@expo/vector-icons";
 import { stringify } from "flatted";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export function BedList({ title, beds, color, navigation, disabled = false, status = [] }) {
+export function BedList({
+  title,
+  beds,
+  color,
+  navigation,
+  disabled = false,
+  status = [],
+}) {
   if (typeof color !== "string") {
     color = "black";
   }
 
+  if (beds === 0){
+    disabled = true;
+  }
+
   return (
     <View>
-      {beds !== 0 && (
-        <TouchableOpacity
+      <TouchableOpacity
           onPress={() => {
             if (!disabled) {
               navigation.navigate("Lista", {
@@ -25,8 +35,8 @@ export function BedList({ title, beds, color, navigation, disabled = false, stat
             <View style={[styles.lives]}>
               <View style={[styles.head, { alignItems: "center" }]}>
                 <FontAwesome
-                  name="bed"
-                  color={color}
+                  name={disabled? "lock" : "bed"}
+                  color={disabled ? "grey" : color}
                   style={{ fontSize: 24 }}
                 />
                 <Text style={[styles.title]}>
@@ -43,7 +53,6 @@ export function BedList({ title, beds, color, navigation, disabled = false, stat
             </View>
           </View>
         </TouchableOpacity>
-      )}
     </View>
   );
 }
