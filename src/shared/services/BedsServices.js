@@ -127,7 +127,7 @@ const BedsService = {
       bedsRef = firestoreQuery(
         Collection,
         where("status", "==", status),
-        where("sector", "==", sector)
+        where("section", "==", sector)
       );
     } else {
       bedsRef = firestoreQuery(Collection, where("status", "==", status));
@@ -139,7 +139,7 @@ const BedsService = {
   },
 
   async getCountBySector(sector) {
-    const bedsRef = firestoreQuery(Collection, where("sector", "==", sector));
+    const bedsRef = firestoreQuery(Collection, where("section", "==", sector));
     const snapshot = await getCountFromServer(bedsRef);
     return snapshot.data().count;
   },

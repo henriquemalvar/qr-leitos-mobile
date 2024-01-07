@@ -27,7 +27,7 @@ export default function ListStatus({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      let sector = route.params?.sector === "" ? null : route.params?.sector;
+      let sector = route.params?.sector === "" ? null : parse(route.params?.sector);
       const fetchData = async () => {
         const _userConfig = await AsyncStorage.getItem("userConfig").then(
           (userConfig) => JSON.parse(userConfig)
