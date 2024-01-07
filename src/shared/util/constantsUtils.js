@@ -159,3 +159,19 @@ export const statusIcon = {
   maintenance: "wrench",
   final_discharge: "hospital",
 };
+
+export const sectors = [
+  "Cent Cir V",
+  "Cent. Obst",
+  "Cirúrgico",
+  "Eletiva",
+  "CMF",
+  "CMM",
+  "Isolado",
+  "Mat",
+  "Ped",
+  "Ucin",
+  "3º andar",
+  "4º andar",
+  "CTI",
+];
