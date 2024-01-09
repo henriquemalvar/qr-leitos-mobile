@@ -6,14 +6,14 @@ import styles from "./style";
 import BedsService from "../../../shared/services/BedsServices";
 
 export default function Lista({ route, navigation }) {
-  const { cor, status } = route.params;
+  const { cor, status, sector } = route.params;
   const [beds, setBeds] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const statusList = parse(status);
       const bedsPromises = statusList.map((status) =>
-        BedsService.getByStatus(status)
+        sector ? BedsService.getByStatusAndSection(status, sector) : BedsService.getByStatus(status)
       );
       const bedsArrays = await Promise.all(bedsPromises);
       const combinedBeds = bedsArrays.flat();
