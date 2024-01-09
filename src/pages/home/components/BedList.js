@@ -9,50 +9,52 @@ export function BedList({
   navigation,
   disabled = false,
   status = [],
+  sector,
 }) {
   if (typeof color !== "string") {
     color = "black";
   }
 
-  if (beds === 0){
+  if (beds === 0) {
     disabled = true;
   }
 
   return (
     <View>
       <TouchableOpacity
-          onPress={() => {
-            if (!disabled) {
-              navigation.navigate("Lista", {
-                leitos: stringify(beds),
-                cor: color,
-                status: stringify(status),
-              });
-            }
-          }}
-        >
-          <View style={[styles.container]}>
-            <View style={[styles.lives]}>
-              <View style={[styles.head, { alignItems: "center" }]}>
-                <FontAwesome
-                  name={disabled? "lock" : "bed"}
-                  color={disabled ? "grey" : color}
-                  style={{ fontSize: 24 }}
-                />
-                <Text style={[styles.title]}>
-                  {" "}
-                  {title} - {beds}
-                </Text>
-              </View>
-              <Text style={styles.shortDescription}>
-                Existem {beds} {title.toLowerCase()}
-              </Text>
-              <Text style={[styles.text, { paddingBottom: 10 }]}>
-                {disabled ? "Ação desabilitada" : "Clique para ver mais"}
+        onPress={() => {
+          if (!disabled) {
+            navigation.navigate("Lista", {
+              leitos: stringify(beds),
+              cor: color,
+              status: stringify(status),
+              sector: sector,
+            });
+          }
+        }}
+      >
+        <View style={[styles.container]}>
+          <View style={[styles.lives]}>
+            <View style={[styles.head, { alignItems: "center" }]}>
+              <FontAwesome
+                name={disabled ? "lock" : "bed"}
+                color={disabled ? "grey" : color}
+                style={{ fontSize: 24 }}
+              />
+              <Text style={[styles.title]}>
+                {" "}
+                {title} - {beds}
               </Text>
             </View>
+            <Text style={styles.shortDescription}>
+              Existem {beds} {title.toLowerCase()}
+            </Text>
+            <Text style={[styles.text, { paddingBottom: 10 }]}>
+              {disabled ? "Ação desabilitada" : "Clique para ver mais"}
+            </Text>
           </View>
-        </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
