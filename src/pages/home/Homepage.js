@@ -28,9 +28,10 @@ export default function ListStatus({ route, navigation }) {
   useFocusEffect(
     useCallback(() => {
       let sector = route.params?.sector === "" ? null : parse(route.params?.sector);
+      setSector(sector);
       const fetchData = async () => {
         const _userConfig = await AsyncStorage.getItem("userConfig").then(
-          (userConfig) => JSON.parse(userConfig)
+          (userConfig) => parse(userConfig)
         );
         setUserConfig(_userConfig);
 
@@ -115,6 +116,7 @@ export default function ListStatus({ route, navigation }) {
             navigation={navigation}
             disabled={!canAccessStatus("available")}
             status={["available"]}
+            sector={sector}
           />
           <BedList
             title="Leitos Ocupados"
@@ -127,6 +129,7 @@ export default function ListStatus({ route, navigation }) {
               !canAccessStatus("final_discharge")
             }
             status={["occupied", "discharge", "final_discharge"]}
+            sector={sector}
           />
           <BedList
             title="Leitos Higienização"
@@ -143,6 +146,7 @@ export default function ListStatus({ route, navigation }) {
               !canAccessStatus("cleaning_in_progress")
             }
             status={["awaiting_for_cleaning", "cleaning_in_progress"]}
+            sector={sector}
           />
           <BedList
             title="Leitos Forragem"
@@ -159,6 +163,7 @@ export default function ListStatus({ route, navigation }) {
               !canAccessStatus("bedding_in_progress")
             }
             status={["awaiting_for_bedding", "bedding_in_progress"]}
+            sector={sector}
           />
           {canAccessMaintenanceAndBlockedBeds && (
             <>
