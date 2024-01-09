@@ -40,6 +40,20 @@ const BedsService = {
     return beds;
   },
 
+  async getByStatusAndSection(status, section) {
+    const bedsRef = db.collection("beds").where("status", "==", status).where("section", "==", section);
+    const bedsDoc = await bedsRef.get();
+    const beds = bedsDoc.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
+    });
+    return beds;
+  },
+
+
+
   async getByManyStatus(status) {
     const bedsRef = db.collection("beds").where("status", "in", status);
     const bedsDoc = await bedsRef.get();
