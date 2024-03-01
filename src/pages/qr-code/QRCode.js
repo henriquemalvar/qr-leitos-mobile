@@ -3,6 +3,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import { stringify } from "flatted";
 import React, { useEffect, useState } from "react";
 import { Linking, Text, TouchableOpacity, View } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 import BedsService from "../../shared/services/BedsServices";
 import showMessage from "../../shared/util/messageUtils";
 import styles from "./style";
@@ -94,7 +95,7 @@ export default function QRCode({ navigation }) {
       <View>
         <Text style={styles.text}>{code}</Text>
       </View>
-      {scanned && (
+      {true && (
         <>
           <TouchableOpacity
             style={styles.button}
@@ -109,20 +110,12 @@ export default function QRCode({ navigation }) {
             <Text style={styles.textButton}>ACESSAR LEITO</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={clearData}>
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 20,
-                fontWeight: "bold",
-                textAlign: "center",
-                marginTop: 20,
-                backgroundColor: "red",
-                padding: 10,
-                borderRadius: 10,
-              }}
-            >
-              LIMPAR
-            </Text>
+            <Icon
+              name="refresh"
+              size={30}
+              color="#fff"
+              style={styles.refreshButton}
+            />
           </TouchableOpacity>
         </>
       )}

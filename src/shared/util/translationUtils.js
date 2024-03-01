@@ -34,12 +34,12 @@ const _getOptions = (permission, currentStatus) => {
     options = options.filter((option) => option.from === currentStatus);
   }
 
-  options = options.map((option) => {
+  options = options ? options.map((option) => {
     return {
       label: translateStatus(option.to || ""),
       value: option.to || "",
     };
-  });
+  }) : [];
 
   return options;
 };

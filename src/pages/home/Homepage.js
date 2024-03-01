@@ -49,9 +49,9 @@ export default function ListStatus({ route, navigation }) {
         ];
 
         const results = await Promise.all(
-          statusList.map((status) =>
+          statusList?.map((status) =>
             BedsService.getCountByStatus(status, sector)
-          )
+          ) || []
         );
 
         const [

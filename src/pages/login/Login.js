@@ -38,7 +38,7 @@ export default function Login({ navigation }) {
       }
       await saveUserToAsyncStorage(userCredential.user);
       await saveUserConfigToAsyncStorage(email);
-  
+
       navigation.navigate("Menu", { idUser: userCredential.user.uid });
     } catch (error) {
       handleLoginError(error);
@@ -123,6 +123,7 @@ export default function Login({ navigation }) {
 
     getUser();
   }, []);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -169,6 +170,12 @@ export default function Login({ navigation }) {
         disabled={!email.trim() || !senha.trim()}
       >
         <Text style={styles.textButtonLogin}>Entrar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.buttonRecovery}
+        onPress={() => navigation.navigate("PasswordRecovery")}
+      >
+        <Text style={styles.textButtonRecovery}>Esqueceu a senha?</Text>
       </TouchableOpacity>
       <View style={{ height: 100 }} />
     </KeyboardAvoidingView>

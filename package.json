@@ -39,6 +39,7 @@
     "react-native-screens": "~3.20.0",
     "react-native-select-dropdown": "^3.3.4",
     "react-native-toast-message": "^2.1.7",
+    "react-native-vector-icons": "^10.0.3",
     "react-native-web": "~0.18.10"
   },
   "devDependencies": {

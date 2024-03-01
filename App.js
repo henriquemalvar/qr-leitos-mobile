@@ -16,6 +16,7 @@ import Sectors from "./src/pages/sectors/Sectors";
 import UserChip from "./src/components/UserChip";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parse } from "flatted";
+import PasswordRecovery from "./src/pages/passwordRecovery/PasswordRecovery";
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,11 @@ function StackRoutes() {
         name="Login"
         component={Login}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PasswordRecovery"
+        component={PasswordRecovery}
+        options={{ title: "Recuperação de senha" }}
       />
       <Stack.Screen
         name="Menu"

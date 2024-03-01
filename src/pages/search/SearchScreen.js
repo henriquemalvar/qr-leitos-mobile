@@ -68,16 +68,17 @@ const SearchScreen = ({ navigation }) => {
       let results = querySnapshot.docs.map((doc) => doc.data());
 
       if (localLocationFilter) {
-        results = results.filter((result) => {
-          return result.location.some((location) =>
-            location.includes(data.location)
-          );
-        });
+      results = results.filter((result) => {
+        return result.location.some((location) =>
+        location.includes(data.location)
+        );
+      });
       }
 
       return results;
     } catch (error) {
       console.error("Erro ao buscar documentos: ", error);
+      return [];
     }
   };
 

@@ -21,10 +21,10 @@ const BedsService = {
     const bedsDoc = await bedsRef.get();
     const beds = bedsDoc.docs.map((doc) => {
       return {
-        id: doc.id,
-        ...doc.data(),
+      id: doc.id,
+      ...doc.data(),
       };
-    });
+    }) || [];
     return beds;
   },
 
@@ -33,10 +33,10 @@ const BedsService = {
     const bedsDoc = await bedsRef.get();
     const beds = bedsDoc.docs.map((doc) => {
       return {
-        id: doc.id,
-        ...doc.data(),
+      id: doc.id,
+      ...doc.data(),
       };
-    });
+    }) || [];
     return beds;
   },
 
@@ -45,10 +45,10 @@ const BedsService = {
     const bedsDoc = await bedsRef.get();
     const beds = bedsDoc.docs.map((doc) => {
       return {
-        id: doc.id,
-        ...doc.data(),
+      id: doc.id,
+      ...doc.data(),
       };
-    });
+    }) || [];
     return beds;
   },
 
@@ -59,10 +59,10 @@ const BedsService = {
     const bedsDoc = await bedsRef.get();
     const beds = bedsDoc.docs.map((doc) => {
       return {
-        id: doc.id,
-        ...doc.data(),
+      id: doc.id,
+      ...doc.data(),
       };
-    });
+    }) || [];
     return beds;
   },
 
@@ -112,7 +112,7 @@ const BedsService = {
     return bedsRef.onSnapshot((querySnapshot) => {
       const beds = querySnapshot.docs.map((doc) => {
         return { id: doc.id, ...doc.data() };
-      });
+      }) || [];
       callback(beds);
     });
   },
@@ -122,7 +122,7 @@ const BedsService = {
     return bedsRef.onSnapshot((querySnapshot) => {
       const beds = querySnapshot.docs.map((doc) => {
         return { id: doc.id, ...doc.data() };
-      });
+      }) || [];
       callback(beds);
     });
   },
