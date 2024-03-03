@@ -95,7 +95,7 @@ export default function QRCode({ navigation }) {
       <View>
         <Text style={styles.text}>{code}</Text>
       </View>
-      {true && (
+      {scanned && (
         <>
           <TouchableOpacity
             style={styles.button}

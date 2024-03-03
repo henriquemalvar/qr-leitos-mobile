@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   refreshButton: {
-    fontSize: 20,
+    fontSize: 40
+    ,
     textAlign: "center",
     color: "#4D96FF",
     marginTop: 20,
