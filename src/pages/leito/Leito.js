@@ -24,9 +24,11 @@ const BedDetails = ({ bed }) => {
         <View style={{ paddingBottom: 10 }}>
           <Text style={styles.detailsFont}>Endereço </Text>
           <Text style={styles.detailsEnd}>
-            {Array.isArray(bed.location) ? bed.location.map((field) => {
-              return <Text key={field}>{field} </Text>;
-            }) : null}
+            {Array.isArray(bed.location)
+              ? bed.location.map((field) => {
+                  return <Text key={field}>{field} </Text>;
+                })
+              : null}
           </Text>
         </View>
       </View>
@@ -34,9 +36,11 @@ const BedDetails = ({ bed }) => {
         <View style={{ paddingBottom: 10 }}>
           <Text style={styles.detailsFont}>Tipo </Text>
           <Text style={styles.detailsEnd}>
-            {Array.isArray(bed.type) ? bed.type.map((field) => {
-              return <Text key={field}>{field} </Text>;
-            }) : null}
+            {Array.isArray(bed.type)
+              ? bed.type.map((field) => {
+                  return <Text key={field}>{field} </Text>;
+                })
+              : null}
           </Text>
         </View>
       </View>
@@ -295,7 +299,7 @@ export default function Leito({ route, navigation }) {
         userUid: user.uid,
         userEmail: user.email,
         userPermission: userConfig.permission,
-        bed_type: bed.type
+        bed_type: bed.type,
       };
 
       const createdLog = await BedsService.createLog(log);
