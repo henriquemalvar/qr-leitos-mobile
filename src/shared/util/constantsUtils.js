@@ -161,16 +161,16 @@ export const statusIcon = {
 };
 
 export const sectors = [
-  'CTI',
-  'Cent. Obst.',
-  'Cirurgico',
-  'Eletiva',
-  'CMF',
-  'CMM',
-  'Isolado',
-  'Mat',
-  'Ped',
-  'Ucin',
-  '3º andar',
-  '4º andar',
+  "CTI",
+  "Cent. Obst.",
+  "Cirurgico",
+  "Eletiva",
+  "CMF",
+  "CMM",
+  "Isolado",
+  "Mat",
+  "Ped",
+  "Ucin",
+  "3º andar",
+  "4º andar",
 ];
