@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Entypo, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { parse } from "flatted";
+import React, { useEffect, useState } from "react";
 
-import Homepage from "../pages/home/Homepage";
-import QRCode from "../pages/qr-code/QRCode";
 import Perfil from "../pages/perfil/Perfil";
-import UserChip from "./UserChip";
+import QRCode from "../pages/qr-code/QRCode";
 import Sectors from "../pages/sectors/Sectors";
+import UserChip from "./UserChip";
 
 const Tab = createBottomTabNavigator();
 
