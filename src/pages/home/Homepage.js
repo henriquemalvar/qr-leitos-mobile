@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { parse } from "flatted";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import SearchButton from "../../components/SearchButton";
@@ -8,7 +9,6 @@ import BedsService from "../../shared/services/BedsServices";
 import { _getColor, _getPermissions } from "../../shared/util/translationUtils";
 import { BedList } from "./components/BedList";
 import { OccupancyRate } from "./components/OccupancyRate";
-import { useFocusEffect } from "@react-navigation/native";
 
 export default function ListStatus({ route, navigation }) {
   const [sector, setSector] = useState(null); // route.params?.sector || null
@@ -27,7 +27,8 @@ export default function ListStatus({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      let sector = route.params?.sector === "" ? null : parse(route.params?.sector);
+      let sector =
+        route.params?.sector === "" ? null : parse(route.params?.sector);
       setSector(sector);
       const fetchData = async () => {
         const _userConfig = await AsyncStorage.getItem("userConfig").then(

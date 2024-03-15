@@ -12,7 +12,7 @@ export default function Lista({ route, navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       const statusList = parse(status);
-      const bedsPromises = statusList ? statusList.map((status) =>
+      const bedsPromises = Array.isArray(statusList) ? statusList.map((status) =>
         sector ? BedsService.getByStatusAndSection(status, sector) : BedsService.getByStatus(status)
       ) : [];
       const bedsArrays = await Promise.all(bedsPromises);
