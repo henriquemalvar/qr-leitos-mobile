@@ -1,12 +1,10 @@
-import db from "../../database/database";
 import {
   collection,
-  CollectionReference,
-  getCountFromServer,
-  DocumentData,
-  where,
   query as firestoreQuery,
+  getCountFromServer,
+  where
 } from "firebase/firestore";
+import db from "../../database/database";
 const Collection = collection(db, "beds");
 const BedsService = {
   async getById(documentId) {
@@ -19,50 +17,55 @@ const BedsService = {
   async getAll() {
     const bedsRef = db.collection("beds");
     const bedsDoc = await bedsRef.get();
-    const beds = bedsDoc.docs.map((doc) => {
-      return {
-      id: doc.id,
-      ...doc.data(),
-      };
-    }) || [];
+    const beds =
+      bedsDoc.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      }) || [];
     return beds;
   },
 
   async getByStatus(status) {
     const bedsRef = db.collection("beds").where("status", "==", status);
     const bedsDoc = await bedsRef.get();
-    const beds = bedsDoc.docs.map((doc) => {
-      return {
-      id: doc.id,
-      ...doc.data(),
-      };
-    }) || [];
+    const beds =
+      bedsDoc.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      }) || [];
     return beds;
   },
 
   async getByStatusAndSection(status, section) {
-    const bedsRef = db.collection("beds").where("status", "==", status).where("section", "==", section);
+    const bedsRef = db
+      .collection("beds")
+      .where("status", "==", status)
+      .where("section", "==", section);
     const bedsDoc = await bedsRef.get();
-    const beds = bedsDoc.docs.map((doc) => {
-      return {
-      id: doc.id,
-      ...doc.data(),
-      };
-    }) || [];
+    const beds =
+      bedsDoc.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      }) || [];
     return beds;
   },
-
-
 
   async getByManyStatus(status) {
     const bedsRef = db.collection("beds").where("status", "in", status);
     const bedsDoc = await bedsRef.get();
-    const beds = bedsDoc.docs.map((doc) => {
-      return {
-      id: doc.id,
-      ...doc.data(),
-      };
-    }) || [];
+    const beds =
+      bedsDoc.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      }) || [];
     return beds;
   },
 
@@ -110,9 +113,10 @@ const BedsService = {
   listenToAllBedsChanges(callback) {
     const bedsRef = db.collection("beds");
     return bedsRef.onSnapshot((querySnapshot) => {
-      const beds = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-      }) || [];
+      const beds =
+        querySnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() };
+        }) || [];
       callback(beds);
     });
   },
@@ -120,9 +124,10 @@ const BedsService = {
   listenToBedsByStatusChanges(status, callback) {
     const bedsRef = db.collection("beds").where("status", "==", status);
     return bedsRef.onSnapshot((querySnapshot) => {
-      const beds = querySnapshot.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() };
-      }) || [];
+      const beds =
+        querySnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() };
+        }) || [];
       callback(beds);
     });
   },
