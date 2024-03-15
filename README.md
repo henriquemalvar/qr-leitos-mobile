@@ -2,7 +2,7 @@
 
 O QR Leitos é um aplicativo de gerenciamento de leitos hospitalares desenvolvido para simplificar e aprimorar o processo de alocação e acompanhamento de leitos em uma instituição de saúde. Ele oferece funcionalidades que tornam o gerenciamento de leitos mais eficiente e facilitam a comunicação entre os profissionais de saúde.
 
-**Nota:** Além do aplicativo móvel, também existe um site para gerenciamento que oferece funcionalidades adicionais, como adicionar usuários, leitos e gerar códigos QR para impressão. O repositório do site está disponível em [https://github.com/FDelfim/qr-leitos-web-next](https://github.com/FDelfim/qr-leitos-web-next) e o site já se encontra hospedado em  [https://qr-leitos.vercel.app](https://qr-leitos.vercel.app).
+**Nota:** Além do aplicativo móvel, também existe um site para gerenciamento que oferece funcionalidades adicionais, como adicionar usuários, leitos e gerar códigos QR para impressão. O repositório do site está disponível em [https://github.com/FDelfim/qr-leitos-web-next](https://github.com/FDelfim/qr-leitos-web-next) e o site já se encontra hospedado em [https://qr-leitos.vercel.app](https://qr-leitos.vercel.app).
 
 ## Funcionalidades Principais
 
