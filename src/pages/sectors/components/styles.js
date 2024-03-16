@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingLeft: 10,
     paddingTop: 10,
+    alignItems: "center",
   },
   shortDescription: {
     fontSize: 16,
@@ -39,6 +40,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     fontSize: 12,
     alignSelf: "center",
+    paddingBottom: 10,
   },
   occupation: {
     backgroundColor: "#dcdcdc",

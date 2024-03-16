@@ -1,12 +1,11 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import SearchButton from "../../components/SearchButton";
 import BedsService from "../../shared/services/BedsServices";
 import { sectors } from "../../shared/util/constantsUtils";
-import SectorCard from "./SectorCard";
-
+import SectorCard from "./components/SectorCard";
 export default function Sectors({ navigation }) {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,21 +29,21 @@ export default function Sectors({ navigation }) {
   );
 
   return (
+    <View>
       <View>
-        <View>
-          <FlatList
-            data={cards.filter(item => item.count !== 0)}
-            keyExtractor={(item) => item.sector}
-            renderItem={({ item }) => (
-              <SectorCard
-                sector={item.sector}
-                number={item.count}
-                navigation={navigation}
-              />
-            )}
-          />
-        </View>
-        <SearchButton navigation={navigation} />
+        <FlatList
+          data={cards.filter((item) => item.count !== 0)}
+          keyExtractor={(item) => item.sector}
+          renderItem={({ item }) => (
+            <SectorCard
+              sector={item.sector}
+              number={item.count}
+              navigation={navigation}
+            />
+          )}
+        />
       </View>
-    );
+      <SearchButton navigation={navigation} />
+    </View>
+  );
 }

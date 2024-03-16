@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { View, FlatList, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { parse, stringify } from "flatted";
-import styles from "./style";
+import React, { useEffect, useState } from "react";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import BedsService from "../../../shared/services/BedsServices";
+import styles from "./styles";
 
 export default function Lista({ route, navigation }) {
   const { cor, status, sector } = route.params;
@@ -12,9 +12,13 @@ export default function Lista({ route, navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       const statusList = parse(status);
-      const bedsPromises = Array.isArray(statusList) ? statusList.map((status) =>
-        sector ? BedsService.getByStatusAndSection(status, sector) : BedsService.getByStatus(status)
-      ) : [];
+      const bedsPromises = Array.isArray(statusList)
+        ? statusList.map((status) =>
+            sector
+              ? BedsService.getByStatusAndSection(status, sector)
+              : BedsService.getByStatus(status)
+          )
+        : [];
       const bedsArrays = await Promise.all(bedsPromises);
       const combinedBeds = bedsArrays.flat();
       combinedBeds.sort((a, b) => sortBeds(a.name, b.name));

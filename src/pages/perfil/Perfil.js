@@ -8,7 +8,7 @@ import { translatePermission } from "../../shared/util/translationUtils";
 
 import { IconButton } from "react-native-paper";
 import showMessage from "../../shared/util/messageUtils";
-import { ModalPermissions } from "./ModalPermissions";
+import { ModalPermissions } from "./components/ModalPermissions";
 import styles from "./styles";
 
 const UserHead = ({ user }) => {

@@ -3,26 +3,26 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import {
   _getPermissions,
   translateStatus,
-} from "../../shared/util/translationUtils";
+} from "../../../shared/util/translationUtils";
 
 export const ModalPermissions = ({ visible, onClose, user }) => {
   const userPermissions = _getPermissions(user.permission);
 
   return (
     <Modal animationType="slide" transparent={true} visible={visible}>
-      <View style={modalStyles.container}>
-        <View style={modalStyles.view}>
-          <Text style={modalStyles.title}>Permissões</Text>
+      <View style={styles.container}>
+        <View style={styles.view}>
+          <Text style={styles.title}>Permissões</Text>
           {userPermissions.map((permission, index) => (
-            <View key={index} style={modalStyles.permission}>
-              <Text style={modalStyles.permissionText}>
+            <View key={index} style={styles.permission}>
+              <Text style={styles.permissionText}>
                 {translateStatus(permission.from)} →{" "}
                 {translateStatus(permission.to)}
               </Text>
             </View>
           ))}
-          <TouchableOpacity style={modalStyles.button} onPress={onClose}>
-            <Text style={modalStyles.buttonText}>Fechar</Text>
+          <TouchableOpacity style={styles.button} onPress={onClose}>
+            <Text style={styles.buttonText}>Fechar</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -30,7 +30,7 @@ export const ModalPermissions = ({ visible, onClose, user }) => {
   );
 };
 
-export const modalStyles = new StyleSheet.create({
+export const styles = new StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",

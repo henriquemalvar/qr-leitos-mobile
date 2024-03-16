@@ -1,188 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { parse } from "flatted";
-import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { Switch } from "react-native-paper";
-import SelectDropdown from "react-native-select-dropdown";
+import React, { useCallback, useEffect, useState } from "react";
+import { ScrollView, View } from "react-native";
 import BedsService from "../../shared/services/BedsServices";
-import { convertTimestamp } from "../../shared/util/dateUtils";
 import showMessage from "../../shared/util/messageUtils";
-import {
-  _getOptions,
-  translateStatus,
-} from "../../shared/util/translationUtils";
-import styles from "../leito/style";
-
-const BedDetails = ({ bed }) => {
-  return (
-    <>
-      <View style={styles.title}>
-        <Text style={styles.titleFont}>{bed.name}</Text>
-      </View>
-      <View style={styles.containerDesc}>
-        <View style={{ paddingBottom: 10 }}>
-          <Text style={styles.detailsFont}>Endereço </Text>
-          <Text style={styles.detailsEnd}>
-            {Array.isArray(bed.location)
-              ? bed.location.map((field) => {
-                  return <Text key={field}>{field} </Text>;
-                })
-              : null}
-          </Text>
-        </View>
-      </View>
-      <View style={styles.containerDesc}>
-        <View style={{ paddingBottom: 10 }}>
-          <Text style={styles.detailsFont}>Tipo </Text>
-          <Text style={styles.detailsEnd}>
-            {Array.isArray(bed.type)
-              ? bed.type.map((field) => {
-                  return <Text key={field}>{field} </Text>;
-                })
-              : null}
-          </Text>
-        </View>
-      </View>
-    </>
-  );
-};
-const BedStatusDropdown = ({
-  options,
-  selectedOption,
-  currentStatus,
-  disabled,
-  setSelectedOption,
-}) => {
-  const onSelect = useCallback(
-    (selectedItem, index) => {
-      setSelectedOption(options[index]?.value || "");
-    },
-    [options, setSelectedOption]
-  );
-
-  const defaultButtonText = useMemo(() => {
-    const translatedText =
-      translateStatus(currentStatus) || "Selecione uma opção";
-    return translatedText;
-  }, [selectedOption]);
-
-  return (
-    <View style={styles.containerDropdown}>
-      <View style={styles.containerDesc}>
-        <Text style={styles.detailsFont}>Estado do Leito </Text>
-      </View>
-      {options.length >= 0 && (
-        <SelectDropdown
-          disabled={disabled}
-          data={options.map((option) => option.label)}
-          onSelect={onSelect}
-          defaultButtonText={defaultButtonText}
-          rowTextForSelection={(item, index) => {
-            return item;
-          }}
-          style={styles.dropdown}
-          buttonStyle={styles.dropdownButton}
-          dropdownStyle={styles.dropdownDropdown}
-        ></SelectDropdown>
-      )}
-    </View>
-  );
-};
-
-const LastModification = ({ bed, lastLog }) => {
-  const lastModification =
-    convertTimestamp(bed.updated_at).format("DD/MM/YYYY HH:mm:ss") || "N/A";
-  const lastModificationLabel = bed.updated_at
-    ? "Última Modificação"
-    : "Criado em";
-  const hours = moment().diff(
-    moment(lastModification, "DD/MM/YYYY HH:mm:ss"),
-    "hours"
-  );
-  const diff =
-    hours > 24
-      ? `${moment().diff(
-          moment(lastModification, "DD/MM/YYYY HH:mm:ss"),
-          "days"
-        )} dias`
-      : `${hours} horas`;
-  return (
-    <View style={styles.containerDesc}>
-      <View style={{ paddingBottom: 10 }}>
-        <Text style={styles.detailsFont}>{lastModificationLabel} </Text>
-        <Text style={styles.detailsEnd}>
-          {lastModification} - {diff} atrás
-        </Text>
-        {lastLog?.userName && (
-          <Text style={styles.detailsEnd}>
-            Modificado por: {lastLog.userName}
-          </Text>
-        )}
-      </View>
-    </View>
-  );
-};
-
-const ToggleContainer = ({ label, value, onValueChange }) => {
-  return (
-    <View style={styles.toggleContainer}>
-      <Text style={styles.checkboxLabel}>{label}</Text>
-      <Switch value={value} onValueChange={onValueChange} color="blue" />
-    </View>
-  );
-};
-
-const ToggleCard = ({
-  label1,
-  value1,
-  onValueChange1,
-  label2,
-  value2,
-  onValueChange2,
-}) => {
-  return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Configurações</Text>
-      </View>
-      <View style={styles.cardContent}>
-        <ToggleContainer
-          label={label1}
-          value={value1}
-          onValueChange={onValueChange1}
-        />
-        <ToggleContainer
-          label={label2}
-          value={value2}
-          onValueChange={onValueChange2}
-        />
-      </View>
-    </View>
-  );
-};
-
-const SaveButton = ({ bed, selectedOption, disabled, updateLeito }) => {
-  const onPress = useCallback(() => {
-    updateLeito();
-  }, [bed.status, selectedOption, updateLeito]);
-
-  return (
-    <TouchableOpacity
-      style={[
-        styles.floatingButton,
-        { position: "absolute", bottom: 20, right: 20 },
-        disabled ? styles.disabledButtonLabel : styles.buttonLabel,
-      ]}
-      onPress={onPress}
-      disabled={disabled || false}
-    >
-      <View>
-        <Text style={styles.buttonText}>Salvar</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
+import { _getOptions } from "../../shared/util/translationUtils";
+import { BedDetails } from "./components/BedDetails";
+import { BedStatusDropdown } from "./components/BedStatusDropdown";
+import { LastModification } from "./components/LastModification";
+import { SaveButton } from "./components/SaveButton";
+import { ToggleCard } from "./components/ToggleCard";
+import styles from "./styles";
 
 export default function Leito({ route, navigation }) {
   const { leito, scanned = false } = route.params;
@@ -362,7 +190,7 @@ export default function Leito({ route, navigation }) {
   return (
     <>
       <ScrollView>
-        <View style={[styles.containerStatus, { marginBottom: 110 }]}>
+        <View style={styles.containerStatus}>
           <BedDetails bed={bed} />
           <LastModification bed={bed} lastLog={lastLog} />
           {canToggle && (
