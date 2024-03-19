@@ -59,7 +59,11 @@ export default function Login({ navigation }) {
             />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleLogin}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleLogin}
+          disabled={!email || !password}
+        >
           <Button
             mode="contained"
             style={[styles.button]}
