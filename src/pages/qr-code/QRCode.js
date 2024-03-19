@@ -138,10 +138,8 @@ export default function QRCode({ navigation }) {
               mode="outlined"
               disabled
             />
-            <Button
-              mode="contained"
-              contentStyle={{ height: 60, width: "100%" }}
-              labelStyle={{ fontSize: 20 }}
+            <TouchableOpacity
+              activeOpacity={0.8}
               onPress={() => {
                 clearData();
                 navigation.navigate("Leito", {
@@ -150,8 +148,14 @@ export default function QRCode({ navigation }) {
                 });
               }}
             >
-              ACESSAR LEITO
-            </Button>
+              <Button
+                mode="contained"
+                contentStyle={{ height: 60, width: "100%" }}
+                labelStyle={{ fontSize: 20 }}
+              >
+                ACESSAR LEITO
+              </Button>
+            </TouchableOpacity>
             <IconButton
               icon="refresh"
               size={50}

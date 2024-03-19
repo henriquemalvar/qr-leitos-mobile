@@ -59,14 +59,15 @@ export default function Login({ navigation }) {
             />
           </TouchableOpacity>
         </View>
-        <Button
-          mode="contained"
-          style={[styles.button]}
-          onPress={handleLogin}
-          disabled={!email || !password}
-        >
-          Entrar
-        </Button>
+        <TouchableOpacity activeOpacity={0.8} onPress={handleLogin}>
+          <Button
+            mode="contained"
+            style={[styles.button]}
+            disabled={!email || !password}
+          >
+            Entrar
+          </Button>
+        </TouchableOpacity>
         <Button
           style={styles.buttonRecovery}
           onPress={() => navigation.navigate("PasswordRecovery")}

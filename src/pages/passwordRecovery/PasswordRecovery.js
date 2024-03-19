@@ -2,7 +2,7 @@ import globalStyles from "@styles/globalStyles";
 import showMessage from "@utils/messageUtils";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, TextInput, TouchableOpacity, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import styles from "./styles";
 
@@ -49,13 +49,11 @@ export default function PasswordRecovery() {
           value={email}
           autoCapitalize="none"
         />
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={handlePasswordRecovery}
-        >
-          Recuperar senha
-        </Button>
+        <TouchableOpacity activeOpacity={0.8} onPress={handlePasswordRecovery}>
+          <Button mode="contained" style={styles.button}>
+            Recuperar senha
+          </Button>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>
   );

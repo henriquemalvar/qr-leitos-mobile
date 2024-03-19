@@ -4,7 +4,7 @@ import showMessage from "@utils/messageUtils";
 import { getAuth, signOut } from "firebase/auth";
 import { parse } from "flatted";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { PermissionInfoCard } from "./components/PermissionInfoCard/PermissionInfoCard";
 import { ProfileHeader } from "./components/ProfileHeader/ProfileHeader";
@@ -48,15 +48,17 @@ const ProfilePage = ({ navigation }) => {
       <ProfileHeader user={user} />
       <PermissionInfoCard user={user} />
       <EmailCard user={user} />
+
       <View style={styles.buttonContainer}>
-        <Button
-          mode="contained"
-          onPress={handleLogout}
-          style={styles.button}
-          labelStyle={styles.buttonText}
-        >
-          Sair
-        </Button>
+        <TouchableOpacity activeOpacity={0.8} onPress={handleLogout}>
+          <Button
+            mode="contained"
+            style={styles.button}
+            labelStyle={styles.buttonText}
+          >
+            Sair
+          </Button>
+        </TouchableOpacity>
       </View>
       <View style={styles.versionContainer}>
         <Text style={styles.appInfo}>App Version: {APP_VERSION}</Text>
