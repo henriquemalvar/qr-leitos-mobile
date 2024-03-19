@@ -1,5 +1,6 @@
 import BedsService from "@services/BedsServices";
 import globalStyles from "@styles/globalStyles";
+import { theme } from "@styles/theme";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, Platform, View } from "react-native";
@@ -20,7 +21,12 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
   const { filtersVisible } = state;
 
   const handleClearInput = () => {
-    reset();
+    reset({
+      name: "",
+      type: "",
+      location: "",
+      section: "",
+    });
     setState({
       ...state,
       results: [],
@@ -30,6 +36,10 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
       section: "",
     });
   };
+
+  function handleValue(value, defaultValue) {
+    return value !== undefined && value !== null ? value : defaultValue;
+  }
 
   const onSubmit = async (data) => {
     onLoading(true);
@@ -61,7 +71,7 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
               style={globalStyles.input}
               onBlur={onBlur}
               onChangeText={onChange}
-              value={value || state.name}
+              value={handleValue(value, state.name)}
               mode="outlined"
               label="Nome do leito"
             />
@@ -79,7 +89,7 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
                   style={globalStyles.input}
                   onBlur={onBlur}
                   onChangeText={onChange}
-                  value={value || state.type}
+                  value={handleValue(value, state.type)}
                   mode="outlined"
                   label="Tipo"
                 />
@@ -96,7 +106,7 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
                   style={globalStyles.input}
                   onBlur={onBlur}
                   onChangeText={onChange}
-                  value={value || state.location}
+                  value={handleValue(value, state.location)}
                   mode="outlined"
                   label="Localização"
                 />
@@ -111,7 +121,7 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
                   style={globalStyles.input}
                   onBlur={onBlur}
                   onChangeText={onChange}
-                  value={value || state.section}
+                  value={handleValue(value, state.section)}
                   mode="outlined"
                   label="Setor"
                 />
@@ -131,7 +141,9 @@ export const SearchForm = ({ navigation, route, onResults, onLoading }) => {
         </Button>
         <View style={globalStyles.flexRow}>
           <View style={globalStyles.flex} />
-          <IconButton icon="close" onPress={handleClearInput} />
+          <IconButton icon="eraser" onPress={handleClearInput} iconColor={
+            theme.colors.error
+          } />
           <Button
             icon="magnify"
             mode="contained"

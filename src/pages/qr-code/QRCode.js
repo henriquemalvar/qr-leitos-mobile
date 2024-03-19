@@ -46,19 +46,28 @@ export default function QRCode({ navigation }) {
     }
   }, [isFocused]);
 
+  let lastScannedCode = null;
+
   const handleBarCodeScanned = ({ data }) => {
-    searchLeito(data)
-      .then((result) => {
-        if (result === false) {
-          showMessage("error", "Erro ao buscar leito", "Leito não encontrado");
-        } else {
-          setScanned(true);
-          setCode(data);
-        }
-      })
-      .catch((error) => {
-        showMessage("error", "Erro ao buscar leito", error.message);
-      });
+    if (data !== lastScannedCode) {
+      lastScannedCode = data;
+      searchLeito(data)
+        .then((result) => {
+          if (result === false) {
+            showMessage(
+              "error",
+              "Erro ao buscar leito",
+              "Leito não encontrado"
+            );
+          } else {
+            setScanned(true);
+            setCode(data);
+          }
+        })
+        .catch((error) => {
+          showMessage("error", "Erro ao buscar leito", error.message);
+        });
+    }
   };
 
   const clearData = async () => {
