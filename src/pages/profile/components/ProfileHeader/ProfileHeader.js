@@ -12,7 +12,7 @@ export const ProfileHeader = ({ user }) => {
       <Avatar.Icon
         size={80}
         icon={icon}
-        style={{ ...styles.avatar, backgroundColor: colors.primary }}
+        style={{backgroundColor: colors.primary}}
       />
       <View>
         <Text style={{

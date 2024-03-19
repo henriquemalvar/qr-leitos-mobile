@@ -1,7 +1,5 @@
-import React from "react";
 import { View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
-import { styles } from "./styles";
 
 export const LoadingIndicator = ({ loading }) => {
   if (!loading) {
@@ -9,7 +7,12 @@ export const LoadingIndicator = ({ loading }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+      }}
+    >
       <ActivityIndicator animating={true} size="large" />
     </View>
   );
