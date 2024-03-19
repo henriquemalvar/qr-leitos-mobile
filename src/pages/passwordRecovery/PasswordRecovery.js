@@ -1,11 +1,14 @@
+import globalStyles from "@styles/globalStyles";
+import showMessage from "@utils/messageUtils";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
-import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import showMessage from "../../shared/util/messageUtils";
+import { useState } from "react";
+import { KeyboardAvoidingView, Platform, TextInput, View } from "react-native";
+import { Button, Text, useTheme } from "react-native-paper";
 import styles from "./styles";
 
 export default function PasswordRecovery() {
   const [email, setEmail] = useState("");
+  const theme = useTheme();
   const auth = getAuth();
 
   const handlePasswordRecovery = async () => {
@@ -27,23 +30,33 @@ export default function PasswordRecovery() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Email:</Text>
-      <Text style={styles.explanation}>
-        Digite o email associado à sua conta para receber um link de recuperação
-        de senha.
-      </Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite o email:"
-        type="text"
-        onChangeText={(text) => setEmail(text)}
-        value={email}
-        autoCapitalize="none"
-      />
-      <TouchableOpacity style={styles.button} onPress={handlePasswordRecovery}>
-        <Text style={styles.textButton}>Recuperar senha</Text>
-      </TouchableOpacity>
+    <View style={globalStyles.page}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={globalStyles.centeredContainer}
+      >
+        <Text style={[globalStyles.title, { color: theme.colors.primary }]}>
+          Recuperação de senha
+        </Text>
+        <Text style={styles.description}>
+          Digite o email associado à sua conta para receber um link de
+          recuperação de senha.
+        </Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite o email:"
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          autoCapitalize="none"
+        />
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={handlePasswordRecovery}
+        >
+          Recuperar senha
+        </Button>
+      </KeyboardAvoidingView>
     </View>
   );
 }

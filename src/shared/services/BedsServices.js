@@ -2,7 +2,7 @@ import {
   collection,
   query as firestoreQuery,
   getCountFromServer,
-  where
+  where,
 } from "firebase/firestore";
 import db from "../../database/database";
 const Collection = collection(db, "beds");
@@ -139,14 +139,14 @@ const BedsService = {
     });
   },
 
-  async getCountByStatus(status, sector) {
+  async getCountByStatus(status, section) {
     let bedsRef;
 
-    if (sector) {
+    if (section) {
       bedsRef = firestoreQuery(
         Collection,
         where("status", "==", status),
-        where("section", "==", sector)
+        where("section", "==", section)
       );
     } else {
       bedsRef = firestoreQuery(Collection, where("status", "==", status));
@@ -157,10 +157,117 @@ const BedsService = {
     return snapshot.data().count;
   },
 
-  async getCountBySector(sector) {
-    const bedsRef = firestoreQuery(Collection, where("section", "==", sector));
+  async getBedsUnderMaintenance(maintenance, section) {
+    let bedsRef = db
+      .collection("beds")
+      .where("isMaintenance", "==", maintenance);
+
+    if (section) {
+      bedsRef = bedsRef.where("section", "==", section);
+    }
+
+    const bedsDoc = await bedsRef.get();
+    const beds =
+      bedsDoc.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      }) || [];
+    return beds;
+  },
+
+  async getCountByMaintenance(isMaintenance, section) {
+    let bedsRef;
+
+    if (section) {
+      bedsRef = firestoreQuery(
+        Collection,
+        where("isMaintenance", "==", isMaintenance),
+        where("section", "==", section)
+      );
+    } else {
+      bedsRef = firestoreQuery(
+        Collection,
+        where("isMaintenance", "==", isMaintenance)
+      );
+    }
+
+    const snapshot = await getCountFromServer(bedsRef);
+
+    return snapshot.data().count;
+  },
+  async getBlockedBeds(blocked, section) {
+    let bedsRef = db.collection("beds").where("isBlocked", "==", blocked);
+
+    if (section) {
+      bedsRef = bedsRef.where("section", "==", section);
+    }
+
+    const bedsDoc = await bedsRef.get();
+    const beds =
+      bedsDoc.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
+      }) || [];
+    return beds;
+  },
+  async getCountByBlocked(isBlocked, section) {
+    let bedsRef;
+
+    if (section) {
+      bedsRef = firestoreQuery(
+        Collection,
+        where("isBlocked", "==", isBlocked),
+        where("section", "==", section)
+      );
+    } else {
+      bedsRef = firestoreQuery(Collection, where("isBlocked", "==", isBlocked));
+    }
+
+    const snapshot = await getCountFromServer(bedsRef);
+
+    return snapshot.data().count;
+  },
+
+  async getCountBySection(section) {
+    const bedsRef = firestoreQuery(Collection, where("section", "==", section));
     const snapshot = await getCountFromServer(bedsRef);
     return snapshot.data().count;
+  },
+
+  async filterBeds(filterData) {
+    let query = db.collection("beds");
+
+    if (filterData.name) {
+      query = query
+        .orderBy("name")
+        .startAt(filterData.name)
+        .endAt(filterData.name + "\uf8ff");
+    }
+
+    if (filterData.type && filterData.type.length) {
+      query = query.where("type", "array-contains", filterData.type);
+    }
+
+    if (filterData.location && filterData.location.length) {
+      query = query.where("location", "array-contains", filterData.location);
+    }
+
+    if (filterData.section) {
+      query = query.where("section", "==", filterData.section);
+    }
+
+    try {
+      const querySnapshot = await query.get();
+      let results = querySnapshot.docs.map((doc) => doc.data());
+      return results;
+    } catch (error) {
+      console.error("Erro ao buscar documentos: ", error);
+      return [];
+    }
   },
 };
 

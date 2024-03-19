@@ -1,46 +1,30 @@
-import { Platform, StyleSheet } from "react-native";
-
+import { theme } from "@styles/theme";
+import { StyleSheet } from "react-native";
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  button: {
     alignItems: "center",
-    paddingTop: Platform.OS === "ios" ? 0 : 50,
-    backgroundColor: "#F5F5F5",
+    borderRadius: 50,
+    height: 50,
+    justifyContent: "center",
+    marginTop: 30,
+    width: 200,
+  },
+  description: {
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: "center",
+    width: "80%",
+    color: theme.colors.text,
   },
   input: {
+    borderBottomColor: theme.colors.primary,
+    borderBottomWidth: 1,
+    height: 50,
     marginLeft: "auto",
     marginRight: "auto",
     marginTop: 10,
     padding: 10,
     width: "90%",
-    height: 50,
-    borderBottomColor: "#198CFF",
-    borderBottomWidth: 1,
-  },
-  button: {
-    width: 200,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#198CFF",
-    borderRadius: 50,
-    marginTop: 30,
-  },
-  textButton: {
-    color: "white",
-  },
-  label: {
-    fontSize: 18,
-    color: "#198CFF",
-    marginBottom: 5,
-  },
-  explanation: {
-    fontSize: 14,
-    color: "#808080",
-    marginBottom: 10,
-    textAlign: "center",
-    width: "80%",
   },
 });
 

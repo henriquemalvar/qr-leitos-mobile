@@ -1,11 +1,13 @@
 import { useIsFocused } from "@react-navigation/native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+import BedsService from "@services/BedsServices";
+import globalStyles from "@styles/globalStyles";
+import { theme } from "@styles/theme";
+import showMessage from "@utils/messageUtils";
+import { Camera } from "expo-camera";
 import { stringify } from "flatted";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Linking, Text, TouchableOpacity, View } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import BedsService from "../../shared/services/BedsServices";
-import showMessage from "../../shared/util/messageUtils";
+import { Button, IconButton, TextInput } from "react-native-paper";
 import styles from "./style";
 
 const handleOpenSettings = () => {
@@ -30,7 +32,7 @@ export default function QRCode({ navigation }) {
 
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
   }, []);
@@ -55,7 +57,6 @@ export default function QRCode({ navigation }) {
         }
       })
       .catch((error) => {
-        console.error(error);
         showMessage("error", "Erro ao buscar leito", error.message);
       });
   };
@@ -68,57 +69,98 @@ export default function QRCode({ navigation }) {
 
   if (hasPermission === null) {
     return (
-      <Text style={styles.text}>Aguardando permissão de acesso a câmera!</Text>
+      <View style={{ ...globalStyles.page, ...globalStyles.centeredContainer }}>
+        <Text
+          style={{
+            ...globalStyles.title,
+            fontSize: 30,
+            textAlign: "center",
+          }}
+        >
+          Aguardando permissão de acesso a câmera!
+        </Text>
+        <TouchableOpacity onPress={handleOpenSettings}>
+          <Text
+            style={{
+              ...globalStyles.textInPrimaryColor,
+              fontSize: 20,
+              textAlign: "center",
+            }}
+          >
+            Abrir configurações
+          </Text>
+        </TouchableOpacity>
+      </View>
     );
   }
   if (hasPermission === false) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Sem acesso a câmera</Text>
+      <View style={{ ...globalStyles.page, ...globalStyles.centeredContainer }}>
+        <Text
+          style={{
+            ...globalStyles.title,
+            fontSize: 30,
+          }}
+        >
+          Sem acesso a câmera
+        </Text>
         <TouchableOpacity onPress={handleOpenSettings}>
-          <Text style={styles.configButton}>Abrir configurações</Text>
+          <Text
+            style={{
+              ...globalStyles.textInPrimaryColor,
+              fontSize: 20,
+            }}
+          >
+            Abrir configurações
+          </Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {isFocused ? (
-        <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          style={styles.scanner}
-        />
-      ) : (
-        <></>
-      )}
-      <View>
-        <Text style={styles.text}>{code}</Text>
-      </View>
-      {scanned && (
-        <>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              clearData();
-              navigation.navigate("Leito", {
-                leito: stringify(leito),
-                scanned: true,
-              });
-            }}
-          >
-            <Text style={styles.textButton}>ACESSAR LEITO</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={clearData}>
-            <Icon
-              name="refresh"
-              size={30}
-              color="#fff"
-              style={styles.refreshButton}
+    <View style={globalStyles.page}>
+      <View style={globalStyles.centeredContainer}>
+        {isFocused ? (
+          <Camera
+            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+            style={styles.scanner}
+          />
+        ) : (
+          <></>
+        )}
+        {scanned && (
+          <>
+            <TextInput
+              style={{ margin: 10, fontSize: 20, height: 60, width: "93%" }}
+              label="Código do leito"
+              value={code}
+              mode="outlined"
+              disabled
             />
-          </TouchableOpacity>
-        </>
-      )}
+            <Button
+              mode="contained"
+              contentStyle={{ height: 60, width: "100%" }}
+              labelStyle={{ fontSize: 20 }}
+              onPress={() => {
+                clearData();
+                navigation.navigate("Leito", {
+                  leito: stringify(leito),
+                  scanned: true,
+                });
+              }}
+            >
+              ACESSAR LEITO
+            </Button>
+            <IconButton
+              icon="refresh"
+              size={50}
+              onPress={clearData}
+              iconColor={theme.colors.primary}
+            />
+          </>
+        )}
+      </View>
     </View>
   );
 }

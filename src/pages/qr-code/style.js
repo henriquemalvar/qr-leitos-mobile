@@ -1,51 +1,50 @@
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 50,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  text: {
-    marginTop: 20,
-    fontSize: 24,
-    textAlign: "center",
-    color: "#000000",
-  },
   button: {
-    borderRadius: 20,
     alignItems: "center",
-    justifyContent: "center",
-    width: "90%",
-    backgroundColor: "#4D96FF",
-    paddingTop: 14,
-    paddingBottom: 14,
-    marginTop: 20,
-  },
-  textButton: {
-    fontSize: 24,
-    textAlign: "center",
-    color: "#ffffff",
-    fontWeight: "bold",
-  },
-  scanner: {
-    width: 300,
-    height: 300,
-    overflow: "hidden",
+    backgroundColor: "#198CFF",
     borderRadius: 20,
+    justifyContent: "center",
+    marginTop: 20,
+    paddingBottom: 14,
+    paddingTop: 14,
+    width: "90%",
   },
   configButton: {
+    color: "#198CFF",
     fontSize: 20,
-    textAlign: "center",
-    color: "#4D96FF",
     marginTop: 20,
+    textAlign: "center",
+  },
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 50,
   },
   refreshButton: {
-    fontSize: 40
-    ,
-    textAlign: "center",
-    color: "#4D96FF",
+    color: "#198CFF",
+    fontSize: 40,
     marginTop: 20,
+    textAlign: "center",
+  },
+  scanner: {
+    borderRadius: 20,
+    height: 300,
+    overflow: "hidden",
+    width: 300,
+  },
+  text: {
+    color: "#000000",
+    fontSize: 24,
+    marginTop: 20,
+    textAlign: "center",
+  },
+  textButton: {
+    color: "#ffffff",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });
 

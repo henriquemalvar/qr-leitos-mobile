@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@components/*": ["shared/components/*"],
+      "@hooks/*": ["shared/hooks/*"],
+      "@services/*": ["shared/services/*"],
+      "@utils/*": ["shared/utils/*"],
+      "@styles/*": ["shared/styles/*"],
+      "@pages/*": ["pages/*"]
+      // Adicione mais paths conforme necessário
+    }
+  },
+  "include": ["src/**/*", "StackRoutes.js"],
+  "exclude": ["node_modules"]
+}

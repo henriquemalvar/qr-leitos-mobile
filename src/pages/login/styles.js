@@ -1,86 +1,52 @@
-import { Platform, StyleSheet } from "react-native";
+import { theme } from "@styles/theme";
+import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  button: {
     alignItems: "center",
-    paddingTop: Platform.OS === "ios" ? 0 : 50,
-  },
-  title: {
-    fontSize: 48,
-    color: "#198CFF",
-    marginBottom: 20,
-    fontWeight: "bold",
-  },
-  input: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: 10,
-    padding: 10,
-    width: "90%",
-    height: 50,
-    borderBottomColor: "#198CFF",
-    borderBottomWidth: 1,
-  },
-  passwordContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  passwordInput: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: 10,
-    padding: 10,
-    width: "90%",
-    height: 50,
-    borderBottomColor: "#198CFF",
-    borderBottomWidth: 1,
-  },
-  showPasswordButton: {
-    position: "absolute",
-    right: 0,
-    marginRight: 20,
-    bottom: 12,
-  },
-  buttonLogin: {
-    width: 200,
-    height: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#198CFF",
     borderRadius: 50,
+    height: 50,
+    justifyContent: "center",
     marginTop: 30,
-  },
-  textButtonLogin: {
-    color: "white",
+    width: 200,
   },
   buttonRecovery: {
-    marginTop: 15,
     alignSelf: "center",
+    marginTop: 15,
   },
-  textButtonRecovery: {
-    color: "#3498db",
+  input: {
+    borderBottomColor: theme.colors.primary,
+    borderBottomWidth: 1,
+    height: 50,
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: 10,
+    padding: 10,
+    width: "90%",
   },
-  contentAlert: {
-    marginTop: 20,
+  passwordContainer: {
+    alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center",
   },
-  warningAlert: {
-    paddingLeft: 10,
-    color: "#bdbdbd",
-    fontSize: 16,
+
+  inputIcon: {
+    paddingTop: 15,
+    position: "absolute",
+    right: 8,
   },
-  registration: {
-    marginTop: 20,
-    color: "#4d5156",
+  textButton: {
+    color: theme.colors.background,
   },
-  linkSubscribe: {
-    color: "#1877f2",
-    fontSize: 16,
+  textButtonRecovery: {
+    color: theme.colors.primary,
+  },
+  title: {
+    color: theme.colors.primary,
+    fontSize: 48,
+    fontWeight: "bold",
+    marginBottom: 20,
+    paddingTop: 20,
   },
 });
 

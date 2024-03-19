@@ -2,53 +2,53 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "column",
     alignItems: "center",
-    paddingTop: 10,
-    paddingBottom: 10,
-  },
-  lives: {
     flexDirection: "column",
-    backgroundColor: "#dcdcdc",
-    width: "94%",
-    height: 130,
+    paddingBottom: 10,
     paddingTop: 10,
-    borderRadius: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
   },
   head: {
     flexDirection: "row",
     paddingLeft: 10,
     paddingTop: 10,
   },
-  shortDescription: {
-    fontSize: 16,
-    paddingTop: 25,
-    alignSelf: "center",
+  lives: {
+    backgroundColor: "#dcdcdc",
+    borderRadius: 20,
+    flexDirection: "column",
+    height: 130,
+    paddingTop: 10,
+    width: "94%",
   },
   longDescription: {
+    alignSelf: "center",
     fontSize: 12,
     paddingTop: 25,
-    alignSelf: "center",
-  },
-  text: {
-    color: "#6495ED",
-    paddingTop: 12,
-    fontSize: 12,
-    alignSelf: "center",
   },
   occupation: {
-    backgroundColor: "#dcdcdc",
-    width: "94%",
-    height: 50,
-    borderRadius: 10,
-    justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#dcdcdc",
+    borderRadius: 10,
+    height: 50,
+    justifyContent: "center",
+    width: "94%",
+  },
+  shortDescription: {
+    alignSelf: "center",
+    fontSize: 16,
+    paddingTop: 25,
+  },
+  text: {
+    alignSelf: "center",
+    color: "#6495ED",
+    fontSize: 12,
+    paddingTop: 12,
   },
   textOc: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  title: {
     fontSize: 20,
     fontWeight: "bold",
   },
