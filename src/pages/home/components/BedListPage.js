@@ -15,16 +15,22 @@ export default function BedListPage({ route, navigation }) {
     const fetchData = async () => {
       let bedsArrays;
       if (maintenance) {
-        bedsArrays = await BedsService.getBedsUnderMaintenance(true, section);
+        bedsArrays = await BedsService.getBedsByConditions({
+          maintenance,
+          section,
+        });
       } else if (blocked) {
-        bedsArrays = await BedsService.getBlockedBeds(true, section);
+        bedsArrays = await BedsService.getBedsByConditions({
+          blocked,
+          section,
+        });
       } else {
         const statusList = parse(status);
         const bedsPromises = Array.isArray(statusList)
           ? statusList.map((status) =>
               section
-                ? BedsService.getByStatusAndSection(status, section)
-                : BedsService.getByStatus(status)
+                ? BedsService.getBedsByConditions({ status, section })
+                : BedsService.getBedsByConditions({ status })
             )
           : [];
         bedsArrays = await Promise.all(bedsPromises);
