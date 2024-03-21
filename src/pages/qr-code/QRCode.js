@@ -2,8 +2,8 @@ import { useIsFocused } from "@react-navigation/native";
 import BedsService from "@services/BedsServices";
 import globalStyles from "@styles/globalStyles";
 import { theme } from "@styles/theme";
-import showMessage from "@utils/messageUtils";
-import { Camera } from "expo-camera";
+// import { Camera } from 'expo-camera';
+import { BarCodeScanner } from "expo-barcode-scanner";
 import { stringify } from "flatted";
 import { useEffect, useState } from "react";
 import { Linking, Text, TouchableOpacity, View } from "react-native";
@@ -26,47 +26,40 @@ export default function QRCode({ navigation }) {
       const bedData = await BedsService.getById(_id);
       setLeito(bedData);
     } catch (error) {
+      console.error("Error searching for bed:", error);
       return false;
     }
   }
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      try {
+        // const { status } = await Camera.requestCameraPermissionsAsync();
+        const { status } = await BarCodeScanner.requestPermissionsAsync();
+        setHasPermission(status === "granted");
+      } catch (error) {
+        console.error("Error requesting permissions:", error);
+      }
     })();
   }, []);
 
   useEffect(() => {
-    // checkConnection();
-
     if (isFocused) {
       setScanned(false);
       setCode("");
     }
   }, [isFocused]);
 
-  let lastScannedCode = null;
-
   const handleBarCodeScanned = ({ data }) => {
-    if (data !== lastScannedCode) {
-      lastScannedCode = data;
-      searchLeito(data)
-        .then((result) => {
-          if (result === false) {
-            showMessage(
-              "error",
-              "Erro ao buscar leito",
-              "Leito não encontrado"
-            );
-          } else {
-            setScanned(true);
-            setCode(data);
-          }
-        })
-        .catch((error) => {
-          showMessage("error", "Erro ao buscar leito", error.message);
-        });
+    try {
+      searchLeito(data).then((result) => {
+        if (result !== false) {
+          setScanned(true);
+          setCode(data);
+        }
+      });
+    } catch (error) {
+      console.error("Error handling barcode scan:", error);
     }
   };
 
@@ -131,7 +124,11 @@ export default function QRCode({ navigation }) {
     <View style={globalStyles.page}>
       <View style={globalStyles.centeredContainer}>
         {isFocused ? (
-          <Camera
+          // <Camera
+          //   onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+          //   style={styles.scanner}
+          // />
+          <BarCodeScanner
             onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
             style={styles.scanner}
           />

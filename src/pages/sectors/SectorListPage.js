@@ -14,7 +14,7 @@ export default function SectorListPage({ navigation }) {
 
   const getBedsCountBySector = async () => {
     const promises = sections.map(async (section) => {
-      const count = await BedsService.getCountBySection(section);
+      const count = await BedsService.getCountBy({section});
       return { section, count };
     });
     const counts = await Promise.all(promises);

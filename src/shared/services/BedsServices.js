@@ -1,3 +1,23 @@
+/**
+ * BedsService module.
+ * @module BedsService
+ *
+ * A bed document structure for reference:
+ * @typedef {Object} Bed
+ * @property {boolean} active
+ * @property {Timestamp} created_at
+ * @property {string} description
+ * @property {string} id
+ * @property {boolean} isBlocked
+ * @property {boolean} isMaintenance
+ * @property {string[]} location
+ * @property {string} name
+ * @property {string} section
+ * @property {string} status
+ * @property {string[]} type
+ * @property {Timestamp} updated_at
+ */
+
 import {
   collection,
   query as firestoreQuery,
@@ -5,8 +25,22 @@ import {
   where,
 } from "firebase/firestore";
 import db from "../../database/database";
-const Collection = collection(db, "beds");
+
+/**
+ * BedsService is a set of functions to interact with the 'beds' collection in Firestore.
+ * @namespace BedsService
+ */
 const BedsService = {
+  /**
+   * Fetch a bed document by its ID.
+   * @function getById
+   * @memberof BedsService
+   * @param {string} documentId - The ID of the bed document.
+   * @returns {Promise<Object>} - A promise that resolves to the bed document data.
+   *
+   * @example
+   * const documentId = 'bed123';
+   */
   async getById(documentId) {
     const bedRef = db.collection("beds").doc(documentId);
     const bedDoc = await bedRef.get();
@@ -14,230 +48,97 @@ const BedsService = {
     return bed;
   },
 
-  async getAll() {
-    const bedsRef = db.collection("beds");
-    const bedsDoc = await bedsRef.get();
-    const beds =
-      bedsDoc.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      }) || [];
-    return beds;
+  /**
+   * Fetch bed documents that match the provided conditions.
+   * @function getBedsByConditions
+   * @memberof BedsService
+   * @param {Object} conditions - An object where the keys are the field names and the values are the expected field values.
+   * @returns {Promise<Array>} - A promise that resolves to an array of bed documents that match the conditions.
+   *
+   * @example
+   * const conditions = {type: 'single', location: 'room1'};
+   */
+  async getBedsByConditions(conditions) {
+    let query = db.collection("beds");
+
+    for (const [key, value] of Object.entries(conditions)) {
+      query = query.where(key, "==", value);
+    }
+
+    try {
+      const querySnapshot = await query.get();
+      let results =
+        querySnapshot.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        }) || [];
+      return results;
+    } catch (error) {
+      console.error("Erro ao buscar documentos: ", error);
+      return [];
+    }
   },
 
-  async getByStatus(status) {
-    const bedsRef = db.collection("beds").where("status", "==", status);
-    const bedsDoc = await bedsRef.get();
-    const beds =
-      bedsDoc.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      }) || [];
-    return beds;
-  },
-
-  async getByStatusAndSection(status, section) {
-    const bedsRef = db
-      .collection("beds")
-      .where("status", "==", status)
-      .where("section", "==", section);
-    const bedsDoc = await bedsRef.get();
-    const beds =
-      bedsDoc.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      }) || [];
-    return beds;
-  },
-
-  async getByManyStatus(status) {
-    const bedsRef = db.collection("beds").where("status", "in", status);
-    const bedsDoc = await bedsRef.get();
-    const beds =
-      bedsDoc.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      }) || [];
-    return beds;
-  },
-
-  async updateStatus(documentId, status) {
-    const bedRef = db.collection("beds").doc(documentId);
-    await bedRef.update({
-      status: status,
-      updated_at: new Date(),
-    });
-  },
-
+  /**
+   * Update a bed document.
+   * @function updateBed
+   * @memberof BedsService
+   * @param {Object} bed - The bed document data to update.
+   * @returns {Promise<void>} - A promise that resolves when the bed document is successfully updated.
+   *
+   * @example
+   * const bed = {id: 'bed123', type: 'double', location: 'room2'};
+   */
   async updateBed(bed) {
     const { id } = bed;
     const bedRef = db.collection("beds").doc(id);
     await bedRef.update(bed);
   },
 
-  async updateMany(beds) {
-    const batch = db.batch();
-    beds.forEach((bed) => {
-      const bedRef = db.collection("beds").doc(bed.id);
-      batch.update(bedRef, {
-        status: bed.status,
-        updated_at: new Date(),
-      });
-    });
-    await batch.commit();
-  },
-
-  async createLog(log) {
-    const logRef = db.collection("logs");
-    const documentRef = await logRef.add(log);
-    const createdLog = await documentRef.get();
-    return { id: documentRef.id, ...createdLog.data() };
-  },
-
-  listenToBedChanges(documentId, callback) {
-    const bedRef = db.collection("beds").doc(documentId);
-    return bedRef.onSnapshot((doc) => {
-      const bed = { id: doc.id, ...doc.data() };
-      callback(bed);
-    });
-  },
-
-  listenToAllBedsChanges(callback) {
-    const bedsRef = db.collection("beds");
-    return bedsRef.onSnapshot((querySnapshot) => {
-      const beds =
-        querySnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() };
-        }) || [];
-      callback(beds);
-    });
-  },
-
-  listenToBedsByStatusChanges(status, callback) {
-    const bedsRef = db.collection("beds").where("status", "==", status);
-    return bedsRef.onSnapshot((querySnapshot) => {
-      const beds =
-        querySnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() };
-        }) || [];
-      callback(beds);
-    });
-  },
-
-  getLastLog(lastLogId) {
-    const logRef = db.collection("logs").doc(lastLogId);
-    return logRef.get().then((doc) => {
-      return { id: doc.id, ...doc.data() };
-    });
-  },
-
-  async getCountByStatus(status, section) {
-    let bedsRef;
-
-    if (section) {
-      bedsRef = firestoreQuery(
-        Collection,
-        where("status", "==", status),
-        where("section", "==", section)
+  /**
+   * Get the count of bed documents that match the provided conditions.
+   * @function getCountBy
+   * @memberof BedsService
+   * @param {Object} conditions - An object where the keys are the field names and the values are the expected field values.
+   * @returns {Promise<number>} - A promise that resolves to the count of bed documents that match the conditions.
+   *
+   * @example
+   * const conditions = {type: 'single'};
+   */
+  async getCountBy(conditions) {
+    try {
+      const queryConditions = Object.entries(conditions).map(([field, value]) =>
+        where(field, "==", value)
       );
-    } else {
-      bedsRef = firestoreQuery(Collection, where("status", "==", status));
-    }
-
-    const snapshot = await getCountFromServer(bedsRef);
-
-    return snapshot.data().count;
-  },
-
-  async getBedsUnderMaintenance(maintenance, section) {
-    let bedsRef = db
-      .collection("beds")
-      .where("isMaintenance", "==", maintenance);
-
-    if (section) {
-      bedsRef = bedsRef.where("section", "==", section);
-    }
-
-    const bedsDoc = await bedsRef.get();
-    const beds =
-      bedsDoc.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      }) || [];
-    return beds;
-  },
-
-  async getCountByMaintenance(isMaintenance, section) {
-    let bedsRef;
-
-    if (section) {
-      bedsRef = firestoreQuery(
-        Collection,
-        where("isMaintenance", "==", isMaintenance),
-        where("section", "==", section)
+      const bedsRef = firestoreQuery(
+        collection(db, "beds"),
+        ...queryConditions
       );
-    } else {
-      bedsRef = firestoreQuery(
-        Collection,
-        where("isMaintenance", "==", isMaintenance)
-      );
+      const snapshot = await getCountFromServer(bedsRef);
+      return snapshot.data().count;
+    } catch (error) {
+      console.error("Error getting count by conditions: ", error);
+      throw error;
     }
-
-    const snapshot = await getCountFromServer(bedsRef);
-
-    return snapshot.data().count;
-  },
-  async getBlockedBeds(blocked, section) {
-    let bedsRef = db.collection("beds").where("isBlocked", "==", blocked);
-
-    if (section) {
-      bedsRef = bedsRef.where("section", "==", section);
-    }
-
-    const bedsDoc = await bedsRef.get();
-    const beds =
-      bedsDoc.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      }) || [];
-    return beds;
-  },
-  async getCountByBlocked(isBlocked, section) {
-    let bedsRef;
-
-    if (section) {
-      bedsRef = firestoreQuery(
-        Collection,
-        where("isBlocked", "==", isBlocked),
-        where("section", "==", section)
-      );
-    } else {
-      bedsRef = firestoreQuery(Collection, where("isBlocked", "==", isBlocked));
-    }
-
-    const snapshot = await getCountFromServer(bedsRef);
-
-    return snapshot.data().count;
   },
 
-  async getCountBySection(section) {
-    const bedsRef = firestoreQuery(Collection, where("section", "==", section));
-    const snapshot = await getCountFromServer(bedsRef);
-    return snapshot.data().count;
-  },
-
+  /**
+   * Fetch bed documents that match the provided filter data.
+   * @function filterBeds
+   * @memberof BedsService
+   * @param {Object} filterData - An object where the keys are the field names and the values are the expected field values.
+   * @returns {Promise<Array>} - A promise that resolves to an array of bed documents that match the filter data.
+   *
+   * @example
+   * const filterData = {
+   *  name: "bed name",
+   * type: ["type1", "type2"],
+   * location: ["location1", "location2"],
+   * section: "section1",
+   * };
+   */
   async filterBeds(filterData) {
     let query = db.collection("beds");
 

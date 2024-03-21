@@ -39,7 +39,7 @@ export const useFetchBedStatusData = (section) => {
 
           const results = await Promise.all(
             statusList.map((status) =>
-              BedsService.getCountByStatus(status, section)
+              BedsService.getCountBy({ status, section })
             )
           );
 
@@ -75,14 +75,14 @@ export const useFetchBedStatusData = (section) => {
             }
           );
 
-          bedCounts.maintenance = await BedsService.getCountByMaintenance(
-            true,
-            section
-          );
-          bedCounts.blocked = await BedsService.getCountByBlocked(
-            true,
-            section
-          );
+          bedCounts.maintenance = await BedsService.getCountBy({
+            maintenance: true,
+            section,
+          });
+          bedCounts.blocked = await BedsService.getCountBy({
+            blocked: true,
+            section,
+          });
 
           const totalBeds = bedCounts.occupied + bedCounts.available;
           const percentage =

@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BedsService from "@services/BedsServices";
+import LogService from "@services/LogService";
 import globalStyles from "@styles/globalStyles";
 import showMessage from "@utils/messageUtils";
 import { _getOptions } from "@utils/translationUtils";
@@ -30,7 +31,7 @@ export default function Bed({ route, navigation }) {
   const fetchLastLog = async () => {
     try {
       if (bed.lastLogId) {
-        const log = await BedsService.getLastLog(bed.lastLogId);
+        const log = await LogService.getLogById(bed.lastLogId);
         setLastLog(log);
       }
     } catch (error) {
@@ -130,7 +131,7 @@ export default function Bed({ route, navigation }) {
         bed_type: bed.type,
       };
 
-      const createdLog = await BedsService.createLog(log);
+      const createdLog = await LogService.createLog(log);
 
       newBed.lastLogId = createdLog.id;
 
@@ -156,8 +157,7 @@ export default function Bed({ route, navigation }) {
       selectedOption !== null && selectedOption !== bed.status;
     const hasMaintenanceChanged =
       (isMaintenance ?? false) !== (bed.isMaintenance ?? false);
-    const hasBlockedChanged =
-      (isBlocked ?? false) !== (bed.isBlocked ?? false);
+    const hasBlockedChanged = (isBlocked ?? false) !== (bed.isBlocked ?? false);
     const canToggleMaintenanceOrBlocked =
       canToggle && (hasMaintenanceChanged || hasBlockedChanged);
     const userIsEnfermeiraOrAdmin =
@@ -190,9 +190,8 @@ export default function Bed({ route, navigation }) {
   return (
     <View style={globalStyles.page}>
       <ScrollView showsVerticalScrollIndicator={true}>
+        <BedDetails bed={bed} lastLog={lastLog} />
         <View style={globalStyles.centeredContainer}>
-          <BedDetails bed={bed} />
-          <BedModificationInfo bed={bed} lastLog={lastLog} />
           {canToggle && (
             <SettingsCard
               toggles={[
