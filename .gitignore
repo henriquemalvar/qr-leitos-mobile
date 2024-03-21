@@ -19,6 +19,3 @@ web-build/
 android/*
 .vscode
 *.apk
-
-src/environment/*
-!src/environment/example.json

@@ -1,0 +1,37 @@
+{
+    "firebase": {
+        "qr-leitos": {
+            "apiKey": "AIzaSyAD6WhqtElTG0JZL9tOTaql-JmajrXwpes",
+            "authDomain": "qr-leitos.firebaseapp.com",
+            "projectId": "qr-leitos",
+            "storageBucket": "qr-leitos.appspot.com",
+            "messagingSenderId": "472415074180",
+            "appId": "1:472415074180:web:85094665c49f6b621f8fd1"
+        },
+        "qr-leitos-2": {
+            "apiKey": "AIzaSyAI8nGntpEeEK0zdh0gXzRyi1BnbJDx82c",
+            "authDomain": "qr-leitos-2.firebaseapp.com",
+            "projectId": "qr-leitos-2",
+            "storageBucket": "qr-leitos-2.appspot.com",
+            "messagingSenderId": "982171964221",
+            "appId": "1:982171964221:web:eecb8f1f37f0910da86b54"
+        },
+        "qr-leitos-dev": {
+            "apiKey": "AIzaSyBHUp05s6jdh1xIML92IGhhEF44QsFiPFU",
+            "authDomain": "qr-leitos-dev",
+            "projectId": "qr-leitos-dev",
+            "storageBucket": "bdleitosja.appspot.com",
+            "messagingSenderId": "818105979304",
+            "appId": "1:856419808971:web:8334f49864938daefe8d4e"
+        },
+        "qr-leitos-piloto": {
+            "apiKey": "AIzaSyChSule5XFPBopDy4E3sSAnWXU8bgWbHhg",
+            "authDomain": "qr-leitos-piloto.firebaseapp.com",
+            "projectId": "qr-leitos-piloto",
+            "storageBucket": "qr-leitos-piloto.appspot.com",
+            "messagingSenderId": "739349087152",
+            "appId": "1:739349087152:web:0f2d37baeabbeabe50cc75",
+            "measurementId": "G-NV87ENMY4Y"
+        }
+    }
+}
