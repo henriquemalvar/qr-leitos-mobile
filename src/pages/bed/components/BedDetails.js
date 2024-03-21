@@ -1,22 +1,9 @@
 import globalStyles from "@styles/globalStyles";
 import { theme } from "@styles/theme";
-import { Card, Divider, Headline, Paragraph, Text } from "react-native-paper";
+import { View } from "react-native";
+import { Card, Divider, Headline, List, Paragraph } from "react-native-paper";
+import BedModificationInfo from "./BedModificationInfo";
 
-const CardTitle = ({ title }) => (
-  <Card style={globalStyles.card}>
-    <Card.Content style={{ marginTop: 0, paddingBottom: 0 }}>
-      <Text
-        style={{
-          ...globalStyles.title,
-          textAlign: "center",
-          color: theme.colors.primary,
-        }}
-      >
-        {title}
-      </Text>
-    </Card.Content>
-  </Card>
-);
 
 const CardInfo = ({ header, content }) => (
   <Card style={globalStyles.card}>
@@ -36,13 +23,23 @@ const CardInfo = ({ header, content }) => (
   </Card>
 );
 
-const BedDetails = ({ bed }) => {
+const BedDetails = ({ bed, lastLog }) => {
   return (
-    <>
-      <CardTitle title={bed.name} />
-      <CardInfo header="Endereço" content={bed.location} />
-      <CardInfo header="Tipo" content={bed.type} />
-    </>
+    <List.Accordion
+      title={bed.name}
+      titleStyle={{
+        ...globalStyles.title,
+        textAlign: "center",
+        color: theme.colors.primary,
+      }}
+      style={globalStyles.card}
+    >
+      <View style={{ ...globalStyles.centeredContainer, padding: 15 }}>
+        <CardInfo header="Endereço" content={bed.location} />
+        <CardInfo header="Tipo" content={bed.type} />
+        <BedModificationInfo bed={bed} lastLog={lastLog} />
+      </View>
+    </List.Accordion>
   );
 };
 

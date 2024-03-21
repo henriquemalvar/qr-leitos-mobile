@@ -190,9 +190,8 @@ export default function Bed({ route, navigation }) {
   return (
     <View style={globalStyles.page}>
       <ScrollView showsVerticalScrollIndicator={true}>
+        <BedDetails bed={bed} lastLog={lastLog} />
         <View style={globalStyles.centeredContainer}>
-          <BedDetails bed={bed} />
-          <BedModificationInfo bed={bed} lastLog={lastLog} />
           {canToggle && (
             <SettingsCard
               toggles={[
