@@ -2,14 +2,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import showMessage from "@utils/messageUtils";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { parse, stringify } from "flatted";
-import moment from "moment";
 import { useEffect, useState } from "react";
 import db from "../../../database/database";
 
 export const useLogin = (navigation) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -58,9 +56,8 @@ export const useLogin = (navigation) => {
   };
 
   const saveUserToAsyncStorage = async (_user) => {
-    _user.stsTokenManager.expirationTime = moment(
-      _user.stsTokenManager.expirationTime
-    ).add(1, "week");
+    const idTokenResult = await _user.getIdTokenResult();
+    _user.expirationTime = idTokenResult.expirationTime;
     await AsyncStorage.setItem("user", stringify(_user));
   };
 
@@ -90,12 +87,9 @@ export const useLogin = (navigation) => {
         const parsedUser = parse(user);
         const parsedConfig = parse(config);
 
-        const expirationTime = moment(
-          parsedUser.stsTokenManager.expirationTime
-        );
-        const currentTime = moment();
+        const currentTime = new Date().getTime();
 
-        if (moment(expirationTime).isAfter(currentTime)) {
+        if (parsedUser.expirationTime > currentTime) {
           showMessage(
             "success",
             "Bem vindo de volta",
@@ -120,8 +114,6 @@ export const useLogin = (navigation) => {
     setEmail,
     password,
     setPassword,
-    showPassword,
-    setShowPassword,
     handleLogin,
   };
 };

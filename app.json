@@ -13,14 +13,16 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.qrleitos.qrleitos"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.qrleitos.qrleitos"
+      "package": "com.qrleitos.qrleitos",
+      "enableProguard": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

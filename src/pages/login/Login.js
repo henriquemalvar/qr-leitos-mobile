@@ -11,6 +11,7 @@ import {
 import { Button, useTheme } from "react-native-paper";
 import { useLogin } from "./hook/useLogin";
 import styles from "./styles";
+import { useState } from "react";
 
 export default function Login({ navigation }) {
   const {
@@ -18,10 +19,10 @@ export default function Login({ navigation }) {
     setEmail,
     password,
     setPassword,
-    showPassword,
-    setShowPassword,
     handleLogin,
   } = useLogin(navigation);
+  const [showPassword, setShowPassword] = useState(false);
+
   const theme = useTheme();
   return (
     <View style={globalStyles.page}>
