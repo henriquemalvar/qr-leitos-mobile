@@ -3,7 +3,6 @@ import UserChip from "@components/UserChip";
 import Bed from "@pages/bed/Bed";
 import BedStatusPage from "@pages/home/BedStatusPage";
 import BedListPage from "@pages/home/components/BedListPage";
-// import BedListPage from "@pages/bedList/BedListPage";
 import Login from "@pages/login/Login";
 import PasswordRecovery from "@pages/passwordRecovery/PasswordRecovery";
 import ProfilePage from "@pages/profile/ProfilePage";
@@ -13,21 +12,31 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createStackNavigator } from "@react-navigation/stack";
 import { parse } from "flatted";
 import * as React from "react";
+import * as SplashScreen from 'expo-splash-screen';
 
 const Stack = createStackNavigator();
 
 export default function StackRoutes() {
   const [parsedUser, setParsedUser] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
+    SplashScreen.preventAutoHideAsync();
     AsyncStorage.getItem("userConfig")
       .then((user) => {
         setParsedUser(parse(user));
+        setIsLoading(false);
       })
       .catch((error) => {
-        console.error(error);
+        setIsLoading(false);
       });
   }, []);
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoading]);
 
   return (
     <Stack.Navigator lazy>
@@ -53,7 +62,7 @@ export default function StackRoutes() {
           title: "Leitos",
           headerRight: () =>
             parsedUser && (
-              <UserChip parsedUser={parsedUser} onPress={() => { }} />
+              <UserChip parsedUser={parsedUser} />
             ),
         }}
       />
@@ -67,11 +76,23 @@ export default function StackRoutes() {
         name="Leito"
         component={Bed}
         getId={({ params }) => params.id}
+        options={{
+          headerRight: () =>
+            parsedUser && (
+              <UserChip parsedUser={parsedUser} />
+            ),
+        }}
       />
       <Stack.Screen
         name="Lista"
         component={BedListPage}
         getId={({ params }) => params.id}
+        options={{
+          headerRight: () =>
+            parsedUser && (
+              <UserChip parsedUser={parsedUser} />
+            ),
+        }}
       />
       <Stack.Screen name="Pesquisa" component={SearchPage} />
     </Stack.Navigator>
