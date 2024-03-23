@@ -19,3 +19,7 @@ web-build/
 android/*
 .vscode
 *.apk
+
+# Environment variables
+.env*
+!.env.example
