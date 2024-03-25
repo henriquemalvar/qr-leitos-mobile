@@ -12,7 +12,7 @@ module.exports = {
           "@utils": "./src/shared/utils",
           "@styles": "./src/shared/styles",
           "@pages": "./src/pages",
-          // Continue conforme necessário para outros aliases
+          "@contexts": "./src/shared/contexts",
         },
       },
     ],
@@ -22,6 +22,6 @@ module.exports = {
         moduleName: "@env",
         path: ".env",
       },
-    ],  
+    ],
   ],
 };

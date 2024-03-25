@@ -7,19 +7,22 @@ import { Provider as PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import StackRoutes from "./StackRoutes";
+import { UpdateProvider } from "@contexts/UpdateProvider";
 
 export default function App() {
   SystemUI.setBackgroundColorAsync("#fff", true);
 
   return (
-    <SafeAreaProvider>
-      <PaperProvider theme={theme}>
-        <StatusBar style="auto" />
-        <NavigationContainer>
-          <StackRoutes />
-        </NavigationContainer>
-        <Toast />
-      </PaperProvider>
-    </SafeAreaProvider>
+    <UpdateProvider>
+      <SafeAreaProvider>
+        <PaperProvider theme={theme}>
+          <StatusBar style="auto" />
+          <NavigationContainer>
+            <StackRoutes />
+          </NavigationContainer>
+          <Toast />
+        </PaperProvider>
+      </SafeAreaProvider>
+    </UpdateProvider>
   );
 }
