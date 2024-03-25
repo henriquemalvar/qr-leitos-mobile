@@ -84,12 +84,17 @@ export const useLogin = (navigation) => {
       const config = await AsyncStorage.getItem("userConfig");
 
       if (user && config) {
-        const parsedUser = parse(user);
-        const parsedConfig = parse(config);
+        const parsedUser = JSON.parse(user);
+        const parsedConfig = JSON.parse(config);
 
         const currentTime = new Date().getTime();
+        console.log("🚀 ~ getUser ~ currentTime:", currentTime)
 
-        if (parsedUser.expirationTime > currentTime) {
+        // Accessing expirationTime from parsedUser
+        const expirationTime = parsedUser[4].expirationTime;
+        console.log("🚀 ~ getUser ~ expirationTime:", expirationTime)
+
+        if (expirationTime > currentTime) {
           showMessage(
             "success",
             "Bem vindo de volta",
@@ -108,7 +113,6 @@ export const useLogin = (navigation) => {
 
     getUser();
   }, []);
-
   return {
     email,
     setEmail,
