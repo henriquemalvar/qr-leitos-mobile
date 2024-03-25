@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import showMessage from "@utils/messageUtils";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { parse, stringify } from "flatted";
+import { stringify } from "flatted";
 import { useEffect, useState } from "react";
 import db from "../../../database/database";
 
@@ -88,11 +88,8 @@ export const useLogin = (navigation) => {
         const parsedConfig = JSON.parse(config);
 
         const currentTime = new Date().getTime();
-        console.log("🚀 ~ getUser ~ currentTime:", currentTime)
 
-        // Accessing expirationTime from parsedUser
         const expirationTime = parsedUser[4].expirationTime;
-        console.log("🚀 ~ getUser ~ expirationTime:", expirationTime)
 
         if (expirationTime > currentTime) {
           showMessage(
