@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import globalStyles from "@styles/globalStyles";
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,16 +12,10 @@ import {
 import { Button, useTheme } from "react-native-paper";
 import { useLogin } from "./hook/useLogin";
 import styles from "./styles";
-import { useState } from "react";
 
-export default function Login({ navigation }) {
-  const {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    handleLogin,
-  } = useLogin(navigation);
+export default function LoginPage({ navigation }) {
+  const { email, setEmail, password, setPassword, handleLogin, loading } =
+    useLogin(navigation);
   const [showPassword, setShowPassword] = useState(false);
 
   const theme = useTheme();
@@ -69,6 +64,8 @@ export default function Login({ navigation }) {
             mode="contained"
             style={[styles.button]}
             disabled={!email || !password}
+            loading={loading}
+            
           >
             Entrar
           </Button>

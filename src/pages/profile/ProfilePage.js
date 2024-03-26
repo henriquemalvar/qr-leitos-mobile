@@ -42,7 +42,11 @@ const ProfilePage = ({ navigation }) => {
       navigation.navigate("Login");
     } catch (error) {
       console.error("Erro durante o logout:", error);
-      showMessage("error", "Erro ao fazer logout", error.message);
+      showMessage({
+        type: "error",
+        text1: "Erro ao fazer logout",
+        text2: error.message,
+      });
     }
   };
 
@@ -54,11 +58,11 @@ const ProfilePage = ({ navigation }) => {
       if (version && compareVersions(version, currentVersion) > 0) {
         await handleNewUpdateLink(link, version);
       } else {
-        showMessage(
-          "info",
-          "Atualizações",
-          "Você já está na versão mais recente."
-        );
+        showMessage({
+          type: "info",
+          text1: "Atualizações",
+          text2: "Você já está na versão mais recente.",
+        });
       }
     } catch (error) {
       handleError(error);

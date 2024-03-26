@@ -66,13 +66,14 @@ export const UpdateProvider = ({ children }) => {
         ? "Não foi possível verificar as atualizações porque você está offline. Por favor, verifique sua conexão com a internet e tente novamente."
         : "Não conseguimos verificar se há atualizações disponíveis no momento. Por favor, tente novamente mais tarde.";
 
-    showMessage(
-      "error",
-      error.message === "Network request failed"
-        ? "Erro de Conexão"
-        : "Ops, algo deu errado",
-      message
-    );
+    showMessage({
+      type: "error",
+      text1:
+        error.message === "Network request failed"
+          ? "Erro de Conexão"
+          : "Ops, algo deu errado",
+      text2: message,
+    });
   };
 
   useEffect(() => {

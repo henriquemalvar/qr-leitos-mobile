@@ -1,25 +1,28 @@
+import { useNetInfoStatus } from "@contexts/NetInfoProvider";
 import { useIsFocused } from "@react-navigation/native";
 import BedsService from "@services/BedsServices";
 import globalStyles from "@styles/globalStyles";
 import { theme } from "@styles/theme";
-// import { Camera } from 'expo-camera';
-import { BarCodeScanner } from "expo-barcode-scanner";
 import { stringify } from "flatted";
 import { useEffect, useState } from "react";
 import { Linking, Text, TouchableOpacity, View } from "react-native";
 import { Button, IconButton, TextInput } from "react-native-paper";
 import styles from "./style";
 
+// import { Camera } from 'expo-camera';
+import { BarCodeScanner } from "expo-barcode-scanner";
+
 const handleOpenSettings = () => {
   Linking.openSettings();
 };
 
-export default function QRCode({ navigation }) {
+export default function QRCodePage({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [code, setCode] = useState("");
   const [leito, setLeito] = useState(null);
   const isFocused = useIsFocused();
+  const netInfo = useNetInfoStatus();
 
   async function searchLeito(_id) {
     try {
@@ -51,15 +54,20 @@ export default function QRCode({ navigation }) {
   }, [isFocused]);
 
   const handleBarCodeScanned = ({ data }) => {
-    try {
-      searchLeito(data).then((result) => {
-        if (result !== false) {
-          setScanned(true);
-          setCode(data);
-        }
-      });
-    } catch (error) {
-      console.error("Error handling barcode scan:", error);
+    if (netInfo.isConnected) {
+      try {
+        searchLeito(data).then((result) => {
+          if (result !== false) {
+            setScanned(true);
+            setCode(data);
+          }
+        });
+      } catch (error) {
+        console.error("Error handling barcode scan:", error);
+      }
+    } else {
+      setScanned(true);
+      setCode(data);
     }
   };
 
@@ -148,10 +156,17 @@ export default function QRCode({ navigation }) {
               activeOpacity={0.8}
               onPress={() => {
                 clearData();
-                navigation.navigate("Leito", {
-                  leito: stringify(leito),
-                  scanned: true,
-                });
+                if (netInfo.isConnected) {
+                  navigation.navigate("Leito", {
+                    leito: stringify(leito),
+                    scanned: true,
+                  });
+                } else {
+                  navigation.navigate("Leito", {
+                    leitoId: code,
+                    scanned: true,
+                  });
+                }
               }}
             >
               <Button

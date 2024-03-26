@@ -1,17 +1,24 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import showMessage from "@utils/messageUtils";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { stringify } from "flatted";
+import { parse, stringify } from "flatted";
 import { useEffect, useState } from "react";
 import db from "../../../database/database";
 
 export const useLogin = (navigation) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true);
     if (!email.trim() || !password.trim()) {
-      showMessage("error", "Erro ao fazer login", "Preencha todos os campos.");
+      showMessage({
+        type: "error",
+        text1: "Erro ao fazer login",
+        text2: "Preencha todos os campos.",
+      });
+      setLoading(false);
       return;
     }
 
@@ -32,6 +39,7 @@ export const useLogin = (navigation) => {
     } catch (error) {
       handleLoginError(error);
     }
+    setLoading(false);
   };
 
   const handleLoginError = (error) => {
@@ -51,8 +59,11 @@ export const useLogin = (navigation) => {
           break;
       }
     }
-
-    showMessage("error", "Erro ao fazer login", message);
+    showMessage({
+      type: "error",
+      text1: "Erro ao fazer login",
+      text2: message,
+    });
   };
 
   const saveUserToAsyncStorage = async (_user) => {
@@ -84,26 +95,26 @@ export const useLogin = (navigation) => {
       const config = await AsyncStorage.getItem("userConfig");
 
       if (user && config) {
-        const parsedUser = JSON.parse(user);
-        const parsedConfig = JSON.parse(config);
+        const parsedUser = parse(user);
+        const parsedConfig = parse(config);
 
         const currentTime = new Date().getTime();
 
         const expirationTime = parsedUser[4].expirationTime;
 
         if (expirationTime > currentTime) {
-          showMessage(
-            "success",
-            "Bem vindo de volta",
-            parsedConfig?.name || ""
-          );
+          showMessage({
+            type: "success",
+            text1: "Bem vindo de volta",
+            text2: parsedConfig?.name || "",
+          });
           navigation.navigate("Menu", { idUser: parsedUser.uid });
         } else {
-          showMessage(
-            "error",
-            "Sessão expirada",
-            "Faça login novamente para continuar."
-          );
+          showMessage({
+            type: "error",
+            text1: "Sessão expirada",
+            text2: "Faça login novamente para continuar.",
+          });
         }
       }
     };
@@ -116,5 +127,6 @@ export const useLogin = (navigation) => {
     password,
     setPassword,
     handleLogin,
+    loading,
   };
 };

@@ -1,4 +1,6 @@
+import { NetInfoProvider } from "@contexts/NetInfoProvider";
 import { UpdateProvider } from "@contexts/UpdateProvider";
+import { PendingChangesSyncProvider } from "@contexts/PendingChangesSyncProvider";
 import { NavigationContainer } from "@react-navigation/native";
 import { theme } from "@styles/theme";
 import { StatusBar } from "expo-status-bar";
@@ -16,11 +18,15 @@ export default function App() {
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
         <UpdateProvider>
-          <StatusBar style="auto" />
-          <NavigationContainer>
-            <StackRoutes />
-          </NavigationContainer>
-          <Toast />
+          <NetInfoProvider>
+            <PendingChangesSyncProvider>
+              <StatusBar style="auto" />
+              <NavigationContainer>
+                <StackRoutes />
+              </NavigationContainer>
+              <Toast />
+            </PendingChangesSyncProvider>
+          </NetInfoProvider>
         </UpdateProvider>
       </PaperProvider>
     </SafeAreaProvider>

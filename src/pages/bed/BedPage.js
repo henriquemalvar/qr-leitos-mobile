@@ -4,17 +4,17 @@ import LogService from "@services/LogService";
 import globalStyles from "@styles/globalStyles";
 import showMessage from "@utils/messageUtils";
 import { _getOptions } from "@utils/translationUtils";
-import { parse } from "flatted";
+import { parse, stringify } from "flatted";
 import { useCallback, useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { FAB, useTheme } from "react-native-paper";
+import { useNetInfoStatus } from "shared/contexts/NetInfoProvider";
 import BedDetails from "./components/BedDetails";
-import BedModificationInfo from "./components/BedModificationInfo";
 import BedStatusMenu from "./components/BedStatusMenu";
 import { SettingsCard } from "./components/SettingsCard";
 
-export default function Bed({ route, navigation }) {
-  const { leito, scanned = false } = route.params;
+export default function BedPage({ route, navigation }) {
+  const { leitoId, leito, scanned = false } = route.params;
   const bed = parse(leito);
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -25,6 +25,7 @@ export default function Bed({ route, navigation }) {
 
   const [canToggle, setCanToggle] = useState(false);
   const [lastLog, setLastLog] = useState(null);
+  const netInfo = useNetInfoStatus();
 
   const { colors } = useTheme();
 
@@ -59,9 +60,18 @@ export default function Bed({ route, navigation }) {
         ) {
           setCanToggle(true);
         }
+
+        if (leitoId && !bed && netInfo.isConnected) {
+          const bedData = await BedsService.getById(leitoId);
+          setLeito(bedData);
+        }
       } catch (error) {
         console.error("Error fetching data:", error.message);
-        showMessage("error", "Error fetching data", error.message);
+        showMessage({
+          type: "error",
+          text1: "Erro ao buscar dados",
+          text2: error.message,
+        });
       }
     };
     fetchData();
@@ -76,11 +86,12 @@ export default function Bed({ route, navigation }) {
           userConfig.permission !== "enfermeira"))
     ) {
       let status = isMaintenance ? "manutenção" : "bloqueado";
+      showMessage({
+        type: "error",
+        text1: "Permissão negada",
+        text2: `Este leito está em ${status}. Somente alguém da enfermagem ou um administrador pode alterar o status dele.`,
+      });
 
-      showMessage(
-        "error",
-        `Este leito está em ${status}. Somente alguém da enfermagem ou um administrador pode alterar o status dele.`
-      );
       return;
     }
 
@@ -90,7 +101,11 @@ export default function Bed({ route, navigation }) {
       })
       .catch((error) => {
         console.error("Erro ao atualizar leito", error.message);
-        showMessage("error", "Erro ao atualizar leito", error.message);
+        showMessage({
+          type: "error",
+          text1: "Erro ao atualizar leito",
+          text2: error.message,
+        });
       });
   }, [
     bed.id,
@@ -111,36 +126,71 @@ export default function Bed({ route, navigation }) {
         status = bed.status;
       }
 
-      const newBed = {
-        ...bed,
-        status: status,
-        isMaintenance,
-        isBlocked,
-        updated_at: new Date(),
-      };
+      if (netInfo.isConnected) {
+        const newBed = {
+          ...bed,
+          status: status,
+          isMaintenance,
+          isBlocked,
+          updated_at: new Date(),
+        };
 
-      const log = {
-        bed_id: bed.id,
-        after: newBed,
-        before: bed,
-        created_at: new Date(),
-        userName: userConfig.name,
-        userUid: user.uid,
-        userEmail: user.email,
-        userPermission: userConfig.permission,
-        bed_type: bed.type,
-      };
+        const log = {
+          bed_id: bed.id,
+          after: newBed,
+          before: bed,
+          created_at: new Date(),
+          userName: userConfig.name,
+          userUid: user.uid,
+          userEmail: user.email,
+          userPermission: userConfig.permission,
+          bed_type: bed.type,
+        };
 
-      const createdLog = await LogService.createLog(log);
+        const createdLog = await LogService.createLog(log);
 
-      newBed.lastLogId = createdLog.id;
+        newBed.lastLogId = createdLog.id;
 
-      await BedsService.updateBed(newBed);
-
-      showMessage("success", "Leito atualizado com sucesso");
+        await BedsService.updateBed(newBed);
+        showMessage({
+          type: "success",
+          text1: "Leito atualizado com sucesso",
+        });
+      } else if (!netInfo.isConnected) {
+        const changes = {
+          status,
+          isMaintenance,
+          isBlocked,
+          updated_at: new Date(),
+        };
+        await savePendingChanges(changes);
+        showMessage({
+          type: "success",
+          text1: "Mudanças salvas localmente",
+          text2:
+            "As mudanças serão enviadas quando a conexão for restabelecida.",
+        });
+      }
     } catch (error) {
       console.error("Error occurred while updating bed status:", error);
       throw error;
+    }
+  };
+
+  const savePendingChanges = async (changes) => {
+    try {
+      const pendingChanges = await AsyncStorage.getItem("pendingChanges");
+      const parsedPendingChanges = parse(pendingChanges);
+      const newPendingChanges = {
+        ...parsedPendingChanges,
+        [bed.id]: changes,
+      };
+      await AsyncStorage.setItem(
+        "pendingChanges",
+        stringify(newPendingChanges)
+      );
+    } catch (error) {
+      console.error("Error saving pending changes:", error);
     }
   };
 
@@ -190,7 +240,7 @@ export default function Bed({ route, navigation }) {
   return (
     <View style={globalStyles.page}>
       <ScrollView showsVerticalScrollIndicator={true}>
-        <BedDetails bed={bed} lastLog={lastLog} />
+        {netInfo.isConnected && <BedDetails bed={bed} lastLog={lastLog} />}
         <View style={globalStyles.centeredContainer}>
           {canToggle && (
             <SettingsCard

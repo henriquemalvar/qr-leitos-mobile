@@ -1,9 +1,11 @@
 import SearchButton from "@components/SearchButton";
+import { useNetInfoStatus } from "@contexts/NetInfoProvider";
+import { useFocusEffect } from "@react-navigation/native";
 import globalStyles from "@styles/globalStyles";
 import { _getColor, _getPermissions } from "@utils/translationUtils";
 import { parse } from "flatted";
-import { useMemo } from "react";
-import { View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useTheme } from "react-native-paper";
 import BedCard from "./components/BedCard";
@@ -15,6 +17,18 @@ export default function BedStatusPage({ route, navigation }) {
     route.params?.section === "" ? null : parse(route.params?.section);
   const { userConfig, bedCounts, percentage } = useFetchBedStatusData(section);
   const theme = useTheme();
+  const netInfo = useNetInfoStatus();
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (netInfo.isConnected) {
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    }, [netInfo.isConnected])
+  );
 
   const canAccessMaintenanceAndBlockedBeds = useMemo(() => {
     return (
@@ -27,6 +41,14 @@ export default function BedStatusPage({ route, navigation }) {
     const _permissionRelation = _getPermissions;
     return _permissionRelation.length > 0;
   };
+
+  if (loading || !netInfo.isConnected) {
+    return (
+      <View style={{ ...globalStyles.page, ...globalStyles.centeredContainer }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <>

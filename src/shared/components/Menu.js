@@ -1,7 +1,7 @@
 import UserChip from "@components/UserChip";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ProfilePage from "@pages/profile/ProfilePage";
-import QRCode from "@pages/qr-code/QRCode";
+import QRCodePage from "@pages/qr-code/QRCodePage";
 import SectorListPage from "@pages/sectors/SectorListPage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -39,9 +39,7 @@ export default function Menu(props) {
           name="Setores"
           component={SectorListPage}
           options={{
-            headerRight: () => (
-              <UserChip parsedUser={parsedUser} />
-            ),
+            headerRight: () => <UserChip parsedUser={parsedUser} />,
             tabBarLabel: "Setores",
             tabBarActiveTintColor: theme.colors.primary,
             tabBarIcon: ({ size, color }) => (
@@ -52,7 +50,7 @@ export default function Menu(props) {
 
         <Tab.Screen
           name="QRCode"
-          component={QRCode}
+          component={QRCodePage}
           options={{
             tabBarActiveTintColor: theme.colors.primary,
             tabBarIcon: ({ size, color }) => (

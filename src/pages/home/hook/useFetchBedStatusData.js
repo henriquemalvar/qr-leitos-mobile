@@ -17,6 +17,7 @@ const statusList = [
 ];
 
 export const useFetchBedStatusData = (section) => {
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     userConfig: null,
     bedCounts: {
@@ -34,6 +35,7 @@ export const useFetchBedStatusData = (section) => {
     React.useCallback(() => {
       const fetchData = async () => {
         try {
+          setLoading(true);
           const userConfigString = await AsyncStorage.getItem("userConfig");
           const userConfig = userConfigString ? parse(userConfigString) : null;
 
@@ -95,6 +97,8 @@ export const useFetchBedStatusData = (section) => {
           });
         } catch (error) {
           console.error("Failed to fetch bed status data:", error);
+        } finally {
+          setLoading(false);
         }
       };
 
@@ -102,5 +106,5 @@ export const useFetchBedStatusData = (section) => {
     }, [section])
   );
 
-  return data;
+  return { ...data, loading };
 };
