@@ -16,13 +16,15 @@ export const PendingChangesSyncProvider = ({ children }) => {
       try {
         const pendingChanges = await AsyncStorage.getItem(
           "pendingChanges"
-        ).then((pendingChanges) => parse(pendingChanges));
+        ).then((pendingChanges) =>
+          pendingChanges ? parse(pendingChanges) : {}
+        );
 
         const userConfig = await AsyncStorage.getItem("userConfig").then(
-          (userConfig) => parse(userConfig)
+          (userConfig) => (userConfig ? parse(userConfig) : {})
         );
         const user = await AsyncStorage.getItem("user").then((user) =>
-          parse(user)
+          user ? parse(user) : {}
         );
 
         for (const bedId in pendingChanges) {
