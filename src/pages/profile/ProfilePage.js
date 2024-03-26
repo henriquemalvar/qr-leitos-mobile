@@ -13,12 +13,11 @@ import { ProfileHeader } from "./components/ProfileHeader/ProfileHeader";
 import { EmailCard } from "./components/UserEmail/UserEmail";
 import styles from "./styles";
 
-export const APP_VERSION = Constants.expoConfig.version;
-
 const ProfilePage = ({ navigation }) => {
   const [user, setUser] = useState("");
   const { colors } = useTheme();
-  const { fetchUpdateLink, handleNewUpdateLink, handleError } = useUpdate();
+  const { fetchUpdateLink, handleNewUpdateLink, handleError, compareVersions } =
+    useUpdate();
 
   useEffect(() => {
     async function fetchUserConfig() {
@@ -49,8 +48,18 @@ const ProfilePage = ({ navigation }) => {
 
   const handleCheckUpdates = async () => {
     try {
-      const link = await fetchUpdateLink();
-      await handleNewUpdateLink(link);
+      const { link, version } = await fetchUpdateLink();
+      const currentVersion = Constants.expoConfig.version;
+
+      if (version && compareVersions(version, currentVersion) > 0) {
+        await handleNewUpdateLink(link, version);
+      } else {
+        showMessage(
+          "info",
+          "Atualizações",
+          "Você já está na versão mais recente."
+        );
+      }
     } catch (error) {
       handleError(error);
     }
@@ -79,7 +88,9 @@ const ProfilePage = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.versionContainer}>
-        <Text style={styles.appInfo}>App Version: {APP_VERSION}</Text>
+        <Text style={styles.appInfo}>
+          App Version: {Constants.expoConfig.version}
+        </Text>
       </View>
     </View>
   );
