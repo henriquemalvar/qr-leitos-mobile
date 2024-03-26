@@ -91,24 +91,25 @@ export const useLogin = (navigation) => {
 
   useEffect(() => {
     const getUser = async () => {
-      const user = await AsyncStorage.getItem("user");
-      const config = await AsyncStorage.getItem("userConfig");
+      const user = await AsyncStorage.getItem("user").then((user) =>
+        user ? parse(user) : null
+      );
+      const config = await AsyncStorage.getItem("userConfig").then((config) =>
+        config ? parse(config) : null
+      );
 
       if (user && config) {
-        const parsedUser = parse(user);
-        const parsedConfig = parse(config);
-
         const currentTime = new Date().getTime();
 
-        const expirationTime = parsedUser[4].expirationTime;
+        const expirationTime = user.stsTokenManager.expirationTime;
 
         if (expirationTime > currentTime) {
           showMessage({
             type: "success",
             text1: "Bem vindo de volta",
-            text2: parsedConfig?.name || "",
+            text2: config?.name || "",
           });
-          navigation.navigate("Menu", { idUser: parsedUser.uid });
+          navigation.navigate("Menu", { idUser: user.uid });
         } else {
           showMessage({
             type: "error",
