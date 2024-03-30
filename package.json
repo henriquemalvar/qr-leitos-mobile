@@ -43,7 +43,8 @@
     "react-native-toast-message": "^2.1.7",
     "react-native-vector-icons": "^10.0.3",
     "react-native-web": "^0.19.10",
-    "expo-constants": "~15.4.5"
+    "expo-constants": "~15.4.5",
+    "expo-updates": "~0.24.12"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

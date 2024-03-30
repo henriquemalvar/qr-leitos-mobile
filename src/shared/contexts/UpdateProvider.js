@@ -1,5 +1,6 @@
 import showMessage from "@utils/messageUtils";
 import Constants from "expo-constants";
+import * as Updates from "expo-updates";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Linking } from "react-native";
 import { Button, Dialog, Paragraph } from "react-native-paper";
@@ -43,6 +44,18 @@ export const UpdateProvider = ({ children }) => {
     if (version && compareVersions(version, currentVersion) > 0) {
       setUpdateLink(link);
       showDialog();
+    } else {
+      const update = await Updates.checkForUpdateAsync();
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          // ... avise o usuário, ou aplique a atualização imediatamente:
+          await Updates.reloadAsync();
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 

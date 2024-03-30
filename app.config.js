@@ -32,6 +32,12 @@ export default {
         projectId: "37ba66ea-dc3a-4735-9fc9-b4575a44802f",
       },
     },
+    updates: {
+      url: "https://u.expo.dev/37ba66ea-dc3a-4735-9fc9-b4575a44802f",
+    },
+    runtimeVersion: {
+      policy: "appVersion",
+    },
     owner: "henriquemmalvar",
   },
 };
