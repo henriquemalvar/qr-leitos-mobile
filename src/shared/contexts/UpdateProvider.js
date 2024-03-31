@@ -45,16 +45,29 @@ export const UpdateProvider = ({ children }) => {
       setUpdateLink(link);
       showDialog();
     } else {
-      const update = await Updates.checkForUpdateAsync();
       try {
         const update = await Updates.checkForUpdateAsync();
         if (update.isAvailable) {
+          showMessage(
+            "info",
+            "Atualização disponível",
+            "Baixando atualização..."
+          );
           await Updates.fetchUpdateAsync();
-          // ... avise o usuário, ou aplique a atualização imediatamente:
+          showMessage(
+            "success",
+            "Atualização baixada",
+            "Aplicando atualização..."
+          );
           await Updates.reloadAsync();
         }
       } catch (e) {
         console.error(e);
+        showMessage(
+          "error",
+          "Erro ao atualizar",
+          "Não foi possível baixar a atualização."
+        );
       }
     }
   };
