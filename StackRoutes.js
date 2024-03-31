@@ -59,7 +59,7 @@ export default function StackRoutes() {
         name="Homepage"
         component={BedStatusPage}
         options={{
-          title: "Leitos",
+          title: "Status dos leitos",
           headerRight: () => parsedUser && <UserChip parsedUser={parsedUser} />,
         }}
       />
@@ -70,7 +70,7 @@ export default function StackRoutes() {
         getId={({ params }) => params.id}
       />
       <Stack.Screen
-        name="Leito"
+        name="Detalhes do leito"
         component={Bed}
         getId={({ params }) => params.id}
         options={{
@@ -85,7 +85,7 @@ export default function StackRoutes() {
           headerRight: () => parsedUser && <UserChip parsedUser={parsedUser} />,
         }}
       />
-      <Stack.Screen name="Pesquisa" component={SearchPage} />
+      <Stack.Screen name="Busca" component={SearchPage} />
     </Stack.Navigator>
   );
 }
