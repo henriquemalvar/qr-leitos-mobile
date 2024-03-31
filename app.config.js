@@ -39,5 +39,13 @@ export default {
       policy: "appVersion",
     },
     owner: "henriquemmalvar",
+    plugins: [
+      [
+        "expo-updates",
+        {
+          username: "henriquemmalvar",
+        },
+      ],
+    ],
   },
 };
