@@ -10,9 +10,9 @@ import SearchPage from "@pages/search/SearchPage";
 import SectorListPage from "@pages/sectors/SectorListPage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createStackNavigator } from "@react-navigation/stack";
+import * as SplashScreen from "expo-splash-screen";
 import { parse } from "flatted";
 import * as React from "react";
-import * as SplashScreen from 'expo-splash-screen';
 
 const Stack = createStackNavigator();
 
@@ -48,7 +48,7 @@ export default function StackRoutes() {
       <Stack.Screen
         name="PasswordRecovery"
         component={PasswordRecovery}
-        options={{ title: "Recuperação de senha" }}
+        options={{ title: "Recuperar senha" }}
       />
       <Stack.Screen
         name="Menu"
@@ -60,10 +60,7 @@ export default function StackRoutes() {
         component={BedStatusPage}
         options={{
           title: "Leitos",
-          headerRight: () =>
-            parsedUser && (
-              <UserChip parsedUser={parsedUser} />
-            ),
+          headerRight: () => parsedUser && <UserChip parsedUser={parsedUser} />,
         }}
       />
       <Stack.Screen name="Setores" component={SectorListPage} />
@@ -77,10 +74,7 @@ export default function StackRoutes() {
         component={Bed}
         getId={({ params }) => params.id}
         options={{
-          headerRight: () =>
-            parsedUser && (
-              <UserChip parsedUser={parsedUser} />
-            ),
+          headerRight: () => parsedUser && <UserChip parsedUser={parsedUser} />,
         }}
       />
       <Stack.Screen
@@ -88,10 +82,7 @@ export default function StackRoutes() {
         component={BedListPage}
         getId={({ params }) => params.id}
         options={{
-          headerRight: () =>
-            parsedUser && (
-              <UserChip parsedUser={parsedUser} />
-            ),
+          headerRight: () => parsedUser && <UserChip parsedUser={parsedUser} />,
         }}
       />
       <Stack.Screen name="Pesquisa" component={SearchPage} />
