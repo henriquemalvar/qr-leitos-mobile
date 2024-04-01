@@ -68,6 +68,9 @@ export default function StackRoutes() {
         name="Perfil"
         component={ProfilePage}
         getId={({ params }) => params.id}
+        options={{
+          title: "Perfil do usuário",
+        }}
       />
       <Stack.Screen
         name="Detalhes do leito"
