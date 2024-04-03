@@ -1,7 +1,7 @@
 import showMessage from "@utils/messageUtils";
 import Constants from "expo-constants";
 import { createContext, useContext, useEffect, useState } from "react";
-import { Linking } from "react-native";
+import { Linking, View } from "react-native";
 import { Button, Dialog, Paragraph } from "react-native-paper";
 
 export const UpdateContext = createContext();
@@ -91,16 +91,18 @@ export const UpdateProvider = ({ children }) => {
     >
       {children}
       <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Title>Atualizações</Dialog.Title>
-        <Dialog.Content>
-          <Paragraph>
-            Há uma atualização disponível. Deseja atualizar agora?
-          </Paragraph>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button onPress={hideDialog}>Cancelar</Button>
-          <Button onPress={handleUpdate}>Atualizar</Button>
-        </Dialog.Actions>
+        <View style={{ alignItems: "center" }}>
+          <Dialog.Title>Atualizações</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>
+              Há uma atualização disponível. É necessário atualizar o aplicativo
+              para continuar.
+            </Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={handleUpdate}>Atualizar</Button>
+          </Dialog.Actions>
+        </View>
       </Dialog>
     </UpdateContext.Provider>
   );
