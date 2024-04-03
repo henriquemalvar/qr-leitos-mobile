@@ -1,3 +1,4 @@
+import { UpdateProvider } from "@contexts/UpdateProvider";
 import { NavigationContainer } from "@react-navigation/native";
 import { theme } from "@styles/theme";
 import { StatusBar } from "expo-status-bar";
@@ -14,11 +15,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
-        <StatusBar style="auto" />
-        <NavigationContainer>
-          <StackRoutes />
-        </NavigationContainer>
-        <Toast />
+        <UpdateProvider>
+          <StatusBar style="auto" />
+          <NavigationContainer>
+            <StackRoutes />
+          </NavigationContainer>
+          <Toast />
+        </UpdateProvider>
       </PaperProvider>
     </SafeAreaProvider>
   );

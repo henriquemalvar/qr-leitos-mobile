@@ -1,21 +1,26 @@
+import {
+  API_KEY,
+  APP_ID,
+  AUTH_DOMAIN,
+  MESSAGING_SENDER_ID,
+  PROJECT_ID,
+  STORAGE_BUCKET,
+} from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getReactNativePersistence, initializeAuth } from "firebase/auth";
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
-import { Environment } from "./environment.class";
 
 class FirebaseDatabase {
   constructor() {
-    const env = new Environment("qr-leitos-piloto");
-    const config = env.getEnvironmentConfig("firebase");
     const firebaseConfig = {
-      apiKey: config.apiKey,
-      authDomain: config.authDomain,
-      projectId: config.projectId,
-      storageBucket: config.storageBucket,
-      messagingSenderId: config.messagingSenderId,
-      appId: config.appId,
+      apiKey: API_KEY,
+      authDomain: AUTH_DOMAIN,
+      projectId: PROJECT_ID,
+      storageBucket: STORAGE_BUCKET,
+      messagingSenderId: MESSAGING_SENDER_ID,
+      appId: APP_ID,
     };
 
     if (firebase.apps.length === 0) {
