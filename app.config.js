@@ -2,7 +2,7 @@ export default {
   expo: {
     name: "qr-leitos",
     slug: "qr-leitos",
-    version: "1.3.1",
+    version: "1.3.2",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
