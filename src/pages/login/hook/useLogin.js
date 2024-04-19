@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import showMessage from "@utils/messageUtils";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { stringify } from "flatted";
+import { parse, stringify } from "flatted";
 import { useEffect, useState } from "react";
 import db from "../../../database/database";
 
@@ -28,7 +28,7 @@ export const useLogin = (navigation) => {
       await saveUserToAsyncStorage(userCredential.user);
       await saveUserConfigToAsyncStorage(email);
 
-      navigation.navigate("Menu", { idUser: userCredential.user.uid });
+      navigation.navigate("StartShift", { idUser: userCredential.user.uid });
     } catch (error) {
       handleLoginError(error);
     }
@@ -80,24 +80,20 @@ export const useLogin = (navigation) => {
 
   useEffect(() => {
     const getUser = async () => {
-      const user = await AsyncStorage.getItem("user");
-      const config = await AsyncStorage.getItem("userConfig");
+      const user = await AsyncStorage.getItem("user")
+        .then(parse)
+        .catch(() => {});
+      const config = await AsyncStorage.getItem("userConfig")
+        .then(parse)
+        .catch(() => {});
 
       if (user && config) {
-        const parsedUser = JSON.parse(user);
-        const parsedConfig = JSON.parse(config);
-
         const currentTime = new Date().getTime();
-
-        const expirationTime = parsedUser[4].expirationTime;
+        const { expirationTime } = user.stsTokenManager;
 
         if (expirationTime > currentTime) {
-          showMessage(
-            "success",
-            "Bem vindo de volta",
-            parsedConfig?.name || ""
-          );
-          navigation.navigate("Menu", { idUser: parsedUser.uid });
+          showMessage("success", "Bem vindo de volta", config?.name || "");
+          navigation.navigate("StartShift", { idUser: user.uid });
         } else {
           showMessage(
             "error",
