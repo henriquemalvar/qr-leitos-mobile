@@ -1,6 +1,7 @@
 export const translatePermissions = {
   medico: "Médico",
   enfermeira: "Enfermagem",
+  internacao: "Internação",
   limpeza: "Limpeza",
   camareira: "Camareira",
   admin: "Administrador",
@@ -10,6 +11,7 @@ export const translatePermissions = {
 export const permissionsIcons = {
   medico: "stethoscope",
   enfermeira: "stethoscope",
+  internacao: "stethoscope",
   limpeza: "broom",
   camareira: "bed",
   admin: "security",
@@ -17,6 +19,20 @@ export const permissionsIcons = {
 
 export const permissions = {
   medico: [
+    {
+      from: "available",
+      to: "occupied",
+    },
+    {
+      from: "occupied",
+      to: "discharge",
+    },
+    // {
+    //   from: "discharge",
+    //   to: "final_discharge",
+    // },
+  ],
+  internacao: [
     {
       from: "available",
       to: "occupied",
