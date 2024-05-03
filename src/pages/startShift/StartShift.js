@@ -8,6 +8,9 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 
+const ACCESS_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+const REST_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds for rest
+
 const decryptData = (encryptedData) => {
   const bytes = CryptoJS.AES.decrypt(encryptedData, AUTH_SECRET);
   return bytes.toString(CryptoJS.enc.Utf8);
@@ -15,43 +18,66 @@ const decryptData = (encryptedData) => {
 
 export default function StartShift({ navigation, route }) {
   const [hasPermission, setHasPermission] = useState(null);
-  const [scanned, setScanned] = useState(false);
-
   const isFocused = useIsFocused();
 
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === "granted");
+      if (await checkAccess()) {
+        showMessage(
+          "success",
+          "Acesso ainda válido.",
+          "Redirecionando para o menu principal."
+        );
+        navigation.navigate("Menu", { idUser: route.params.idUser });
+      }
     })();
-  }, []);
+  }, [isFocused]);
+
+  const checkAccess = async () => {
+    const lastAccess = await AsyncStorage.getItem("lastAccess");
+    const now = Date.now();
+
+    if (lastAccess) {
+      const timeSinceLastAccess = now - parseInt(lastAccess);
+      if (timeSinceLastAccess < ACCESS_TIME) {
+        // Within access period
+        return true;
+      } else if (timeSinceLastAccess < ACCESS_TIME + REST_TIME) {
+        // Within rest period
+        showMessage(
+          "error",
+          "Acesso não concedido",
+          "Você deve esperar " +
+            ((ACCESS_TIME + REST_TIME - timeSinceLastAccess) / 3600000).toFixed(
+              1
+            ) +
+            " horas antes de escanear novamente."
+        );
+        return false;
+      }
+    }
+    // No access recorded, scan is needed
+    return false;
+  };
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    const decryptedData = decryptData(data);
-    const lastScan = await AsyncStorage.getItem("lastScan");
-    const now = Date.now();
-    const restTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-    if (lastScan && now - parseInt(lastScan) < restTime) {
-      showMessage(
-        "error",
-        "Acesso não concedido",
-        "Você já realizou uma leitura recentemente."
-      );
+    if (await checkAccess()) {
+      navigation.navigate("Menu", { idUser: route.params.idUser });
       return;
     }
 
+    const decryptedData = decryptData(data);
     if (decryptedData === AUTH_DOMAIN) {
-      setScanned(true);
-      await AsyncStorage.setItem("lastScan", now.toString());
+      await AsyncStorage.setItem("lastAccess", Date.now().toString());
       showMessage(
         "success",
         "Acesso concedido",
-        "QR Code autorizado com sucesso"
+        "QR Code autorizado com sucesso. Acesso válido por 12 horas."
       );
       navigation.navigate("Menu", { idUser: route.params.idUser });
     } else {
-      setScanned(false);
       showMessage("error", "Acesso não concedido", "QR Code inválido.");
     }
   };
@@ -60,27 +86,19 @@ export default function StartShift({ navigation, route }) {
     return (
       <View style={{ ...globalStyles.page, ...globalStyles.centeredContainer }}>
         <Text
-          style={{
-            ...globalStyles.title,
-            fontSize: 30,
-            textAlign: "center",
-          }}
+          style={{ ...globalStyles.title, fontSize: 30, textAlign: "center" }}
         >
-          Aguardando permissão de acesso a câmera!
+          Aguardando permissão de acesso à câmera!
         </Text>
       </View>
     );
   }
+
   if (hasPermission === false) {
     return (
       <View style={{ ...globalStyles.page, ...globalStyles.centeredContainer }}>
-        <Text
-          style={{
-            ...globalStyles.title,
-            fontSize: 30,
-          }}
-        >
-          Sem acesso a câmera
+        <Text style={{ ...globalStyles.title, fontSize: 30 }}>
+          Sem acesso à câmera
         </Text>
       </View>
     );
@@ -89,19 +107,16 @@ export default function StartShift({ navigation, route }) {
   return (
     <View style={globalStyles.page}>
       <View style={globalStyles.centeredContainer}>
-        {isFocused ? (
+        {isFocused && (
           <BarCodeScanner
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+            onBarCodeScanned={handleBarCodeScanned}
             style={{
               borderRadius: 20,
               height: 300,
-              overflow: "hidden",
               width: 300,
               marginBottom: 20,
             }}
           />
-        ) : (
-          <></>
         )}
       </View>
     </View>
