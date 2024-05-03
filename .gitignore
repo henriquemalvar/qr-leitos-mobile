@@ -17,6 +17,7 @@ web-build/
 .metro-health-check*
 
 android/*
+ios/*
 .vscode
 *.apk
 
