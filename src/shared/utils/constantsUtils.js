@@ -1,6 +1,7 @@
 export const translatePermissions = {
   medico: "Médico",
   enfermeira: "Enfermagem",
+  internacao: "Internação",
   limpeza: "Limpeza",
   camareira: "Camareira",
   admin: "Administrador",
@@ -10,6 +11,7 @@ export const translatePermissions = {
 export const permissionsIcons = {
   medico: "stethoscope",
   enfermeira: "stethoscope",
+  internacao: "stethoscope",
   limpeza: "broom",
   camareira: "bed",
   admin: "security",
@@ -25,10 +27,24 @@ export const permissions = {
       from: "occupied",
       to: "discharge",
     },
+    // {
+    //   from: "discharge",
+    //   to: "final_discharge",
+    // },
+  ],
+  internacao: [
     {
-      from: "discharge",
-      to: "final_discharge",
+      from: "available",
+      to: "occupied",
     },
+    {
+      from: "occupied",
+      to: "discharge",
+    },
+    // {
+    //   from: "discharge",
+    //   to: "final_discharge",
+    // },
   ],
   enfermeira: [
     {
@@ -39,10 +55,10 @@ export const permissions = {
       from: "occupied",
       to: "discharge",
     },
-    {
-      from: "discharge",
-      to: "final_discharge",
-    },
+    // {
+    //   from: "discharge",
+    //   to: "final_discharge",
+    // },
   ],
   limpeza: [
     {
@@ -70,9 +86,13 @@ export const permissions = {
       to: "discharge",
     },
     {
-      from: "final_discharge",
+      from: "discharge",
       to: "awaiting_for_cleaning",
     },
+    // {
+    //   from: "final_discharge",
+    //   to: "awaiting_for_cleaning",
+    // },
   ],
   admin: [
     {
@@ -85,12 +105,16 @@ export const permissions = {
     },
     {
       from: "discharge",
-      to: "final_discharge",
-    },
-    {
-      from: "final_discharge",
       to: "awaiting_for_cleaning",
     },
+    // {
+    //   from: "discharge",
+    //   to: "final_discharge",
+    // },
+    // {
+    //   from: "final_discharge",
+    //   to: "awaiting_for_cleaning",
+    // },
     {
       from: "awaiting_for_cleaning",
       to: "cleaning_in_progress",
@@ -118,20 +142,20 @@ export const status = [
   "cleaning_in_progress",
   "awaiting_for_bedding",
   "bedding_in_progress",
-  "final_discharge",
+  // "final_discharge",
 ];
 
 export const translateStatusConstant = {
   available: "Livre",
   occupied: "Ocupado",
   discharge: "Em alta",
-  awaiting_for_cleaning: "Aguardando higienização",
-  cleaning_in_progress: "Em higienização",
-  awaiting_for_bedding: "Aguardando forragem",
-  bedding_in_progress: "Em forragem",
+  awaiting_for_cleaning: "Início de higienização", // Mudança de tradução
+  cleaning_in_progress: "Fim de higienização", // Mudança de tradução
+  awaiting_for_bedding: "Início de forragem", // Mudança de tradução
+  bedding_in_progress: "Fim de forragem", // Mudança de tradução
   blocked: "Bloqueado",
   maintenance: "Em manutenção",
-  final_discharge: "Alta final",
+  // 'final_discharge': "Alta final"  // Remover se não necessário
 };
 
 export const statusColor = {
@@ -144,7 +168,7 @@ export const statusColor = {
   bedding_in_progress: "yellow",
   blocked: "gray",
   maintenance: "gray",
-  final_discharge: "gray",
+  // final_discharge: "gray",
 };
 
 export const statusIcon = {
@@ -157,7 +181,7 @@ export const statusIcon = {
   bedding_in_progress: "clock",
   blocked: "ban",
   maintenance: "wrench",
-  final_discharge: "hospital",
+  // final_discharge: "hospital",
 };
 
 export const sections = [
