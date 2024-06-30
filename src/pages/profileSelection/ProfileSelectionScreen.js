@@ -12,6 +12,8 @@ import {
   TextInput,
 } from "react-native-paper";
 
+const ACCESS_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+
 export default function ProfileSelectionScreen({ navigation, route }) {
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [profiles, setProfiles] = useState([]);
@@ -20,29 +22,44 @@ export default function ProfileSelectionScreen({ navigation, route }) {
   const { control, handleSubmit, reset } = useForm();
 
   useEffect(() => {
-  const loadProfiles = async () => {
-    setLoading(true);
-    const userConfigString = await AsyncStorage.getItem("userConfig");
-    const userConfig = parse(userConfigString);
-    if (userConfig && userConfig.profiles && userConfig.profiles.length > 0) {
-      setProfiles(userConfig.profiles);
-    } else {
-      const defaultProfile = ["Usuário Padrão"];
-      setProfiles(defaultProfile);
-      setSelectedProfile(defaultProfile[0]);
-    }
-    const savedProfile = await AsyncStorage.getItem("selectedProfile");
-    if (savedProfile) {
-      setSelectedProfile(savedProfile);
-    } else if (!userConfig || !userConfig.profiles || userConfig.profiles.length === 0) {
-      await AsyncStorage.setItem("selectedProfile", "Usuário Padrão");
-      setSelectedProfile("Usuário Padrão");
-    }
-    setLoading(false);
-  };
+    const loadProfiles = async () => {
+      setLoading(true);
 
-  loadProfiles();
-}, []);
+      const lastAccess = await AsyncStorage.getItem("lastAccess");
+      const now = Date.now();
+
+      if (lastAccess && now - parseInt(lastAccess) < ACCESS_TIME) {
+        navigation.navigate("StartShift", {
+          idUser: route.params.idUser,
+        });
+        return;
+      }
+
+      const userConfigString = await AsyncStorage.getItem("userConfig");
+      const userConfig = parse(userConfigString);
+      if (userConfig && userConfig.profiles && userConfig.profiles.length > 0) {
+        setProfiles(userConfig.profiles);
+      } else {
+        const defaultProfile = ["Usuário Padrão"];
+        setProfiles(defaultProfile);
+        setSelectedProfile(defaultProfile[0]);
+      }
+      const savedProfile = await AsyncStorage.getItem("selectedProfile");
+      if (savedProfile) {
+        setSelectedProfile(savedProfile);
+      } else if (
+        !userConfig ||
+        !userConfig.profiles ||
+        userConfig.profiles.length === 0
+      ) {
+        await AsyncStorage.setItem("selectedProfile", "Usuário Padrão");
+        setSelectedProfile("Usuário Padrão");
+      }
+      setLoading(false);
+    };
+
+    loadProfiles();
+  }, [navigation, route.params.idUser]);
 
   const handleProfileSelection = useCallback(async (profile) => {
     setSelectedProfile(profile);
