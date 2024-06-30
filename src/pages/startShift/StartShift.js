@@ -12,8 +12,16 @@ const ACCESS_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 const REST_TIME = 12 * 60 * 60 * 1000; // 12 hours in milliseconds for rest
 
 const decryptData = (encryptedData) => {
-  const bytes = CryptoJS.AES.decrypt(encryptedData, AUTH_SECRET);
-  return bytes.toString(CryptoJS.enc.Utf8);
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedData, AUTH_SECRET);
+    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    if (!decryptedData)
+      throw new Error("Dados decifrados estão vazios ou corrompidos.");
+    return decryptedData;
+  } catch (error) {
+    console.error("Erro ao decifrar os dados: ", error.message);
+    return null;
+  }
 };
 
 export default function StartShift({ navigation, route }) {
@@ -42,10 +50,8 @@ export default function StartShift({ navigation, route }) {
     if (lastAccess) {
       const timeSinceLastAccess = now - parseInt(lastAccess);
       if (timeSinceLastAccess < ACCESS_TIME) {
-        // Within access period
         return true;
       } else if (timeSinceLastAccess < ACCESS_TIME + REST_TIME) {
-        // Within rest period
         showMessage(
           "error",
           "Acesso não concedido",
@@ -58,7 +64,6 @@ export default function StartShift({ navigation, route }) {
         return false;
       }
     }
-    // No access recorded, scan is needed
     return false;
   };
 

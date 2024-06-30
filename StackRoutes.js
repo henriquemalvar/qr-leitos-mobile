@@ -6,6 +6,7 @@ import BedListPage from "@pages/home/components/BedListPage";
 import Login from "@pages/login/Login";
 import PasswordRecovery from "@pages/passwordRecovery/PasswordRecovery";
 import ProfilePage from "@pages/profile/ProfilePage";
+import ProfileSelectionScreen from "@pages/profileSelection/ProfileSelectionScreen";
 import SearchPage from "@pages/search/SearchPage";
 import SectorListPage from "@pages/sectors/SectorListPage";
 import StartShift from "@pages/startShift/StartShift";
@@ -91,6 +92,13 @@ export default function StackRoutes() {
         component={StartShift}
         options={{
           title: "Liberação de acesso",
+        }}
+      />
+      <Stack.Screen
+        name="ProfileSelection"
+        component={ProfileSelectionScreen}
+        options={{
+          title: "Perfis",
         }}
       />
     </Stack.Navigator>
