@@ -28,7 +28,9 @@ export const useLogin = (navigation) => {
       await saveUserToAsyncStorage(userCredential.user);
       await saveUserConfigToAsyncStorage(email);
 
-      navigation.navigate("StartShift", { idUser: userCredential.user.uid });
+      navigation.navigate("ProfileSelection", {
+        idUser: userCredential.user.uid,
+      });
     } catch (error) {
       handleLoginError(error);
     }
@@ -93,7 +95,7 @@ export const useLogin = (navigation) => {
 
         if (expirationTime > currentTime) {
           showMessage("success", "Bem vindo de volta", config?.name || "");
-          navigation.navigate("StartShift", { idUser: user.uid });
+          navigation.navigate("ProfileSelection", { idUser: user.uid });
         } else {
           showMessage(
             "error",

@@ -111,6 +111,8 @@ export default function Bed({ route, navigation }) {
         status = bed.status;
       }
 
+      const profile = await AsyncStorage.getItem("selectedProfile");
+
       const newBed = {
         ...bed,
         status: status,
@@ -129,6 +131,7 @@ export default function Bed({ route, navigation }) {
         userEmail: user.email,
         userPermission: userConfig.permission,
         bed_type: bed.type,
+        profile,
       };
 
       const createdLog = await LogService.createLog(log);

@@ -11,6 +11,6 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 32,
     fontWeight: "bold",
-    paddingLeft: 50,
+    paddingLeft: 10,
   },
 });
