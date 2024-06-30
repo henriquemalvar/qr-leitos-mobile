@@ -144,7 +144,7 @@ export default function ProfileSelectionScreen({ navigation, route }) {
           mode="contained"
           onPress={confirmProfileSelection}
           disabled={!selectedProfile}
-          style={{ marginTop: 20 }}
+          style={{ marginTop: 20, marginBottom: 20 }}
         >
           Confirmar Seleção
         </Button>
