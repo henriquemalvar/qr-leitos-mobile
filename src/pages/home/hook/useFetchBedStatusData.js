@@ -76,11 +76,11 @@ export const useFetchBedStatusData = (section) => {
           );
 
           bedCounts.maintenance = await BedsService.getCountBy({
-            maintenance: true,
+            isMaintenance: true,
             section,
           });
           bedCounts.blocked = await BedsService.getCountBy({
-            blocked: true,
+            isBlocked: true,
             section,
           });
 

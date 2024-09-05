@@ -14,16 +14,12 @@ export default function BedListPage({ route, navigation }) {
   useEffect(() => {
     const fetchData = async () => {
       let bedsArrays;
-      if (maintenance) {
-        bedsArrays = await BedsService.getBedsByConditions({
-          maintenance,
-          section,
-        });
-      } else if (blocked) {
-        bedsArrays = await BedsService.getBedsByConditions({
-          blocked,
-          section,
-        });
+      const conditions = {};
+
+      if (typeof maintenance === "boolean") {
+        conditions.isMaintenance = maintenance;
+      } else if (typeof blocked === "boolean") {
+        conditions.isBlocked = blocked;
       } else {
         const statusList = parse(status);
         const bedsPromises = Array.isArray(statusList)
@@ -35,6 +31,15 @@ export default function BedListPage({ route, navigation }) {
           : [];
         bedsArrays = await Promise.all(bedsPromises);
       }
+
+      if (section) {
+        conditions.section = section;
+      }
+
+      if (Object.keys(conditions).length > 0) {
+        bedsArrays = await BedsService.getBedsByConditions(conditions);
+      }
+
       const combinedBeds = Array.isArray(bedsArrays)
         ? bedsArrays.flat()
         : bedsArrays;

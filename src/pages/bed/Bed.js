@@ -75,7 +75,7 @@ export default function Bed({ route, navigation }) {
         (userConfig.permission !== "admin" &&
           userConfig.permission !== "enfermeira"))
     ) {
-      let status = isMaintenance ? "manutenção" : "bloqueado";
+      let status = isMaintenance ? "manutenção" : "interditado";
 
       showMessage(
         "error",
@@ -204,7 +204,7 @@ export default function Bed({ route, navigation }) {
                   onValueChange: handleMaintenanceChange,
                 },
                 {
-                  label: "Bloqueado",
+                  label: "Interditado",
                   value: isBlocked,
                   onValueChange: handleBlockedChange,
                 },

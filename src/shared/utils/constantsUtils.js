@@ -153,7 +153,7 @@ export const translateStatusConstant = {
   cleaning_in_progress: "Fim de higienização", // Mudança de tradução
   awaiting_for_bedding: "Início de forragem", // Mudança de tradução
   bedding_in_progress: "Fim de forragem", // Mudança de tradução
-  blocked: "Bloqueado",
+  blocked: "Interditado",
   maintenance: "Em manutenção",
   // 'final_discharge': "Alta final"  // Remover se não necessário
 };

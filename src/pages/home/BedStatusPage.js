@@ -103,7 +103,7 @@ export default function BedStatusPage({ route, navigation }) {
                 maintenance={true}
               />
               <BedCard
-                title="Leitos Bloqueados"
+                title="Leitos Interditados"
                 beds={bedCounts.blocked}
                 color={_getColor("blocked")}
                 navigation={navigation}
