@@ -42,15 +42,70 @@ O QR Leitos é um aplicativo de gerenciamento de leitos hospitalares desenvolvid
 - As funcionalidades do aplicativo são controladas com base nas permissões do usuário.
 - Cada função tem permissões específicas para alterar os status dos leitos com base nas regras estabelecidas.
 
+## Ambiente de Desenvolvimento
+
+### Versões Utilizadas
+
+| Ferramenta / Biblioteca | Versão |
+|---|---|
+| **Node.js** | 20.20.0 |
+| **Linguagem** | JavaScript (React 18.2.0 / React Native 0.73.6) |
+| **Expo** | ~50.0.19 |
+| **Firebase** | ^10.0.0 |
+
+
+> **Referência oficial de versões:** `package.json` — em caso de divergência com qualquer outro arquivo, o `package.json` prevalece.
+
+### Pré-requisitos
+
+- Node.js **20.20.0**
+- npm ou yarn
+- Expo CLI
+- Android Studio (para emulador) ou dispositivo Android físico
+
+### Instalação
+
+```bash
+# Instalar dependências
+npm install
+
+# Iniciar o projeto
+npm start
+
+# Rodar no Android
+npm run android
+```
+
+### Build
+
+```bash
+# Build de desenvolvimento (remoto)
+npm run build:remote:dev
+
+# Build de preview (remoto)
+npm run build:remote:preview
+
+# Build de produção (remoto)
+npm run build:remote:prod
+
+# Build local de desenvolvimento
+npm run build:local:dev
+
+# Build local de preview
+npm run build:local:preview
+
+# Build local de produção
+npm run build:local:prod
+```
+
 ## Plataforma Suportada
 
-Atualmente, o QR Leitos está disponível apenas para dispositivos Android. Isso ocorre porque, no momento, não temos suporte para a plataforma iOS devido à falta de um Mac para desenvolvimento. No entanto, estamos comprometidos em expandir a compatibilidade com outras plataformas no futuro.
+Atualmente, o QR Leitos está disponível apenas para dispositivos **Android**. Isso ocorre porque, no momento, não temos suporte para a plataforma iOS devido à falta de um Mac para desenvolvimento. No entanto, estamos comprometidos em expandir a compatibilidade com outras plataformas no futuro.
 
 ## Origem do Projeto
 
 O QR Leitos é um projeto desenvolvido como parte de um projeto acadêmico na Universidade Federal de Ouro Preto (UFOP). Ele foi criado como um esforço para melhorar a gestão de leitos hospitalares e facilitar a comunicação entre os profissionais de saúde. O projeto é resultado do trabalho de estudantes da UFOP, incluindo [Felipe Delfim](https://github.com/FDelfim).
 
-
 ## Contribuições
 
-Este projeto tem sido desenvolvido por [Henrique Malvar](https://github.com/henriquemalvar) e [Felipe Delfim](https://github.com/FDelfim).
+Este projeto foi desenvolvida por [Henrique Malvar](https://github.com/henriquemalvar) e [Felipe Delfim](https://github.com/FDelfim), tendo atualizações por [Yuri Ferreira](https://github.com/YuriFerreira11).
